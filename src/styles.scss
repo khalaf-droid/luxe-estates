@@ -1,0 +1,72 @@
+@import 'styles/variables';
+@import 'styles/animations';
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--obsidian);
+  color: var(--white);
+  cursor: none; /* Custom cursor */
+  overflow-x: hidden;
+  line-height: 1.7;
+
+  @media (hover: none) {
+    cursor: auto;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--obsidian);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--gold-dark);
+  border-radius: 2px;
+}
+
+/* Force cursor: none on interactive elements (desktop only) */
+@media (hover: hover) {
+  a,
+  button,
+  [role='button'],
+  input,
+  select,
+  textarea {
+    cursor: none;
+  }
+}
+
+/* Typography base */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  line-height: 1.1;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* Utility classes */
+.text-gold { color: var(--gold); }
+.text-mist { color: var(--mist); }
+.text-white { color: var(--white); }
+.font-mono { font-family: var(--font-mono); }
+.font-display { font-family: var(--font-display); }

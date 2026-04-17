@@ -1,0 +1,109 @@
+// ============================================================
+// LUXE ESTATES — Global SCSS Variables
+// Used by: ALL team members — do NOT modify without discussion
+// ============================================================
+
+// ---- CSS Custom Properties (available everywhere) ----------
+:root {
+  // Colors
+  --gold:        #C9A96E;
+  --gold-light:  #E8D5B0;
+  --gold-dark:   #A8844A;
+  --obsidian:    #0A0A0F;
+  --obsidian-2:  #111118;
+  --obsidian-3:  #1A1A24;
+  --obsidian-4:  #22222E;
+  --mist:        #8A8AA0;
+  --white:       #FAFAF8;
+  --crimson:     #C0392B;
+  --emerald:     #27AE60;
+  --sapphire:    #2980B9;
+  --purple:      #8E44AD;
+  --orange:      #E67E22;
+
+  // Typography
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body:    'DM Sans', 'Helvetica Neue', sans-serif;
+  --font-mono:    'Space Mono', 'Courier New', monospace;
+
+  // Spacing scale
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  16px;
+  --space-lg:  24px;
+  --space-xl:  40px;
+  --space-2xl: 64px;
+  --space-3xl: 96px;
+
+  // Border radius
+  --radius-sm: 2px;
+  --radius-md: 4px;
+
+  // Transitions
+  --transition-fast:   all 0.2s ease;
+  --transition-base:   all 0.3s ease;
+  --transition-slow:   all 0.5s ease;
+
+  // Z-index layers
+  --z-base:         1;
+  --z-overlay:      100;
+  --z-modal:        500;
+  --z-nav:          1000;
+  --z-notification: 9000;
+  --z-cursor:       99999;
+
+  // Container
+  --container-max: 1400px;
+  --container-pad: 40px;
+}
+
+// ---- SCSS Variables (compile-time) -------------------------
+$gold:        #C9A96E;
+$gold-light:  #E8D5B0;
+$gold-dark:   #A8844A;
+$obsidian:    #0A0A0F;
+$obsidian-2:  #111118;
+$obsidian-3:  #1A1A24;
+$obsidian-4:  #22222E;
+$mist:        #8A8AA0;
+$white:       #FAFAF8;
+$crimson:     #C0392B;
+$emerald:     #27AE60;
+
+// Breakpoints
+$bp-mobile:  480px;
+$bp-tablet:  768px;
+$bp-desktop: 1024px;
+$bp-wide:    1400px;
+
+// Mixins
+@mixin container {
+  max-width: var(--container-max);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--container-pad);
+  padding-right: var(--container-pad);
+
+  @media (max-width: 768px) {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+@mixin eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+@mixin gold-border-bottom {
+  border-bottom: 1px solid rgba(201, 169, 110, 0.3);
+}
+
+@mixin glass-bg {
+  background: rgba(10, 10, 15, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}

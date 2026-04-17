@@ -1,0 +1,21 @@
+<div class="notifications-container">
+  <div
+    *ngFor="let n of notifications; trackBy: trackById"
+    class="notification"
+    [class.visible]="n.visible"
+    [class.success]="n.type === 'success'"
+    [class.error]="n.type === 'error'"
+    [class.info]="n.type === 'info'"
+    (click)="dismiss(n.id)"
+  >
+    <span class="notification-icon">
+      <ng-container [ngSwitch]="n.type">
+        <span *ngSwitchCase="'success'">✓</span>
+        <span *ngSwitchCase="'error'">✕</span>
+        <span *ngSwitchDefault>ℹ</span>
+      </ng-container>
+    </span>
+    <span class="notification-message">{{ n.message }}</span>
+    <button class="notification-close" (click)="dismiss(n.id)">×</button>
+  </div>
+</div>

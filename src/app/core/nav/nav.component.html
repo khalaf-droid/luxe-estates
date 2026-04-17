@@ -1,0 +1,22 @@
+<nav class="nav" [class.scrolled]="isScrolled">
+  <div class="nav-inner">
+    <!-- Logo -->
+    <a class="nav-logo" routerLink="/">
+      LUXE<span class="dot">·</span>ESTATES
+    </a>
+
+    <!-- Links -->
+    <ul class="nav-links">
+      <li><a routerLink="/properties" routerLinkActive="active">Properties</a></li>
+      <li><a routerLink="/auctions" routerLinkActive="active">Auctions</a></li>
+      <li><a routerLink="/" fragment="explore" routerLinkActive="active">Explore</a></li>
+      <li><a routerLink="/agents" routerLinkActive="active">Agents</a></li>
+    </ul>
+
+    <!-- Actions -->
+    <div class="nav-actions">
+      <button class="btn-signin">Sign In</button>
+      <button class="btn-list">List Property</button>
+    </div>
+  </div>
+</nav>

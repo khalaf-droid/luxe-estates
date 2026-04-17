@@ -1,0 +1,11 @@
+<ng-container *ngIf="!isMobile">
+  <!-- Small gold dot -->
+  <div class="cursor" [ngStyle]="cursorStyle"></div>
+
+  <!-- Larger ring follower -->
+  <div
+    class="cursor-follower"
+    [class.hovering]="isHovering"
+    [ngStyle]="followerStyle"
+  ></div>
+</ng-container>

@@ -1,0 +1,53 @@
+:host {
+  pointer-events: none;
+}
+
+.cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  background: #c9a96e;
+  border-radius: 50%;
+  z-index: 99999;
+  pointer-events: none;
+  will-change: transform;
+  transition: opacity 0.2s ease;
+}
+
+.cursor-follower {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid rgba(201, 169, 110, 0.7);
+  border-radius: 50%;
+  z-index: 99998;
+  pointer-events: none;
+  will-change: transform;
+  transition:
+    width 0.3s ease,
+    height 0.3s ease,
+    border-color 0.3s ease,
+    opacity 0.3s ease,
+    margin 0.3s ease;
+
+  &.hovering {
+    width: 60px;
+    height: 60px;
+    border-color: rgba(201, 169, 110, 0.4);
+    opacity: 0.6;
+    margin-top: -10px;
+    margin-left: -10px;
+  }
+}
+
+// Hide cursor on touch/mobile devices
+@media (hover: none) {
+  .cursor,
+  .cursor-follower {
+    display: none;
+  }
+}
