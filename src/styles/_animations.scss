@@ -1,23 +1,24 @@
 // ============================================================
 // LUXE ESTATES — Global Animations
+// All @keyframes shared across components
 // ============================================================
 
-// ---- Fade In -----------------------------------------------
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-// ---- Fade In Up --------------------------------------------
+// ---- Fade In Up (primary entrance) ------------------------
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(40px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+// ---- Fade In -----------------------------------------------
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 // ---- Fade In Down ------------------------------------------
@@ -68,30 +69,6 @@
   }
 }
 
-// ---- Gold Shimmer ------------------------------------------
-@keyframes goldShimmer {
-  0%   { background-position: -200% center; }
-  100% { background-position: 200% center; }
-}
-
-// ---- Ticker Scroll (Market Ticker) -------------------------
-@keyframes tickerScroll {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-// ---- Pulse -------------------------------------------------
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.5; }
-}
-
-// ---- Spin --------------------------------------------------
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-
 // ---- Modal Slide Up ----------------------------------------
 @keyframes modalSlideUp {
   from {
@@ -110,16 +87,68 @@
   to   { opacity: 1; }
 }
 
-// ---- Utility animation classes -----------------------------
+// ---- Orb Float (Hero background orbs) ---------------------
+// Exact from reference design
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(30px, -30px) scale(1.05); }
+  66%       { transform: translate(-20px, 20px) scale(0.95); }
+}
+
+// ---- Ticker Scroll (Market Ticker) -------------------------
+// translateX to -50% for seamless loop with duplicated items
+@keyframes tickerScroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+// ---- Pulse -------------------------------------------------
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+// ---- Spin --------------------------------------------------
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+// ---- Gold Shimmer ------------------------------------------
+@keyframes goldShimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+// ---- Notification Slide In ---------------------------------
+@keyframes notifSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// ---- Scroll Pulse (scroll indicator) ----------------------
+@keyframes scrollPulse {
+  0%, 100% { opacity: 0.4; transform: scaleY(1); }
+  50%       { opacity: 1;   transform: scaleY(1.1); }
+}
+
+// ---- Utility classes ---------------------------------------
 .animate-fadeIn       { animation: fadeIn 0.5s ease forwards; }
 .animate-fadeInUp     { animation: fadeInUp 0.6s ease forwards; }
 .animate-fadeInDown   { animation: fadeInDown 0.4s ease forwards; }
 .animate-slideInRight { animation: slideInRight 0.5s ease forwards; }
 .animate-scaleIn      { animation: scaleIn 0.4s ease forwards; }
 
-// Stagger delays for list items
+// Stagger delays
 .delay-1 { animation-delay: 0.1s; }
 .delay-2 { animation-delay: 0.2s; }
 .delay-3 { animation-delay: 0.3s; }
 .delay-4 { animation-delay: 0.4s; }
 .delay-5 { animation-delay: 0.5s; }
+.delay-6 { animation-delay: 0.6s; }

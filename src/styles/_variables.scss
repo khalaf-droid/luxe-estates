@@ -1,30 +1,38 @@
 // ============================================================
 // LUXE ESTATES — Global SCSS Variables
-// Used by: ALL team members — do NOT modify without discussion
+// Matches reference design (index.html)
+// Shared by ALL team members — لا تعدّل بدون اتفاق التيم
 // ============================================================
 
-// ---- CSS Custom Properties (available everywhere) ----------
+// ---- CSS Custom Properties --------------------------------
 :root {
-  // Colors
+  // Colors — exact match to reference design
   --gold:        #C9A96E;
   --gold-light:  #E8D5B0;
-  --gold-dark:   #A8844A;
+  --gold-dark:   #8B6914;
   --obsidian:    #0A0A0F;
   --obsidian-2:  #111118;
   --obsidian-3:  #1A1A24;
   --obsidian-4:  #22222E;
+  --slate:       #2E2E3E;
   --mist:        #8A8AA0;
+  --pearl:       #F4F1EB;
   --white:       #FAFAF8;
   --crimson:     #C0392B;
   --emerald:     #27AE60;
   --sapphire:    #2980B9;
-  --purple:      #8E44AD;
-  --orange:      #E67E22;
 
   // Typography
   --font-display: 'Cormorant Garamond', Georgia, serif;
   --font-body:    'DM Sans', 'Helvetica Neue', sans-serif;
   --font-mono:    'Space Mono', 'Courier New', monospace;
+
+  // Easing curves — from reference design
+  --transition:        cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --transition-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition-fast:   all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --transition-base:   all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --transition-slow:   all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
   // Spacing scale
   --space-xs:  4px;
@@ -32,17 +40,8 @@
   --space-md:  16px;
   --space-lg:  24px;
   --space-xl:  40px;
-  --space-2xl: 64px;
+  --space-2xl: 60px;
   --space-3xl: 96px;
-
-  // Border radius
-  --radius-sm: 2px;
-  --radius-md: 4px;
-
-  // Transitions
-  --transition-fast:   all 0.2s ease;
-  --transition-base:   all 0.3s ease;
-  --transition-slow:   all 0.5s ease;
 
   // Z-index layers
   --z-base:         1;
@@ -50,25 +49,28 @@
   --z-modal:        500;
   --z-nav:          1000;
   --z-notification: 9000;
+  --z-noise:        9999;
   --z-cursor:       99999;
 
   // Container
   --container-max: 1400px;
-  --container-pad: 40px;
+  --container-pad: 60px;
 }
 
 // ---- SCSS Variables (compile-time) -------------------------
-$gold:        #C9A96E;
-$gold-light:  #E8D5B0;
-$gold-dark:   #A8844A;
-$obsidian:    #0A0A0F;
-$obsidian-2:  #111118;
-$obsidian-3:  #1A1A24;
-$obsidian-4:  #22222E;
-$mist:        #8A8AA0;
-$white:       #FAFAF8;
-$crimson:     #C0392B;
-$emerald:     #27AE60;
+$gold:       #C9A96E;
+$gold-light: #E8D5B0;
+$gold-dark:  #8B6914;
+$obsidian:   #0A0A0F;
+$obsidian-2: #111118;
+$obsidian-3: #1A1A24;
+$obsidian-4: #22222E;
+$slate:      #2E2E3E;
+$mist:       #8A8AA0;
+$pearl:      #F4F1EB;
+$white:      #FAFAF8;
+$crimson:    #C0392B;
+$emerald:    #27AE60;
 
 // Breakpoints
 $bp-mobile:  480px;
@@ -92,18 +94,35 @@ $bp-wide:    1400px;
 
 @mixin eyebrow {
   font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 3px;
+  font-size: 11px;
+  letter-spacing: 4px;
   text-transform: uppercase;
   color: var(--gold);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  &::before {
+    content: '';
+    width: 40px;
+    height: 1px;
+    background: var(--gold);
+    flex-shrink: 0;
+  }
 }
 
-@mixin gold-border-bottom {
-  border-bottom: 1px solid rgba(201, 169, 110, 0.3);
-}
-
-@mixin glass-bg {
-  background: rgba(10, 10, 15, 0.85);
+@mixin glass-bg($opacity: 0.95) {
+  background: rgba(10, 10, 15, $opacity);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+}
+
+@mixin gold-border($side: 'all') {
+  @if $side == 'all' {
+    border: 1px solid rgba(201, 169, 110, 0.2);
+  } @else if $side == 'bottom' {
+    border-bottom: 1px solid rgba(201, 169, 110, 0.2);
+  } @else if $side == 'top' {
+    border-top: 1px solid rgba(201, 169, 110, 0.12);
+  }
 }

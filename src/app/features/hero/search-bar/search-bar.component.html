@@ -1,0 +1,75 @@
+<div class="search-card" [formGroup]="searchForm">
+
+  <!-- Filter Chips Row -->
+  <div class="chips-row">
+    <button
+      *ngFor="let chip of chips"
+      class="chip"
+      [class.active]="activeChip === chip"
+      type="button"
+      (click)="selectChip(chip)"
+    >{{ chip }}</button>
+  </div>
+
+  <!-- Search Fields Row -->
+  <div class="fields-row">
+
+    <!-- Location -->
+    <div class="field-group">
+      <label class="field-label">Location</label>
+      <input
+        class="field-input"
+        type="text"
+        placeholder="City, Country..."
+        formControlName="location"
+      />
+    </div>
+
+    <div class="field-divider"></div>
+
+    <!-- Property Type -->
+    <div class="field-group">
+      <label class="field-label">Property Type</label>
+      <select class="field-input" formControlName="propertyType">
+        <option *ngFor="let t of propertyTypes" [value]="t">{{ t }}</option>
+      </select>
+    </div>
+
+    <div class="field-divider"></div>
+
+    <!-- Listing Type -->
+    <div class="field-group">
+      <label class="field-label">Listing Type</label>
+      <select class="field-input" formControlName="listingType">
+        <option *ngFor="let lt of listingTypes" [value]="lt">{{ lt }}</option>
+      </select>
+    </div>
+
+    <div class="field-divider"></div>
+
+    <!-- Max Budget -->
+    <div class="field-group">
+      <label class="field-label">Max Budget</label>
+      <select class="field-input" formControlName="budget">
+        <option *ngFor="let b of budgets" [value]="b">{{ b }}</option>
+      </select>
+    </div>
+
+    <!-- Search Button -->
+    <button class="btn-search" type="button" (click)="onExplore()">
+      <span>EXPLORE PROPERTIES</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="m21 21-4.35-4.35"/>
+      </svg>
+    </button>
+
+  </div>
+
+  <!-- Secondary Row: List Property -->
+  <div class="secondary-row">
+    <span class="secondary-text">Own a luxury property?</span>
+    <button class="btn-list-prop" type="button">LIST YOUR PROPERTY</button>
+  </div>
+
+</div>

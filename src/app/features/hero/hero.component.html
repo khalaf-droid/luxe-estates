@@ -1,0 +1,86 @@
+<section class="hero">
+  <!-- Layer 1: Gradient Background -->
+  <div class="hero-bg"></div>
+
+  <!-- Layer 2: 3D Perspective Grid -->
+  <div class="hero-grid"></div>
+
+  <!-- Layer 3: Floating Orbs -->
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+
+  <!-- HERO CONTENT -->
+  <div class="hero-content">
+
+    <!-- Eyebrow: Horizontal gold line + PREMIER GLOBAL REAL ESTATE -->
+    <div class="hero-eyebrow" [@fadeInUp]="eyebrowState">
+      PREMIER GLOBAL REAL ESTATE
+    </div>
+
+    <!-- Headline: "Find Your" light + "Perfect Home" italic gold -->
+    <h1 class="hero-headline" [@fadeInUp]="headlineState">
+      <span class="headline-light">Find Your</span>
+      <em class="headline-italic">Perfect Home</em>
+    </h1>
+
+    <!-- Subtext -->
+    <p class="hero-sub" [@fadeInUp]="subState">
+      Access the world's most exclusive properties — from Dubai penthouses
+      to London townhouses — with unmatched discretion and expertise.
+    </p>
+
+    <!-- CTA Buttons -->
+    <div class="hero-actions" [@fadeInUp]="actionsState">
+      <button class="btn-primary" (click)="scrollToProperties()">
+        EXPLORE PROPERTIES
+      </button>
+      <button class="btn-secondary">
+        LIST YOUR PROPERTY
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Search Bar -->
+  <div class="hero-search-wrap" [@fadeInUp]="searchState">
+    <app-search-bar (explore)="scrollToProperties()"></app-search-bar>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="hero-stats" [@fadeIn]="statsState">
+    <div class="hero-stat">
+      <div class="stat-number">{{ countriesVal }}<span class="stat-suffix">+</span></div>
+      <div class="stat-label">Countries</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="hero-stat">
+      <div class="stat-number">{{ propertiesVal }}K<span class="stat-suffix">+</span></div>
+      <div class="stat-label">Properties</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="hero-stat">
+      <div class="stat-number">{{ citiesVal }}</div>
+      <div class="stat-label">Global Cities</div>
+    </div>
+  </div>
+
+  <!-- Scroll Indicator -->
+  <div class="hero-scroll-indicator">
+    <span class="scroll-label">Scroll to Explore</span>
+    <div class="scroll-line"></div>
+  </div>
+
+</section>
+
+<!-- Market Ticker Strip -->
+<div class="ticker-wrap">
+  <div class="ticker-track">
+    <span class="ticker-item" *ngFor="let item of allTickerItems">
+      <span class="ticker-label">{{ item.label }}</span>
+      <span class="ticker-change" [class.positive]="item.positive" [class.negative]="!item.positive">
+        {{ item.positive ? '↑' : '↓' }} {{ item.change }}%
+      </span>
+      <span class="ticker-sep">·</span>
+    </span>
+  </div>
+</div>
