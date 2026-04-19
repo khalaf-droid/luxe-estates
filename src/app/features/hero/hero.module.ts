@@ -1,30 +1,23 @@
-import { NgModule, Component } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
+import { ReactiveFormsModule } from '@angular/forms';
 
-// ─────────────────────────────────────────────────────────────
-// PLACEHOLDER — اريني: استبدلي الـ component ده بـ HeroComponent
-// بتاعتك لما تخلصي شغلك، وامسحي الـ placeholder
-// ─────────────────────────────────────────────────────────────
-@Component({
-  template: `
-    <div style="display:flex;align-items:center;justify-content:center;
-                height:100vh;background:#0A0A0F;color:#C9A96E;
-                font-family:'Space Mono',monospace;font-size:14px;letter-spacing:2px;">
-      HERO SECTION — جاهز لـ اريني ✦
-    </div>
-  `,
-})
-export class HeroPlaceholderComponent {}
+import { HeroComponent } from './hero.component';
+import { SearchBarComponent } from './search-bar/search-bar.component';
 
 const routes: Routes = [
-  { path: '', component: HeroPlaceholderComponent },
+  { path: '', component: HeroComponent },
 ];
 
 @NgModule({
-  declarations: [HeroPlaceholderComponent],
+  declarations: [
+    HeroComponent,
+    SearchBarComponent,
+  ],
   imports: [
     CommonModule,
+    ReactiveFormsModule,
     RouterModule.forChild(routes), // ✅ forChild — لا تغيرها لـ forRoot أبداً
   ],
 })

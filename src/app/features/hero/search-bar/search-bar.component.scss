@@ -1,0 +1,195 @@
+// ============================================================
+// LUXE ESTATES — Search Bar Component
+// Matches reference design search bar
+// ============================================================
+
+.search-card {
+  background: rgba(17, 17, 24, 0.94);
+  border: 1px solid rgba(201, 169, 110, 0.2);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  overflow: hidden;
+}
+
+// ---- Filter Chips Row --------------------------------------
+.chips-row {
+  display: flex;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.chip {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--mist);
+  background: transparent;
+  border: none;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 14px 24px;
+  cursor: none;
+  position: relative;
+  transition: color 0.25s ease, background 0.25s ease;
+
+  // Active gold underline indicator
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transition: transform 0.25s ease;
+  }
+
+  &:hover {
+    color: var(--white);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  &.active {
+    color: var(--gold);
+    background: rgba(201, 169, 110, 0.06);
+
+    &::after { transform: scaleX(1); }
+  }
+
+  &:last-child { border-right: none; }
+}
+
+// ---- Fields Row --------------------------------------------
+.fields-row {
+  display: flex;
+  align-items: stretch;
+}
+
+.field-group {
+  flex: 1;
+  padding: 18px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.field-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: block;
+  flex-shrink: 0;
+}
+
+.field-input {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--white);
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 100%;
+  padding: 10px 0;
+  cursor: none;
+  appearance: none;
+  -webkit-appearance: none;
+
+  &::placeholder { color: var(--mist); opacity: 0.6; }
+
+  option {
+    background: var(--obsidian-2);
+    color: var(--white);
+  }
+}
+
+.field-divider {
+  width: 1px;
+  background: rgba(255, 255, 255, 0.07);
+  flex-shrink: 0;
+  margin: 14px 0;
+}
+
+// ---- Search Button -----------------------------------------
+.btn-search {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--obsidian);
+  background: var(--gold);
+  border: none;
+  padding: 0 36px;
+  cursor: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    background: var(--gold-light);
+    box-shadow: 0 0 30px rgba(201, 169, 110, 0.3);
+  }
+
+  svg { flex-shrink: 0; }
+}
+
+// ---- Secondary Row -----------------------------------------
+.secondary-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.secondary-text {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--mist);
+  font-weight: 300;
+}
+
+.btn-list-prop {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: transparent;
+  border: 1px solid rgba(201, 169, 110, 0.4);
+  padding: 7px 20px;
+  cursor: none;
+  transition: background 0.25s ease, border-color 0.25s ease;
+
+  &:hover {
+    background: rgba(201, 169, 110, 0.08);
+    border-color: var(--gold);
+  }
+}
+
+// ---- Responsive --------------------------------------------
+@media (max-width: 900px) {
+  .fields-row {
+    flex-direction: column;
+  }
+
+  .field-divider {
+    width: calc(100% - 48px);
+    height: 1px;
+    margin: 0 24px;
+  }
+
+  .btn-search {
+    padding: 18px 24px;
+    justify-content: center;
+  }
+
+  .chips-row { flex-wrap: wrap; }
+}
