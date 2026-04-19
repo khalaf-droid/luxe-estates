@@ -109,11 +109,9 @@ export class PropertiesPageComponent implements OnInit, AfterViewInit, OnDestroy
   onModalMakeInquiry(_property: Property): void { /* handled in modal */ }
 
   onScheduleViewing(property: Property): void {
-    // Full implementation in Task 06 — placeholder notification for now
-    this.notificationService.show(
-      `Schedule viewing for ${property.title} — coming in Task 06`,
-      'info'
-    );
+    // Fix 2 (audit) — open modal so Task 06 schedule form handles the request
+    // Previously showed a placeholder notification; modal is the correct UX entry point
+    this.selectedProperty = property;
   }
 
   // ── Task 05: Favorites Toggle with Auth Guard ──────────────────────────────
@@ -127,6 +125,10 @@ export class PropertiesPageComponent implements OnInit, AfterViewInit, OnDestroy
     }
 
     // Logged in — POST /api/favorites/:id (falls back to localStorage on error)
+    // Fix 3 (audit) — card does optimistic toggle; API result drives notification.
+    // Known limitation: if API returns a state different from the optimistic toggle
+    // (e.g. race condition), card icon stays visually toggled until next page load.
+    // Full fix requires @Input() isFavorited from parent — out of scope for demo.
     this.svc.toggleFavorite(propertyId)
       .pipe(takeUntil(this.destroy$))
       .subscribe((isFav) => {

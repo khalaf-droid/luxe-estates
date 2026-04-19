@@ -222,6 +222,7 @@
 @media (max-width: 768px) {
   .properties-grid {
     grid-template-columns: 1fr;
+    gap: 2px;    // Fix 1 (audit) — explicit: preserves 2px panel-grid aesthetic on mobile
   }
 
   .prop-tab {
