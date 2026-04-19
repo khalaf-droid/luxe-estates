@@ -1,0 +1,320 @@
+/* ========================================================================== */
+/* LUXE ESTATES — Auth Modal Styles                                           */
+/* Dark theme • Gold accents • Matches project design system                  */
+/* ========================================================================== */
+
+// Design tokens (mirror project's CSS custom props)
+$gold:       #C9A96E;
+$gold-light: #E8D5B0;
+$obsidian:   #0A0A0F;
+$obsidian-2: #111118;
+$obsidian-3: #1A1A24;
+$obsidian-4: #22222E;
+$mist:       #8A8AA0;
+$white:      #FAFAF8;
+$red:        #C0392B;
+
+// ─── Overlay ────────────────────────────────────────────────────────────────
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 16px;
+  animation: fadeIn 0.2s ease;
+}
+
+// ─── Modal Card ──────────────────────────────────────────────────────────────
+.auth-modal {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  background: $obsidian-2;
+  border: 1px solid rgba($gold, 0.3);
+  padding: 40px 36px;
+  border-radius: 2px;
+  animation: slideUp 0.25s ease;
+
+  @media (max-width: 480px) {
+    padding: 28px 20px;
+  }
+}
+
+// ─── Close Button ────────────────────────────────────────────────────────────
+.auth-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: $mist;
+  font-size: 18px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px 8px;
+  transition: color 0.2s;
+
+  &:hover { color: $gold; }
+}
+
+// ─── Branding ────────────────────────────────────────────────────────────────
+.auth-brand {
+  text-align: center;
+  margin-bottom: 28px;
+
+  &-name {
+    font-family: 'Cormorant Garamond', 'Georgia', serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    color: $white;
+    text-transform: uppercase;
+
+    .gold { color: $gold; }
+  }
+}
+
+// ─── Tabs ────────────────────────────────────────────────────────────────────
+.auth-tabs {
+  display: flex;
+  border-bottom: 1px solid rgba($gold, 0.2);
+  margin-bottom: 28px;
+}
+
+.auth-tab {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 10px 0;
+  font-family: 'DM Sans', 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: $mist;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: color 0.2s;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+
+  &.active {
+    color: $gold;
+    border-bottom-color: $gold;
+  }
+
+  &:hover:not(.active) { color: $white; }
+}
+
+// ─── Form ────────────────────────────────────────────────────────────────────
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.auth-label {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: $mist;
+}
+
+// ✅ ستايل زرار "نسيت الباسورد"
+.forgot-password {
+  color: $gold;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: $white;
+    text-decoration: underline;
+  }
+}
+
+.auth-input {
+  background: $obsidian-3;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: $white;
+  padding: 12px 16px;
+  font-size: 14px;
+  border-radius: 2px;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: 'DM Sans', sans-serif;
+
+  // ★ Gold border on focus
+  &:focus {
+    border-color: $gold;
+    box-shadow: 0 0 0 2px rgba($gold, 0.15);
+  }
+
+  &.invalid {
+    border-color: $red;
+  }
+
+  &::placeholder { color: rgba($mist, 0.5); }
+}
+
+// Select variant
+.auth-select {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23C9A96E' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+
+  option {
+    background: $obsidian-3;
+    color: $white;
+  }
+}
+
+// ─── Validation Messages ──────────────────────────────────────────────────────
+.auth-validation {
+  font-size: 11px;
+  color: $red;
+  letter-spacing: 0.5px;
+}
+
+// ─── Error Banner ─────────────────────────────────────────────────────────────
+.auth-error {
+  background: rgba($red, 0.1);
+  border: 1px solid rgba($red, 0.3);
+  color: #e74c3c;
+  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: 2px;
+  margin-bottom: 4px;
+}
+
+// ─── Submit Button ────────────────────────────────────────────────────────────
+.auth-submit {
+  background: $gold;
+  color: $obsidian;
+  border: none;
+  padding: 14px;
+  font-family: 'DM Sans', 'Space Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 2px;
+  margin-top: 6px;
+  transition: background 0.2s, opacity 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+
+  &:hover:not(:disabled) { background: $gold-light; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+// ─── Loading Spinner ──────────────────────────────────────────────────────────
+.auth-spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba($obsidian, 0.3);
+  border-top-color: $obsidian;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+// ─── Switch Tab Link ──────────────────────────────────────────────────────────
+.auth-switch {
+  text-align: center;
+  font-size: 13px;
+  color: $mist;
+
+  &-btn {
+    background: none;
+    border: none;
+    color: $gold;
+    cursor: pointer;
+    font-size: 13px;
+    padding: 0;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+
+    &:hover { color: $gold-light; }
+  }
+}
+
+// ─── Animations ───────────────────────────────────────────────────────────────
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// ✅ أنيميشن الإشعار (Toast) الجديد
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeOutRight {
+  from { transform: translateX(0); opacity: 1; }
+  to   { transform: translateX(20px); opacity: 0; }
+}
+
+// ─── Global Toast (Notification) ──────────────────────────────────────────────
+// تم التعديل لتتناسب مع تصميم الصورة (Top Right)
+::ng-deep .luxe-toast {
+  position: fixed;
+  top: 20px !important;
+  right: 20px !important;
+  left: auto !important;
+  transform: none !important;
+  background: rgba($obsidian-3, 0.98) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: $white !important;
+  padding: 16px 20px !important;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  border-radius: 2px;
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 320px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  animation: slideInRight 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
+
+  .toast-close-btn {
+    background: none;
+    border: none;
+    color: $mist;
+    font-size: 16px;
+    cursor: pointer;
+    transition: color 0.2s;
+    margin-left: 15px;
+
+    &:hover { color: $white; }
+  }
+}
