@@ -11,6 +11,9 @@ import { CursorComponent } from './shared/cursor/cursor.component';
 import { NotificationComponent } from './shared/notification/notification.component';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 
+// ✅ FIX: import standalone component
+import { AuthModalComponent } from './core/auth/auth-modal/auth-modal.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -18,13 +21,18 @@ import { AuthInterceptor } from './core/interceptors/auth.interceptor';
     CursorComponent,
     NotificationComponent,
   ],
+
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
     HttpClientModule,
     CommonModule,
     AppRoutingModule,
+
+    // ✅ FIX: standalone component must be in imports
+    AuthModalComponent
   ],
+
   providers: [
     {
       provide: HTTP_INTERCEPTORS,
@@ -32,6 +40,7 @@ import { AuthInterceptor } from './core/interceptors/auth.interceptor';
       multi: true,
     },
   ],
+
   bootstrap: [AppComponent],
 })
 export class AppModule {}
