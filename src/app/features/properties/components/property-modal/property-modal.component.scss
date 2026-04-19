@@ -1,0 +1,474 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// LUXE ESTATES — Property Modal Styles
+// Visual reference: Template/index.html lines 1104–1150
+// ALL values copied exactly from the template — no deviations
+// z-index: 9001 — Property Modal layer (coding-rules.md table)
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── Overlay — Template lines 1104–1113 ───────────────────────────────────────
+.prop-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.9);           // Template line 1107
+  backdrop-filter: blur(16px);              // Template line 1108
+  -webkit-backdrop-filter: blur(16px);
+  z-index: 9001;                            // coding-rules.md section 9
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s var(--transition);
+  padding: 20px;
+
+  // Active state — Template line 1114
+  &.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+}
+
+// ── Modal panel — Template lines 1115–1122 ───────────────────────────────────
+.prop-modal {
+  background: var(--obsidian-2);                          // Template line 1116
+  border: 1px solid rgba(201, 169, 110, 0.15);            // Template line 1117
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  transform: translateY(40px);                            // Template line 1120
+  transition: transform 0.4s var(--transition-bounce);   // Template line 1121
+
+  // Entry animation — Template line 1123
+  .prop-modal-overlay.active & {
+    transform: translateY(0);
+  }
+
+  // Custom scrollbar inside modal
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-track { background: var(--obsidian-2); }
+  &::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 2px; }
+}
+
+// ── Close button — Template lines 1033–1041 ──────────────────────────────────
+.modal-close {
+  position: absolute;
+  top: 20px;
+  inset-inline-end: 20px;         // RTL-safe — template uses right: 20px
+  font-size: 24px;
+  color: var(--mist);
+  background: none;
+  border: none;
+  line-height: 1;
+  z-index: 1;
+  transition: color 0.3s var(--transition);
+
+  &:hover {
+    color: var(--white);
+  }
+}
+
+// ── Image gallery — Template lines 1124–1134 ─────────────────────────────────
+.prop-modal-images {
+  display: grid;
+  grid-template-columns: 2fr 1fr;   // Template line 1126
+  gap: 2px;                          // Template line 1127
+  height: 360px;                     // Template line 1128
+}
+
+.prop-modal-img-main {
+  background: var(--obsidian-4);
+  height: 100%;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.prop-modal-img-grid {
+  display: grid;
+  grid-template-rows: 1fr 1fr;      // Template line 1132
+  gap: 2px;
+}
+
+.prop-modal-img-small {
+  background: var(--obsidian-4);
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.7);        // Template line 1134
+  }
+}
+
+.prop-modal-img-placeholder {
+  width: 100%;
+  height: 100%;
+  background: var(--obsidian-4);
+}
+
+// ── Modal body — Template line 1135 ─────────────────────────────────────────
+.prop-modal-body {
+  padding: 40px;
+  display: grid;
+  grid-template-columns: 1fr auto;  // Template line 1135
+  gap: 40px;
+  align-items: start;
+}
+
+// ── Title — Template line 1137 ───────────────────────────────────────────────
+.prop-modal-title {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 300;
+  margin-bottom: 8px;
+  color: var(--white);
+}
+
+// ── Location — Template line 1138 ─────────────────────────────────────────────
+.prop-modal-location {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+
+// ── Description — Template line 1139 ─────────────────────────────────────────
+.prop-modal-description {
+  font-size: 14px;
+  color: var(--mist);
+  line-height: 1.8;
+  margin-bottom: 32px;
+}
+
+// ── Specs grid — Template lines 1140–1143 ────────────────────────────────────
+// repeat(3, 1fr), gap: 1px — panel grid effect with subtle background
+.prop-modal-specs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: rgba(255, 255, 255, 0.05);
+  margin-bottom: 32px;
+}
+
+// Individual spec cell — Template line 1145
+.prop-spec {
+  background: var(--obsidian-3);
+  padding: 20px;
+}
+
+// Spec label — Template line 1146
+.prop-spec-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--mist);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+// Spec value — Template line 1147
+.prop-spec-value {
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--white);
+}
+
+// ── Feature tags ──────────────────────────────────────────────────────────────
+.prop-modal-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.prop-feature-tag {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border: 1px solid rgba(201, 169, 110, 0.2);
+  color: var(--gold);
+  background: rgba(201, 169, 110, 0.05);
+  border-radius: 2px;
+}
+
+// ── Sidebar: price + actions ───────────────────────────────────────────────────
+.prop-modal-sidebar {
+  min-width: 200px;
+}
+
+// ── Price — Template line 1148 ────────────────────────────────────────────────
+.prop-modal-price {
+  font-family: var(--font-display);
+  font-size: 48px;
+  color: var(--gold);
+  font-weight: 600;
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
+
+// ── Badge ─────────────────────────────────────────────────────────────────────
+.prop-modal-badge {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 2px;
+  display: inline-block;
+  margin-bottom: 24px;
+  background: rgba(201, 169, 110, 0.15);
+  color: var(--gold);
+  border: 1px solid rgba(201, 169, 110, 0.3);
+
+  // Rent variant
+  &.rent {
+    background: rgba(41, 128, 185, 0.15);
+    color: var(--sapphire);
+    border-color: rgba(41, 128, 185, 0.3);
+  }
+}
+
+// ── Action buttons — Template lines 1149–1150 ─────────────────────────────────
+.prop-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+// btn-primary — Template lines 233–255
+.btn-primary {
+  padding: 14px 24px;
+  background: var(--gold);
+  color: var(--obsidian);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s var(--transition-bounce), box-shadow 0.3s;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateX(-100%) skewX(-20deg);
+    transition: transform 0.5s var(--transition);
+  }
+
+  &:hover::before {
+    transform: translateX(100%) skewX(-20deg);
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 60px rgba(201, 169, 110, 0.3);
+  }
+}
+
+// btn-secondary — Template lines 256–270
+.btn-secondary {
+  padding: 14px 24px;
+  background: transparent;
+  color: var(--white);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: border-color 0.3s var(--transition), color 0.3s;
+
+  &:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+}
+
+// ── Responsive — Template lines 1363–1366 ────────────────────────────────────
+@media (max-width: 768px) {
+  .prop-modal-body {
+    grid-template-columns: 1fr;     // Template line 1363
+    padding: 24px;
+  }
+
+  .prop-modal-specs {
+    grid-template-columns: repeat(2, 1fr); // Template line 1364
+  }
+
+  .prop-modal-images {
+    grid-template-columns: 1fr;     // Template line 1365
+    height: 240px;
+  }
+
+  .prop-modal-img-grid {
+    display: none;                  // Template line 1366
+  }
+
+  .prop-modal-price {
+    font-size: 36px;
+  }
+
+  .prop-modal-sidebar {
+    min-width: unset;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TASK 06 — Inline Form Styles
+// Style B from coding-rules.md §3.5:
+//   border: 1px solid rgba(255,255,255,0.1)
+//   focus: border-color: var(--gold)
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── Form section — appears below features when form is active ─────────────────
+.modal-form-section {
+  margin-top: 32px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  animation: formReveal 0.3s var(--transition) forwards;
+}
+
+@keyframes formReveal {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.modal-form-title {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 20px;
+
+  &::before {
+    content: '— ';
+    color: var(--gold);
+  }
+}
+
+// ── Form group ────────────────────────────────────────────────────────────────
+.form-group {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+// ── Form label ────────────────────────────────────────────────────────────────
+.form-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--mist);
+}
+
+// ── Form input — Style B (coding-rules.md §3.5) ──────────────────────────────
+.form-input {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--obsidian-3);
+  border: 1px solid rgba(255, 255, 255, 0.1);      // Style B — exact value
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s var(--transition);
+  appearance: none;
+  -webkit-appearance: none;
+
+  // Style B focus state
+  &:focus {
+    border-color: var(--gold);                      // Style B — exact value
+  }
+
+  // Error state
+  &--error {
+    border-color: var(--crimson);
+  }
+
+  // date input color fix
+  &[type='date'] {
+    color-scheme: dark;
+  }
+}
+
+// ── Textarea ──────────────────────────────────────────────────────────────────
+.form-textarea {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.6;
+}
+
+// ── Error message ─────────────────────────────────────────────────────────────
+.form-error {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--crimson);
+  text-transform: uppercase;
+}
+
+// ── Form action row ───────────────────────────────────────────────────────────
+.modal-form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+
+  .btn-primary,
+  .btn-ghost {
+    flex: 1;
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.5;
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+// ── Ghost cancel button ───────────────────────────────────────────────────────
+.btn-ghost {
+  padding: 14px 24px;
+  background: transparent;
+  color: var(--mist);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: color 0.3s var(--transition), border-color 0.3s;
+
+  &:hover {
+    color: var(--white);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+}
+
+// ── Active button state — indicates which form is open ────────────────────────
+.btn-primary--active {
+  background: var(--gold-dark);
+  box-shadow: 0 0 0 2px rgba(201, 169, 110, 0.3);
+}
+
+.btn-secondary--active {
+  border-color: var(--gold);
+  color: var(--gold);
+}

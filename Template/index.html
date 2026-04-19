@@ -1,0 +1,2406 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LUXE ESTATES — Global Real Estate Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #C9A96E;
+  --gold-light: #E8D5B0;
+  --gold-dark: #8B6914;
+  --obsidian: #0A0A0F;
+  --obsidian-2: #111118;
+  --obsidian-3: #1A1A24;
+  --obsidian-4: #22222E;
+  --slate: #2E2E3E;
+  --mist: #8A8AA0;
+  --pearl: #F4F1EB;
+  --white: #FAFAF8;
+  --crimson: #C0392B;
+  --emerald: #27AE60;
+  --sapphire: #2980B9;
+  --font-display: 'Cormorant Garamond', serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+  --transition: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --transition-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--obsidian);
+  color: var(--white);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* CUSTOM CURSOR */
+.cursor {
+  width: 12px; height: 12px;
+  background: var(--gold);
+  border-radius: 50%;
+  position: fixed; top: 0; left: 0;
+  pointer-events: none; z-index: 99999;
+  transition: transform 0.15s var(--transition), opacity 0.3s;
+  transform: translate(-50%, -50%);
+}
+.cursor-follower {
+  width: 40px; height: 40px;
+  border: 1px solid rgba(201,169,110,0.4);
+  border-radius: 50%;
+  position: fixed; top: 0; left: 0;
+  pointer-events: none; z-index: 99998;
+  transition: transform 0.4s var(--transition), width 0.3s, height 0.3s, border-color 0.3s;
+  transform: translate(-50%, -50%);
+}
+.cursor-follower.hovering {
+  width: 60px; height: 60px;
+  border-color: var(--gold);
+  background: rgba(201,169,110,0.05);
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--obsidian); }
+::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 2px; }
+
+/* NOISE TEXTURE OVERLAY */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.018;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* NAVIGATION */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  padding: 0 60px;
+  height: 80px;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: background 0.5s var(--transition), border-bottom 0.5s;
+  border-bottom: 1px solid transparent;
+}
+nav.scrolled {
+  background: rgba(10,10,15,0.95);
+  backdrop-filter: blur(20px);
+  border-bottom-color: rgba(201,169,110,0.15);
+}
+.nav-logo {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  color: var(--white);
+  text-decoration: none;
+}
+.nav-logo span { color: var(--gold); }
+.nav-links {
+  display: flex; align-items: center; gap: 40px;
+  list-style: none;
+}
+.nav-links a {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--mist);
+  text-decoration: none;
+  transition: color 0.3s;
+  position: relative;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute; bottom: -4px; left: 0; right: 0;
+  height: 1px; background: var(--gold);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.3s var(--transition);
+}
+.nav-links a:hover { color: var(--gold); }
+.nav-links a:hover::after { transform: scaleX(1); }
+.nav-cta {
+  padding: 10px 28px;
+  border: 1px solid var(--gold);
+  color: var(--gold) !important;
+  font-size: 11px !important;
+  letter-spacing: 2px !important;
+  transition: background 0.3s, color 0.3s !important;
+}
+.nav-cta:hover { background: var(--gold) !important; color: var(--obsidian) !important; }
+.nav-cta::after { display: none !important; }
+
+/* HERO */
+.hero {
+  height: 100vh; min-height: 700px;
+  position: relative;
+  display: flex; align-items: center;
+  overflow: hidden;
+}
+.hero-bg {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, #0A0A0F 0%, #0F0F1A 40%, #1A1020 100%);
+}
+.hero-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(201,169,110,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201,169,110,0.04) 1px, transparent 1px);
+  background-size: 80px 80px;
+  transform: perspective(1000px) rotateX(60deg) scale(2);
+  transform-origin: 50% 100%;
+  top: -100px;
+}
+.hero-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  animation: orbFloat 8s ease-in-out infinite;
+}
+.hero-orb-1 {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(201,169,110,0.15) 0%, transparent 70%);
+  top: -100px; right: -100px;
+}
+.hero-orb-2 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(41,128,185,0.1) 0%, transparent 70%);
+  bottom: 0; left: -50px;
+  animation-delay: -4s;
+}
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -30px) scale(1.05); }
+  66% { transform: translate(-20px, 20px) scale(0.95); }
+}
+
+.hero-content {
+  position: relative; z-index: 2;
+  padding: 0 60px;
+  max-width: 900px;
+}
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  display: flex; align-items: center; gap: 16px;
+  opacity: 0; animation: fadeInUp 0.8s 0.2s var(--transition) forwards;
+}
+.hero-eyebrow::before {
+  content: '';
+  width: 40px; height: 1px;
+  background: var(--gold);
+}
+.hero-headline {
+  font-family: var(--font-display);
+  font-size: clamp(56px, 8vw, 120px);
+  font-weight: 300;
+  line-height: 0.95;
+  letter-spacing: -2px;
+  margin-bottom: 32px;
+  opacity: 0; animation: fadeInUp 0.8s 0.4s var(--transition) forwards;
+}
+.hero-headline em {
+  font-style: italic;
+  color: var(--gold);
+  display: block;
+}
+.hero-sub {
+  font-size: 16px;
+  color: var(--mist);
+  line-height: 1.7;
+  max-width: 480px;
+  margin-bottom: 48px;
+  opacity: 0; animation: fadeInUp 0.8s 0.6s var(--transition) forwards;
+}
+.hero-actions {
+  display: flex; gap: 20px; align-items: center;
+  opacity: 0; animation: fadeInUp 0.8s 0.8s var(--transition) forwards;
+}
+.btn-primary {
+  padding: 16px 40px;
+  background: var(--gold);
+  color: var(--obsidian);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: none; cursor: none;
+  transition: transform 0.3s var(--transition-bounce), box-shadow 0.3s;
+  position: relative; overflow: hidden;
+}
+.btn-primary::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: rgba(255,255,255,0.2);
+  transform: translateX(-100%) skewX(-20deg);
+  transition: transform 0.5s var(--transition);
+}
+.btn-primary:hover::before { transform: translateX(100%) skewX(-20deg); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 20px 60px rgba(201,169,110,0.3); }
+.btn-secondary {
+  padding: 16px 40px;
+  background: transparent;
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 1px solid rgba(255,255,255,0.2);
+  cursor: none;
+  transition: border-color 0.3s, color 0.3s;
+}
+.btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+
+.hero-stats {
+  position: absolute; bottom: 60px; right: 60px;
+  display: flex; gap: 60px;
+  opacity: 0; animation: fadeInUp 0.8s 1s var(--transition) forwards;
+}
+.hero-stat { text-align: right; }
+.hero-stat-number {
+  font-family: var(--font-display);
+  font-size: 48px;
+  font-weight: 300;
+  color: var(--white);
+  line-height: 1;
+}
+.hero-stat-number span { color: var(--gold); font-size: 28px; }
+.hero-stat-label {
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--mist);
+  margin-top: 6px;
+}
+
+.hero-scroll {
+  position: absolute; bottom: 60px; left: 60px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  opacity: 0; animation: fadeInUp 0.8s 1.2s var(--transition) forwards;
+}
+.hero-scroll-text {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--mist);
+  writing-mode: vertical-lr;
+  transform: rotate(180deg);
+}
+.hero-scroll-line {
+  width: 1px; height: 60px;
+  background: linear-gradient(to bottom, var(--gold), transparent);
+  animation: scrollLine 2s ease-in-out infinite;
+}
+@keyframes scrollLine {
+  0% { transform: scaleY(0); transform-origin: top; }
+  50% { transform: scaleY(1); transform-origin: top; }
+  51% { transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}
+
+/* SEARCH BAR */
+.search-section {
+  position: relative; z-index: 10;
+  margin-top: -60px;
+  padding: 0 60px;
+}
+.search-container {
+  background: var(--obsidian-3);
+  border: 1px solid rgba(201,169,110,0.2);
+  padding: 40px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr auto;
+  gap: 20px;
+  align-items: end;
+}
+.search-field { display: flex; flex-direction: column; gap: 8px; }
+.search-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.search-input, .search-select {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 15px;
+  padding: 10px 0;
+  outline: none;
+  transition: border-color 0.3s;
+  cursor: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.search-input::placeholder { color: var(--mist); }
+.search-input:focus, .search-select:focus { border-color: var(--gold); }
+.search-select option { background: var(--obsidian-3); color: var(--white); }
+.search-btn {
+  padding: 14px 36px;
+  background: var(--gold);
+  color: var(--obsidian);
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: none;
+  transition: transform 0.3s var(--transition-bounce), box-shadow 0.3s;
+  white-space: nowrap;
+}
+.search-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(201,169,110,0.25); }
+
+/* SECTIONS */
+section { padding: 120px 60px; }
+.section-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 20px;
+}
+.section-eyebrow::before {
+  content: '';
+  width: 30px; height: 1px; background: var(--gold);
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 5vw, 72px);
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: -1px;
+  margin-bottom: 20px;
+}
+.section-title em { font-style: italic; color: var(--gold); }
+.section-sub {
+  font-size: 15px;
+  color: var(--mist);
+  line-height: 1.7;
+  max-width: 500px;
+}
+
+/* PROPERTY CARDS */
+.properties-section { background: var(--obsidian-2); }
+.properties-header {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  margin-bottom: 60px;
+}
+.properties-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+.property-card {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 3/4;
+  background: var(--obsidian-3);
+  cursor: none;
+}
+.property-card:first-child {
+  grid-column: span 2;
+  aspect-ratio: 16/9;
+}
+.property-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s var(--transition);
+  filter: brightness(0.7);
+}
+.property-card:hover .property-img {
+  transform: scale(1.08);
+  filter: brightness(0.5);
+}
+.property-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(10,10,15,0.95) 0%, rgba(10,10,15,0.3) 50%, transparent 100%);
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 32px;
+}
+.property-tag {
+  position: absolute; top: 24px; left: 24px;
+  padding: 6px 16px;
+  background: var(--gold);
+  color: var(--obsidian);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.property-tag.rent { background: var(--sapphire); color: white; }
+.property-tag.auction { background: var(--crimson); color: white; }
+.property-favorite {
+  position: absolute; top: 24px; right: 24px;
+  width: 40px; height: 40px;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: none;
+  transition: background 0.3s, border-color 0.3s;
+  font-size: 16px;
+}
+.property-favorite:hover { background: rgba(201,169,110,0.3); border-color: var(--gold); }
+.property-location {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.property-name {
+  font-family: var(--font-display);
+  font-size: clamp(20px, 2.5vw, 32px);
+  font-weight: 400;
+  color: var(--white);
+  line-height: 1.2;
+  margin-bottom: 16px;
+}
+.property-price {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 2.5vw, 36px);
+  font-weight: 600;
+  color: var(--gold);
+  margin-bottom: 16px;
+}
+.property-price sub { font-size: 0.4em; color: var(--mist); font-weight: 300; }
+.property-features {
+  display: flex; gap: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+.property-feature {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--mist);
+  display: flex; align-items: center; gap: 6px;
+}
+.property-actions {
+  position: absolute;
+  inset: 0;
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.property-card:hover .property-actions { opacity: 1; }
+.property-action-btn {
+  padding: 12px 24px;
+  background: var(--gold);
+  color: var(--obsidian);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 700;
+  border: none; cursor: none;
+  transition: transform 0.3s var(--transition-bounce);
+}
+.property-action-btn:hover { transform: scale(1.05); }
+.property-action-btn.outline {
+  background: transparent;
+  color: var(--white);
+  border: 1px solid rgba(255,255,255,0.5);
+}
+
+/* MARQUEE */
+.marquee-section {
+  padding: 40px 0;
+  overflow: hidden;
+  border-top: 1px solid rgba(201,169,110,0.1);
+  border-bottom: 1px solid rgba(201,169,110,0.1);
+  background: var(--obsidian-2);
+}
+.marquee-track {
+  display: flex; gap: 60px;
+  animation: marquee 30s linear infinite;
+  width: max-content;
+}
+.marquee-track:hover { animation-play-state: paused; }
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee-item {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-style: italic;
+  color: var(--mist);
+  white-space: nowrap;
+  display: flex; align-items: center; gap: 40px;
+}
+.marquee-dot { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; }
+
+/* FEATURES */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: rgba(201,169,110,0.1);
+  border: 1px solid rgba(201,169,110,0.1);
+}
+.feature-item {
+  background: var(--obsidian);
+  padding: 48px 36px;
+  transition: background 0.4s;
+  cursor: none;
+  position: relative;
+  overflow: hidden;
+}
+.feature-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(201,169,110,0.08) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.feature-item:hover::before { opacity: 1; }
+.feature-item:hover { background: var(--obsidian-3); }
+.feature-icon {
+  font-size: 36px;
+  margin-bottom: 24px;
+  display: block;
+}
+.feature-title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 400;
+  margin-bottom: 12px;
+}
+.feature-desc {
+  font-size: 14px;
+  color: var(--mist);
+  line-height: 1.7;
+}
+.feature-number {
+  position: absolute;
+  top: 24px; right: 24px;
+  font-family: var(--font-mono);
+  font-size: 60px;
+  font-weight: 700;
+  color: rgba(201,169,110,0.06);
+  line-height: 1;
+}
+
+/* AUCTION SECTION */
+.auction-section {
+  background: linear-gradient(135deg, var(--obsidian) 0%, #1A1020 100%);
+  position: relative; overflow: hidden;
+}
+.auction-section::before {
+  content: '';
+  position: absolute;
+  top: -200px; right: -200px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(192,57,43,0.1) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.auction-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+.auction-card {
+  position: relative;
+  background: var(--obsidian-3);
+  border: 1px solid rgba(192,57,43,0.2);
+  overflow: hidden;
+}
+.auction-img { width: 100%; aspect-ratio: 4/3; object-fit: cover; filter: brightness(0.6); }
+.auction-info { padding: 32px; }
+.auction-timer-section {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: rgba(192,57,43,0.2);
+  margin: 20px 0;
+}
+.timer-unit {
+  background: var(--obsidian-4);
+  padding: 16px;
+  text-align: center;
+}
+.timer-number {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 600;
+  color: var(--crimson);
+  line-height: 1;
+}
+.timer-label {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: var(--mist);
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+.auction-bid-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 20px;
+}
+.current-bid-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--mist);
+  text-transform: uppercase;
+}
+.current-bid-amount {
+  font-family: var(--font-display);
+  font-size: 40px;
+  font-weight: 600;
+  color: var(--white);
+}
+
+/* TESTIMONIALS */
+.testimonials-section { background: var(--obsidian-2); }
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  background: rgba(255,255,255,0.05);
+}
+.testimonial-card {
+  background: var(--obsidian-2);
+  padding: 48px 40px;
+  position: relative;
+}
+.testimonial-quote {
+  font-size: 60px;
+  color: var(--gold);
+  opacity: 0.3;
+  font-family: var(--font-display);
+  line-height: 0.8;
+  margin-bottom: 24px;
+}
+.testimonial-text {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.6;
+  color: var(--white);
+  margin-bottom: 32px;
+}
+.testimonial-stars {
+  color: var(--gold);
+  font-size: 14px;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+}
+.testimonial-author { display: flex; align-items: center; gap: 16px; }
+.testimonial-avatar {
+  width: 48px; height: 48px; border-radius: 50%;
+  border: 2px solid var(--gold);
+  object-fit: cover;
+  background: var(--obsidian-4);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--gold);
+}
+.testimonial-name {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 15px;
+}
+.testimonial-role {
+  font-size: 12px;
+  color: var(--mist);
+  margin-top: 2px;
+}
+
+/* CITIES */
+.cities-section { background: var(--obsidian); }
+.cities-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 2px;
+  margin-top: 60px;
+}
+.city-card {
+  position: relative; overflow: hidden;
+  cursor: none;
+  background: var(--obsidian-3);
+}
+.city-card:first-child { grid-row: span 2; }
+.city-card-inner {
+  aspect-ratio: 4/3;
+  position: relative; overflow: hidden;
+}
+.city-card:first-child .city-card-inner { aspect-ratio: auto; height: 100%; min-height: 400px; }
+.city-bg {
+  width: 100%; height: 100%;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.8s var(--transition), filter 0.4s;
+  filter: brightness(0.5) saturate(0.7);
+}
+.city-card:hover .city-bg {
+  transform: scale(1.08);
+  filter: brightness(0.4) saturate(0.5);
+}
+.city-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(10,10,15,0.9) 0%, transparent 60%);
+  padding: 28px;
+  display: flex; flex-direction: column; justify-content: flex-end;
+}
+.city-name {
+  font-family: var(--font-display);
+  font-size: clamp(24px, 3vw, 48px);
+  font-weight: 300;
+  color: var(--white);
+}
+.city-count {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* AGENT SECTION */
+.agents-section { background: var(--obsidian-2); }
+.agents-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  margin-top: 60px;
+}
+.agent-card {
+  background: var(--obsidian-3);
+  overflow: hidden;
+  cursor: none;
+  position: relative;
+  transition: transform 0.4s var(--transition-bounce);
+}
+.agent-card:hover { transform: translateY(-8px); }
+.agent-img-container {
+  aspect-ratio: 3/4;
+  overflow: hidden;
+  position: relative;
+  background: var(--obsidian-4);
+  display: flex; align-items: center; justify-content: center;
+}
+.agent-img-placeholder {
+  font-size: 80px;
+  color: rgba(201,169,110,0.2);
+}
+.agent-info { padding: 24px; }
+.agent-name {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 400;
+  margin-bottom: 4px;
+}
+.agent-specialty {
+  font-size: 12px;
+  color: var(--gold);
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+.agent-stats {
+  display: flex; gap: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.agent-stat-item { text-align: center; }
+.agent-stat-val {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--white);
+}
+.agent-stat-key {
+  font-size: 10px;
+  color: var(--mist);
+  letter-spacing: 1px;
+}
+.agent-social {
+  display: flex; gap: 8px; margin-top: 16px;
+}
+.agent-social-btn {
+  width: 32px; height: 32px;
+  border: 1px solid rgba(255,255,255,0.1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  cursor: none;
+  transition: border-color 0.3s, background 0.3s;
+}
+.agent-social-btn:hover { border-color: var(--gold); background: rgba(201,169,110,0.1); }
+
+/* CTA BANNER */
+.cta-section {
+  position: relative; overflow: hidden;
+  background: linear-gradient(135deg, #0A0A0F 0%, #1A0A0A 50%, #0A0A1A 100%);
+  text-align: center;
+  padding: 120px 60px;
+}
+.cta-section::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, rgba(201,169,110,0.12) 0%, transparent 70%);
+}
+.cta-headline {
+  font-family: var(--font-display);
+  font-size: clamp(48px, 7vw, 100px);
+  font-weight: 300;
+  line-height: 1;
+  position: relative;
+  margin-bottom: 32px;
+}
+.cta-headline em { display: block; font-style: italic; color: var(--gold); }
+.cta-sub {
+  font-size: 16px;
+  color: var(--mist);
+  max-width: 500px;
+  margin: 0 auto 48px;
+  line-height: 1.7;
+  position: relative;
+}
+.cta-actions { display: flex; gap: 20px; justify-content: center; position: relative; }
+
+/* NEWSLETTER */
+.newsletter-section {
+  background: var(--obsidian-3);
+  padding: 80px 60px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+  border-top: 1px solid rgba(201,169,110,0.1);
+}
+.newsletter-form {
+  display: flex; gap: 0;
+  border: 1px solid rgba(201,169,110,0.2);
+}
+.newsletter-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 15px;
+  padding: 16px 24px;
+  outline: none;
+  cursor: none;
+}
+.newsletter-input::placeholder { color: var(--mist); }
+.newsletter-btn {
+  padding: 16px 32px;
+  background: var(--gold);
+  color: var(--obsidian);
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 700;
+  cursor: none;
+  white-space: nowrap;
+  transition: opacity 0.3s;
+}
+.newsletter-btn:hover { opacity: 0.85; }
+
+/* FOOTER */
+footer {
+  background: var(--obsidian);
+  padding: 80px 60px 40px;
+  border-top: 1px solid rgba(201,169,110,0.1);
+}
+.footer-top {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 60px;
+  margin-bottom: 60px;
+}
+.footer-logo {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  margin-bottom: 20px;
+}
+.footer-logo span { color: var(--gold); }
+.footer-desc {
+  font-size: 14px;
+  color: var(--mist);
+  line-height: 1.8;
+  max-width: 280px;
+  margin-bottom: 30px;
+}
+.footer-col-title {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 24px;
+}
+.footer-links { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.footer-links a {
+  font-size: 14px;
+  color: var(--mist);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.footer-links a:hover { color: var(--white); }
+.footer-bottom {
+  padding-top: 40px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.footer-copy {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--mist);
+  letter-spacing: 1px;
+}
+.footer-social { display: flex; gap: 16px; }
+.footer-social-link {
+  width: 40px; height: 40px;
+  border: 1px solid rgba(255,255,255,0.1);
+  display: flex; align-items: center; justify-content: center;
+  text-decoration: none;
+  font-size: 14px;
+  color: var(--mist);
+  transition: border-color 0.3s, color 0.3s;
+}
+.footer-social-link:hover { border-color: var(--gold); color: var(--gold); }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(12px);
+  z-index: 9000;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+.modal-overlay.active { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--obsidian-3);
+  border: 1px solid rgba(201,169,110,0.2);
+  width: 90%; max-width: 480px;
+  transform: translateY(30px) scale(0.95);
+  transition: transform 0.4s var(--transition-bounce);
+  position: relative;
+}
+.modal-overlay.active .modal { transform: translateY(0) scale(1); }
+.modal-header {
+  padding: 40px 40px 0;
+  display: flex; justify-content: space-between; align-items: flex-start;
+}
+.modal-title {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 300;
+}
+.modal-close {
+  font-size: 24px;
+  color: var(--mist);
+  cursor: none;
+  background: none; border: none;
+  line-height: 1;
+  transition: color 0.3s;
+}
+.modal-close:hover { color: var(--white); }
+.modal-body { padding: 32px 40px 40px; }
+.modal-tabs {
+  display: flex;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  margin-bottom: 32px;
+}
+.modal-tab {
+  padding: 12px 24px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--mist);
+  cursor: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  background: none; border-left: none; border-right: none; border-top: none;
+  transition: color 0.3s, border-color 0.3s;
+}
+.modal-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+.form-group { margin-bottom: 24px; }
+.form-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: block;
+  margin-bottom: 10px;
+}
+.form-input {
+  width: 100%;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 15px;
+  padding: 14px 16px;
+  outline: none;
+  transition: border-color 0.3s;
+  cursor: none;
+}
+.form-input:focus { border-color: var(--gold); }
+.form-input::placeholder { color: var(--mist); }
+.form-submit {
+  width: 100%;
+  padding: 16px;
+  background: var(--gold);
+  color: var(--obsidian);
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 700;
+  cursor: none;
+  transition: opacity 0.3s;
+  margin-top: 8px;
+}
+.form-submit:hover { opacity: 0.85; }
+
+/* PROPERTY MODAL */
+.prop-modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.9);
+  backdrop-filter: blur(16px);
+  z-index: 9001;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+  padding: 20px;
+}
+.prop-modal-overlay.active { opacity: 1; pointer-events: all; }
+.prop-modal {
+  background: var(--obsidian-2);
+  border: 1px solid rgba(201,169,110,0.15);
+  width: 100%; max-width: 900px; max-height: 90vh;
+  overflow-y: auto;
+  transform: translateY(40px);
+  transition: transform 0.4s var(--transition-bounce);
+}
+.prop-modal-overlay.active .prop-modal { transform: translateY(0); }
+.prop-modal-images {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2px;
+  height: 360px;
+}
+.prop-modal-img-main { background: var(--obsidian-4); height: 100%; overflow: hidden; }
+.prop-modal-img-main img { width: 100%; height: 100%; object-fit: cover; }
+.prop-modal-img-grid { display: grid; grid-template-rows: 1fr 1fr; gap: 2px; }
+.prop-modal-img-small { background: var(--obsidian-4); overflow: hidden; }
+.prop-modal-img-small img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.7); }
+.prop-modal-body { padding: 40px; display: grid; grid-template-columns: 1fr auto; gap: 40px; }
+.prop-modal-info {}
+.prop-modal-title { font-family: var(--font-display); font-size: 36px; font-weight: 300; margin-bottom: 8px; }
+.prop-modal-location { font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; margin-bottom: 24px; }
+.prop-modal-description { font-size: 14px; color: var(--mist); line-height: 1.8; margin-bottom: 32px; }
+.prop-modal-specs {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1px; background: rgba(255,255,255,0.05);
+  margin-bottom: 32px;
+}
+.prop-spec { background: var(--obsidian-3); padding: 20px; }
+.prop-spec-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 2px; color: var(--mist); text-transform: uppercase; margin-bottom: 6px; }
+.prop-spec-value { font-family: var(--font-display); font-size: 22px; color: var(--white); }
+.prop-modal-price { font-family: var(--font-display); font-size: 48px; color: var(--gold); font-weight: 600; }
+.prop-modal-price sub { font-size: 0.4em; color: var(--mist); }
+.prop-modal-actions { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+
+/* NOTIFICATIONS */
+.notification-container {
+  position: fixed; top: 100px; right: 24px; z-index: 9999;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.notification {
+  background: var(--obsidian-3);
+  border: 1px solid rgba(201,169,110,0.3);
+  border-left: 3px solid var(--gold);
+  padding: 16px 20px;
+  min-width: 300px;
+  display: flex; align-items: center; gap: 12px;
+  transform: translateX(120%);
+  transition: transform 0.4s var(--transition-bounce);
+}
+.notification.show { transform: translateX(0); }
+.notification.error { border-left-color: var(--crimson); }
+.notification.success { border-left-color: var(--emerald); }
+.notification-icon { font-size: 18px; }
+.notification-text { font-size: 14px; flex: 1; }
+.notification-close { font-size: 16px; cursor: none; color: var(--mist); background: none; border: none; }
+
+/* ANIMATIONS */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.reveal {
+  opacity: 0; transform: translateY(40px);
+  transition: opacity 0.8s var(--transition), transform 0.8s var(--transition);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+
+/* DIVIDERS */
+.gold-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--gold), transparent);
+  margin: 0 60px;
+}
+
+/* LOADING */
+.page-loader {
+  position: fixed; inset: 0;
+  background: var(--obsidian);
+  z-index: 99999;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 24px;
+  transition: opacity 0.8s, visibility 0.8s;
+}
+.page-loader.hidden { opacity: 0; visibility: hidden; }
+.loader-logo {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 600;
+  letter-spacing: 8px;
+  color: var(--white);
+}
+.loader-logo span { color: var(--gold); }
+.loader-bar {
+  width: 200px; height: 2px;
+  background: rgba(255,255,255,0.1);
+  position: relative; overflow: hidden;
+}
+.loader-bar::after {
+  content: '';
+  position: absolute; left: -100%; top: 0; bottom: 0;
+  width: 100%; background: var(--gold);
+  animation: loaderFill 2s var(--transition) forwards;
+}
+@keyframes loaderFill {
+  to { left: 0; }
+}
+
+/* BADGE */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-radius: 2px;
+}
+.badge-gold { background: rgba(201,169,110,0.15); color: var(--gold); border: 1px solid rgba(201,169,110,0.3); }
+.badge-emerald { background: rgba(39,174,96,0.15); color: var(--emerald); border: 1px solid rgba(39,174,96,0.3); }
+.badge-crimson { background: rgba(192,57,43,0.15); color: var(--crimson); border: 1px solid rgba(192,57,43,0.3); }
+
+/* METRICS STRIP */
+.metrics-strip {
+  padding: 60px;
+  background: var(--obsidian-2);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1px;
+  background-color: rgba(201,169,110,0.08);
+}
+.metric-item {
+  background: var(--obsidian-2);
+  padding: 48px 32px;
+  text-align: center;
+}
+.metric-number {
+  font-family: var(--font-display);
+  font-size: 56px;
+  font-weight: 300;
+  color: var(--white);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.metric-number span { color: var(--gold); }
+.metric-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--mist);
+  text-transform: uppercase;
+}
+
+/* TABS */
+.properties-tabs {
+  display: flex; gap: 0;
+  margin-bottom: 40px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.prop-tab {
+  padding: 16px 32px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--mist);
+  cursor: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  background: none; border-left: none; border-right: none; border-top: none;
+  transition: color 0.3s, border-color 0.3s;
+}
+.prop-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+.prop-tab:hover { color: var(--white); }
+
+/* STICKY HEADER LOGO */
+.nav-logo-dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  background: var(--gold);
+  border-radius: 50%;
+  margin: 0 2px;
+}
+
+/* LIVE BADGE */
+.live-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 12px;
+  background: rgba(192,57,43,0.2);
+  border: 1px solid var(--crimson);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--crimson);
+}
+.live-dot {
+  width: 6px; height: 6px;
+  background: var(--crimson);
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+  nav { padding: 0 30px; }
+  .nav-links { gap: 24px; }
+  section { padding: 80px 30px; }
+  .search-section { padding: 0 30px; }
+  .search-container { grid-template-columns: 1fr 1fr; }
+  .search-btn { grid-column: span 2; }
+  .properties-grid { grid-template-columns: repeat(2, 1fr); }
+  .property-card:first-child { grid-column: span 2; }
+  .features-grid { grid-template-columns: repeat(2, 1fr); }
+  .testimonials-grid { grid-template-columns: 1fr; }
+  .cities-grid { grid-template-columns: 1fr 1fr; }
+  .cities-grid .city-card:first-child { grid-column: span 2; grid-row: span 1; }
+  .agents-grid { grid-template-columns: repeat(2, 1fr); }
+  .footer-top { grid-template-columns: 1fr 1fr; gap: 40px; }
+  .metrics-strip { grid-template-columns: repeat(3, 1fr); padding: 30px; }
+  .newsletter-section { grid-template-columns: 1fr; gap: 40px; }
+  .auction-grid { grid-template-columns: 1fr; gap: 40px; }
+  .hero-stats { right: 30px; }
+  .hero-content { padding: 0 30px; }
+  .gold-divider { margin: 0 30px; }
+}
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .hero-stats { display: none; }
+  .properties-grid { grid-template-columns: 1fr; }
+  .property-card:first-child { grid-column: span 1; }
+  .features-grid { grid-template-columns: 1fr; }
+  .cities-grid { grid-template-columns: 1fr; }
+  .agents-grid { grid-template-columns: 1fr; }
+  .footer-top { grid-template-columns: 1fr; }
+  .metrics-strip { grid-template-columns: repeat(2, 1fr); }
+  .hero-headline { font-size: 48px; }
+  .prop-modal-body { grid-template-columns: 1fr; }
+  .prop-modal-specs { grid-template-columns: repeat(2, 1fr); }
+  .prop-modal-images { grid-template-columns: 1fr; height: 240px; }
+  .prop-modal-img-grid { display: none; }
+  .search-container { grid-template-columns: 1fr; }
+  .search-btn { grid-column: span 1; }
+}
+
+/* SELECTED STATE */
+.selected-nav { color: var(--gold) !important; }
+</style>
+</head>
+<body>
+
+<!-- PAGE LOADER -->
+<div class="page-loader" id="pageLoader">
+  <div class="loader-logo">LUXE<span>·</span>ESTATES</div>
+  <div class="loader-bar"></div>
+</div>
+
+<!-- CUSTOM CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-follower" id="cursorFollower"></div>
+
+<!-- NOTIFICATIONS -->
+<div class="notification-container" id="notifications"></div>
+
+<!-- NAVIGATION -->
+<nav id="mainNav">
+  <a href="#" class="nav-logo">LUXE<span class="nav-logo-dot"></span>ESTATES</a>
+  <ul class="nav-links">
+    <li><a href="#properties" onclick="scrollToSection('properties')">Properties</a></li>
+    <li><a href="#auctions" onclick="scrollToSection('auctions')">Auctions</a></li>
+    <li><a href="#cities" onclick="scrollToSection('cities')">Explore</a></li>
+    <li><a href="#agents" onclick="scrollToSection('agents')">Agents</a></li>
+    <li><a href="#" onclick="openAuthModal()">Sign In</a></li>
+    <li><a href="#" class="nav-cta" onclick="openAuthModal('register')">List Property</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">Premier Global Real Estate</div>
+    <h1 class="hero-headline">
+      Find Your
+      <em>Perfect Home</em>
+    </h1>
+    <p class="hero-sub">From penthouse suites in Manhattan to waterfront villas in Dubai — discover extraordinary properties curated for the discerning.</p>
+    <div class="hero-actions">
+      <a href="#properties" class="btn-primary" onclick="scrollToSection('properties')">Explore Properties</a>
+      <a href="#" class="btn-secondary" onclick="openAuthModal('register')">List Your Property</a>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-number" data-target="12500">0<span>+</span></div>
+      <div class="hero-stat-label">Properties Listed</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-number" data-target="89">0<span>%</span></div>
+      <div class="hero-stat-label">Client Satisfaction</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-number" data-target="45">0<span>+</span></div>
+      <div class="hero-stat-label">Global Cities</div>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="hero-scroll-text">Scroll to Explore</div>
+    <div class="hero-scroll-line"></div>
+  </div>
+</section>
+
+<!-- SEARCH -->
+<div class="search-section" id="searchSection">
+  <div class="search-container">
+    <div class="search-field">
+      <label class="search-label">Location</label>
+      <input class="search-input" type="text" id="searchCity" placeholder="City, neighborhood...">
+    </div>
+    <div class="search-field">
+      <label class="search-label">Property Type</label>
+      <select class="search-select" id="searchType">
+        <option value="">All Types</option>
+        <option value="apartment">Apartment</option>
+        <option value="villa">Villa</option>
+        <option value="penthouse">Penthouse</option>
+        <option value="office">Office</option>
+        <option value="land">Land</option>
+      </select>
+    </div>
+    <div class="search-field">
+      <label class="search-label">Listing Type</label>
+      <select class="search-select" id="searchListing">
+        <option value="">Buy or Rent</option>
+        <option value="sale">For Sale</option>
+        <option value="rent">For Rent</option>
+      </select>
+    </div>
+    <div class="search-field">
+      <label class="search-label">Max Budget</label>
+      <select class="search-select" id="searchBudget">
+        <option value="">Any Price</option>
+        <option value="500000">Up to $500K</option>
+        <option value="1000000">Up to $1M</option>
+        <option value="5000000">Up to $5M</option>
+        <option value="10000000">Up to $10M</option>
+      </select>
+    </div>
+    <button class="search-btn" onclick="performSearch()">Search →</button>
+  </div>
+</div>
+
+<!-- METRICS STRIP -->
+<div class="metrics-strip reveal">
+  <div class="metric-item">
+    <div class="metric-number"><span id="m1">12,500</span></div>
+    <div class="metric-label">Active Listings</div>
+  </div>
+  <div class="metric-item">
+    <div class="metric-number"><span id="m2">4,200</span></div>
+    <div class="metric-label">Happy Buyers</div>
+  </div>
+  <div class="metric-item">
+    <div class="metric-number">$<span id="m3">2.8B</span></div>
+    <div class="metric-label">Total Transactions</div>
+  </div>
+  <div class="metric-item">
+    <div class="metric-number"><span id="m4">45</span><span>+</span></div>
+    <div class="metric-label">Global Cities</div>
+  </div>
+  <div class="metric-item">
+    <div class="metric-number"><span id="m5">98</span><span>%</span></div>
+    <div class="metric-label">Success Rate</div>
+  </div>
+</div>
+
+<!-- MARQUEE -->
+<div class="marquee-section">
+  <div class="marquee-track" id="marqueeTrack">
+    <div class="marquee-item">Luxury Penthouses <div class="marquee-dot"></div></div>
+    <div class="marquee-item">Waterfront Villas <div class="marquee-dot"></div></div>
+    <div class="marquee-item">Urban Apartments <div class="marquee-dot"></div></div>
+    <div class="marquee-item">Commercial Spaces <div class="marquee-dot"></div></div>
+    <div class="marquee-item">Investment Properties <div class="marquee-dot"></div></div>
+    <div class="marquee-item">Holiday Retreats <div class="marquee-dot"></div></div>
+    <div class="marquee-item">Historic Mansions <div class="marquee-dot"></div></div>
+    <div class="marquee-item">Luxury Penthouses <div class="marquee-dot"></div></div>
+    <div class="marquee-item">Waterfront Villas <div class="marquee-dot"></div></div>
+    <div class="marquee-item">Urban Apartments <div class="marquee-dot"></div></div>
+    <div class="marquee-item">Commercial Spaces <div class="marquee-dot"></div></div>
+    <div class="marquee-item">Investment Properties <div class="marquee-dot"></div></div>
+    <div class="marquee-item">Holiday Retreats <div class="marquee-dot"></div></div>
+    <div class="marquee-item">Historic Mansions <div class="marquee-dot"></div></div>
+  </div>
+</div>
+
+<!-- PROPERTIES -->
+<section class="properties-section" id="properties">
+  <div class="properties-header reveal">
+    <div>
+      <div class="section-eyebrow">Curated Selection</div>
+      <h2 class="section-title">Featured <em>Properties</em></h2>
+    </div>
+    <div>
+      <p class="section-sub" style="text-align:right;">Every listing is personally vetted by our expert team of global property consultants.</p>
+    </div>
+  </div>
+  
+  <div class="properties-tabs reveal">
+    <button class="prop-tab active" onclick="filterProperties('all', this)">All</button>
+    <button class="prop-tab" onclick="filterProperties('sale', this)">For Sale</button>
+    <button class="prop-tab" onclick="filterProperties('rent', this)">For Rent</button>
+    <button class="prop-tab" onclick="filterProperties('apartment', this)">Apartments</button>
+    <button class="prop-tab" onclick="filterProperties('villa', this)">Villas</button>
+    <button class="prop-tab" onclick="filterProperties('penthouse', this)">Penthouses</button>
+  </div>
+
+  <div class="properties-grid" id="propertiesGrid">
+    <!-- Cards injected via JS -->
+  </div>
+  
+  <div style="text-align:center; margin-top:60px;" class="reveal">
+    <a href="#" class="btn-secondary" onclick="showNotification('Loading more properties...', 'info'); return false;">View All Properties →</a>
+  </div>
+</section>
+
+<div class="gold-divider"></div>
+
+<!-- FEATURES -->
+<section style="background: var(--obsidian); padding: 120px 60px;">
+  <div class="reveal" style="text-align:center; margin-bottom:80px;">
+    <div class="section-eyebrow" style="justify-content:center;">Why LUXE Estates</div>
+    <h2 class="section-title" style="text-align:center;">World-Class <em>Service</em></h2>
+  </div>
+  <div class="features-grid reveal">
+    <div class="feature-item">
+      <div class="feature-number">01</div>
+      <span class="feature-icon">🏛️</span>
+      <div class="feature-title">Global Portfolio</div>
+      <p class="feature-desc">Access over 12,500 premium properties across 45 cities worldwide. From Dubai to New York, Paris to Tokyo.</p>
+    </div>
+    <div class="feature-item">
+      <div class="feature-number">02</div>
+      <span class="feature-icon">🔐</span>
+      <div class="feature-title">Verified Listings</div>
+      <p class="feature-desc">Every property is personally inspected and verified. Zero fraud guarantee with our proprietary vetting system.</p>
+    </div>
+    <div class="feature-item">
+      <div class="feature-number">03</div>
+      <span class="feature-icon">⚡</span>
+      <div class="feature-title">Smart Auctions</div>
+      <p class="feature-desc">Bid in real-time on exclusive properties. Transparent live auctions with secure escrow payments built-in.</p>
+    </div>
+    <div class="feature-item">
+      <div class="feature-number">04</div>
+      <span class="feature-icon">🌐</span>
+      <div class="feature-title">Concierge Service</div>
+      <p class="feature-desc">24/7 white-glove assistance from property search to handover. Our experts guide you at every step.</p>
+    </div>
+  </div>
+</section>
+
+<!-- AUCTIONS -->
+<section class="auction-section" id="auctions">
+  <div class="auction-grid">
+    <div class="reveal">
+      <div class="section-eyebrow">Live Now</div>
+      <h2 class="section-title">Premium <em>Auctions</em></h2>
+      <p class="section-sub" style="margin-bottom:32px;">Secure extraordinary properties through our transparent, secure bidding platform. Updated in real-time.</p>
+      <div class="live-badge" style="margin-bottom:32px;">
+        <div class="live-dot"></div>
+        <span id="liveCount">3 Active Auctions</span>
+      </div>
+      <div id="auctionList">
+        <!-- Injected by JS -->
+      </div>
+    </div>
+    <div class="reveal reveal-delay-2">
+      <div class="auction-card" id="featuredAuction">
+        <!-- Injected by JS -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CITIES -->
+<section class="cities-section" id="cities">
+  <div class="reveal">
+    <div class="section-eyebrow">Explore By Location</div>
+    <h2 class="section-title">Global <em>Destinations</em></h2>
+    <p class="section-sub">Find your perfect property across the world's most desirable locations.</p>
+  </div>
+  <div class="cities-grid reveal">
+    <div class="city-card" onclick="filterByCity('Dubai')">
+      <div class="city-card-inner">
+        <div class="city-bg" style="background: linear-gradient(135deg, #1a0a0a, #2d1515, #1a0a0a); background-image: url('https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&q=80'); background-size:cover; background-position:center;"></div>
+        <div class="city-overlay">
+          <div class="city-name">Dubai</div>
+          <div class="city-count">2,840 Properties</div>
+        </div>
+      </div>
+    </div>
+    <div class="city-card" onclick="filterByCity('New York')">
+      <div class="city-card-inner">
+        <div class="city-bg" style="background-image: url('https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=600&q=80'); background-size:cover; background-position:center;"></div>
+        <div class="city-overlay">
+          <div class="city-name">New York</div>
+          <div class="city-count">1,920 Properties</div>
+        </div>
+      </div>
+    </div>
+    <div class="city-card" onclick="filterByCity('London')">
+      <div class="city-card-inner">
+        <div class="city-bg" style="background-image: url('https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600&q=80'); background-size:cover; background-position:center;"></div>
+        <div class="city-overlay">
+          <div class="city-name">London</div>
+          <div class="city-count">1,560 Properties</div>
+        </div>
+      </div>
+    </div>
+    <div class="city-card" onclick="filterByCity('Paris')">
+      <div class="city-card-inner">
+        <div class="city-bg" style="background-image: url('https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=80'); background-size:cover; background-position:center;"></div>
+        <div class="city-overlay">
+          <div class="city-name">Paris</div>
+          <div class="city-count">1,120 Properties</div>
+        </div>
+      </div>
+    </div>
+    <div class="city-card" onclick="filterByCity('Singapore')">
+      <div class="city-card-inner">
+        <div class="city-bg" style="background-image: url('https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=600&q=80'); background-size:cover; background-position:center;"></div>
+        <div class="city-overlay">
+          <div class="city-name">Singapore</div>
+          <div class="city-count">890 Properties</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials-section">
+  <div class="reveal" style="text-align:center; margin-bottom:80px;">
+    <div class="section-eyebrow" style="justify-content:center;">Client Stories</div>
+    <h2 class="section-title" style="text-align:center;">Trusted by <em>Thousands</em></h2>
+  </div>
+  <div class="testimonials-grid reveal">
+    <div class="testimonial-card">
+      <div class="testimonial-quote">"</div>
+      <p class="testimonial-text">LUXE Estates found us our dream penthouse in Dubai Marina within two weeks. The white-glove service is unmatched in the industry.</p>
+      <div class="testimonial-stars">★★★★★</div>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">M</div>
+        <div>
+          <div class="testimonial-name">Mohammed Al-Rashid</div>
+          <div class="testimonial-role">CEO, Al-Rashid Holdings · Dubai</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="testimonial-quote">"</div>
+      <p class="testimonial-text">The auction platform is revolutionary. We secured a historic mansion in London below market value — completely transparent and secure.</p>
+      <div class="testimonial-stars">★★★★★</div>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">S</div>
+        <div>
+          <div class="testimonial-name">Sarah Pemberton</div>
+          <div class="testimonial-role">Investment Director · London</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="testimonial-quote">"</div>
+      <p class="testimonial-text">As a seller, the platform gave my property global exposure. Sold my Manhattan condo 23% above asking price in under 30 days.</p>
+      <div class="testimonial-stars">★★★★★</div>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">J</div>
+        <div>
+          <div class="testimonial-name">James Worthington</div>
+          <div class="testimonial-role">Real Estate Investor · New York</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AGENTS -->
+<section class="agents-section" id="agents">
+  <div class="reveal" style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:0;">
+    <div>
+      <div class="section-eyebrow">Expert Team</div>
+      <h2 class="section-title">Elite <em>Agents</em></h2>
+    </div>
+    <p class="section-sub" style="text-align:right;">Connect with our world-class property specialists.</p>
+  </div>
+  <div class="agents-grid reveal" id="agentsGrid">
+    <!-- Injected by JS -->
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <h2 class="cta-headline reveal">
+    Ready to Find
+    <em>Your Estate?</em>
+  </h2>
+  <p class="cta-sub reveal reveal-delay-1">Join over 40,000 clients who've found their perfect property through LUXE Estates.</p>
+  <div class="cta-actions reveal reveal-delay-2">
+    <a href="#" class="btn-primary" onclick="openAuthModal('register')">Create Account — Free</a>
+    <a href="#" class="btn-secondary" onclick="scrollToSection('properties')">Browse Properties</a>
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<div class="newsletter-section">
+  <div class="reveal">
+    <div class="section-eyebrow">Stay Ahead</div>
+    <h2 class="section-title" style="font-size:clamp(28px,3vw,48px);">Market <em>Intelligence</em></h2>
+    <p class="section-sub">Weekly curated insights from the global luxury real estate market, delivered to your inbox.</p>
+  </div>
+  <div class="reveal reveal-delay-1">
+    <div class="newsletter-form">
+      <input class="newsletter-input" type="email" id="newsletterEmail" placeholder="Enter your email address">
+      <button class="newsletter-btn" onclick="subscribeNewsletter()">Subscribe →</button>
+    </div>
+    <p style="font-size:12px; color:var(--mist); margin-top:12px;">Join 18,000+ subscribers. Unsubscribe anytime.</p>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="footer-logo">LUXE<span>·</span>ESTATES</div>
+      <p class="footer-desc">The world's premier luxury real estate platform. Connecting extraordinary properties with extraordinary people across 45 global cities.</p>
+      <div class="footer-social">
+        <a href="#" class="footer-social-link">𝕏</a>
+        <a href="#" class="footer-social-link">in</a>
+        <a href="#" class="footer-social-link">ig</a>
+        <a href="#" class="footer-social-link">yt</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">Properties</div>
+      <ul class="footer-links">
+        <li><a href="#">For Sale</a></li>
+        <li><a href="#">For Rent</a></li>
+        <li><a href="#">Auctions</a></li>
+        <li><a href="#">New Developments</a></li>
+        <li><a href="#">Commercial</a></li>
+        <li><a href="#">Off-Plan</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Company</div>
+      <ul class="footer-links">
+        <li><a href="#">About Us</a></li>
+        <li><a href="#">Our Team</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Press</a></li>
+        <li><a href="#">Partners</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Legal</div>
+      <ul class="footer-links">
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Service</a></li>
+        <li><a href="#">Cookie Policy</a></li>
+        <li><a href="#">AML Policy</a></li>
+        <li><a href="#">API Access</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 LUXE ESTATES GLOBAL. ALL RIGHTS RESERVED. BACKEND API: LOCALHOST:5000</div>
+    <div style="font-family:var(--font-mono); font-size:10px; color:var(--gold); letter-spacing:2px;">POWERED BY AI · SECURED BY TRUST</div>
+  </div>
+</footer>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="authModal" onclick="closeModal(this)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Welcome Back</div>
+      <button class="modal-close" onclick="closeModal(document.getElementById('authModal'))">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-tabs">
+        <button class="modal-tab active" id="loginTab" onclick="switchTab('login')">Sign In</button>
+        <button class="modal-tab" id="registerTab" onclick="switchTab('register')">Register</button>
+      </div>
+      <div id="loginForm">
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input class="form-input" type="email" id="loginEmail" placeholder="your@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input class="form-input" type="password" id="loginPassword" placeholder="••••••••">
+        </div>
+        <button class="form-submit" onclick="handleLogin()">Sign In →</button>
+        <p style="font-size:13px; color:var(--mist); text-align:center; margin-top:16px;">
+          <a href="#" style="color:var(--gold);">Forgot password?</a>
+        </p>
+      </div>
+      <div id="registerForm" style="display:none;">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input class="form-input" type="text" id="regName" placeholder="Your full name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input class="form-input" type="email" id="regEmail" placeholder="your@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input class="form-input" type="password" id="regPassword" placeholder="••••••••">
+        </div>
+        <div class="form-group">
+          <label class="form-label">I am a</label>
+          <select class="form-input" id="regRole">
+            <option value="buyer">Buyer / Renter</option>
+            <option value="seller">Property Seller / Agent</option>
+          </select>
+        </div>
+        <button class="form-submit" onclick="handleRegister()">Create Account →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROPERTY DETAIL MODAL -->
+<div class="prop-modal-overlay" id="propModal" onclick="closePropModal(this)">
+  <div class="prop-modal" onclick="event.stopPropagation()">
+    <div class="prop-modal-images" id="propModalImages"></div>
+    <div class="prop-modal-body">
+      <div class="prop-modal-info" id="propModalInfo"></div>
+      <div id="propModalSidebar"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// CONFIGURATION
+// ═══════════════════════════════════════════════
+const API_BASE = 'http://localhost:5000/api';
+let authToken = localStorage.getItem('luxe_token') || null;
+let currentUser = JSON.parse(localStorage.getItem('luxe_user') || 'null');
+let activeFilter = 'all';
+let auctionTimers = {};
+
+// ═══════════════════════════════════════════════
+// MOCK DATA (fallback when API is offline)
+// ═══════════════════════════════════════════════
+const mockProperties = [
+  { _id: 'p1', title: 'Sky Penthouse Dubai Marina', city: 'Dubai', type: 'penthouse', listingType: 'sale', price: 8500000, area: 450, bedrooms: 5, bathrooms: 6, images: ['https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80'], description: 'Breathtaking penthouse with panoramic views of Dubai Marina and the Arabian Gulf. Featuring a private rooftop pool, chef\'s kitchen, and bespoke Italian finishes throughout.', features: ['Pool', 'Gym', 'Concierge', 'Smart Home', 'Parking'] },
+  { _id: 'p2', title: 'Mayfair Garden Apartment', city: 'London', type: 'apartment', listingType: 'sale', price: 3200000, area: 180, bedrooms: 3, bathrooms: 2, images: ['https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800&q=80'], description: 'A stunning lateral apartment in the heart of Mayfair, one of London\'s most prestigious neighbourhoods.', features: ['24/7 Porter', 'Gym', 'Garden', 'Wine Cellar'] },
+  { _id: 'p3', title: 'Manhattan Skyline Loft', city: 'New York', type: 'apartment', listingType: 'rent', price: 18000, area: 220, bedrooms: 2, bathrooms: 2, images: ['https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&q=80'], description: 'Industrial chic loft in Tribeca with floor-to-ceiling windows showcasing iconic Manhattan views.', features: ['Doorman', 'Gym', 'Rooftop', 'Storage'] },
+  { _id: 'p4', title: 'Côte d\'Azur Beachfront Villa', city: 'Nice', type: 'villa', listingType: 'sale', price: 12800000, area: 800, bedrooms: 7, bathrooms: 8, images: ['https://images.unsplash.com/photo-1613977257363-707ba9348227?w=800&q=80'], description: 'Exceptional beachfront villa on the French Riviera with private beach access and infinity pool.', features: ['Private Beach', 'Pool', 'Tennis Court', 'Wine Cave', 'Staff Quarters'] },
+  { _id: 'p5', title: 'Singapore Marina Bay Residence', city: 'Singapore', type: 'apartment', listingType: 'rent', price: 22000, area: 260, bedrooms: 3, bathrooms: 3, images: ['https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=800&q=80'], description: 'Premier waterfront residence with stunning views of Marina Bay Sands and the city skyline.', features: ['Infinity Pool', 'Sky Garden', 'Concierge', 'Gym'] },
+  { _id: 'p6', title: 'Paris 8ème Haussmann Apartment', city: 'Paris', type: 'apartment', listingType: 'sale', price: 4600000, area: 240, bedrooms: 4, bathrooms: 3, images: ['https://images.unsplash.com/photo-1540518614846-7eded433c457?w=800&q=80'], description: 'Magnificent Haussmann-era apartment with original parquet floors, ornate fireplaces and Eiffel Tower views.', features: ['Balcony', 'Cave', 'Concierge', 'Parking'] },
+];
+
+const mockAuctions = [
+  { _id: 'a1', title: 'Burj Khalifa View Penthouse', city: 'Dubai', startingBid: 15000000, currentBid: 17500000, endsAt: new Date(Date.now() + 2*24*60*60*1000 + 4*60*60*1000), image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&q=80', bidders: 23 },
+  { _id: 'a2', title: 'Chelsea Riverside Mansion', city: 'London', startingBid: 8000000, currentBid: 9200000, endsAt: new Date(Date.now() + 5*60*60*1000), image: 'https://images.unsplash.com/photo-1449844908441-8829872d2607?w=600&q=80', bidders: 14 },
+  { _id: 'a3', title: 'Park Avenue Trophy Tower', city: 'New York', startingBid: 25000000, currentBid: 28000000, endsAt: new Date(Date.now() + 1*24*60*60*1000 + 2*60*60*1000), image: 'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=600&q=80', bidders: 31 },
+];
+
+const mockAgents = [
+  { name: 'Victoria Hartwell', specialty: 'Luxury Residential · UAE & UK', sales: 48, value: '$340M', rating: '4.9', initial: 'V', countries: ['UAE', 'UK', 'Monaco'] },
+  { name: 'Khalid Al-Mansouri', specialty: 'Commercial & Investment · MENA', sales: 62, value: '$580M', rating: '5.0', initial: 'K', countries: ['UAE', 'Saudi Arabia', 'Qatar'] },
+  { name: 'Sophia Chen', specialty: 'Asia-Pacific Residential', sales: 35, value: '$210M', rating: '4.8', initial: 'S', countries: ['Singapore', 'HK', 'Tokyo'] },
+  { name: 'Marcus Delacroix', specialty: 'European Heritage Properties', sales: 29, value: '$180M', rating: '4.9', initial: 'M', countries: ['France', 'Italy', 'Spain'] },
+];
+
+// ═══════════════════════════════════════════════
+// CURSOR
+// ═══════════════════════════════════════════════
+const cursor = document.getElementById('cursor');
+const follower = document.getElementById('cursorFollower');
+let mouseX = 0, mouseY = 0, follX = 0, follY = 0;
+document.addEventListener('mousemove', e => {
+  mouseX = e.clientX; mouseY = e.clientY;
+  cursor.style.left = mouseX + 'px';
+  cursor.style.top = mouseY + 'px';
+});
+function animateFollower() {
+  follX += (mouseX - follX) * 0.12;
+  follY += (mouseY - follY) * 0.12;
+  follower.style.left = follX + 'px';
+  follower.style.top = follY + 'px';
+  requestAnimationFrame(animateFollower);
+}
+animateFollower();
+document.querySelectorAll('a, button, [onclick]').forEach(el => {
+  el.addEventListener('mouseenter', () => follower.classList.add('hovering'));
+  el.addEventListener('mouseleave', () => follower.classList.remove('hovering'));
+});
+
+// ═══════════════════════════════════════════════
+// PAGE LOADER
+// ═══════════════════════════════════════════════
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('pageLoader').classList.add('hidden');
+    initAnimations();
+  }, 2200);
+});
+
+// ═══════════════════════════════════════════════
+// SCROLL ANIMATIONS
+// ═══════════════════════════════════════════════
+function initAnimations() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+}
+
+// NAV SCROLL
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('mainNav');
+  nav.classList.toggle('scrolled', window.scrollY > 50);
+});
+
+// ═══════════════════════════════════════════════
+// API CALLS
+// ═══════════════════════════════════════════════
+async function apiCall(endpoint, method = 'GET', body = null) {
+  try {
+    const headers = { 'Content-Type': 'application/json' };
+    if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+    const config = { method, headers };
+    if (body) config.body = JSON.stringify(body);
+    const res = await fetch(`${API_BASE}${endpoint}`, config);
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.message || 'API Error');
+    }
+    return await res.json();
+  } catch (e) {
+    console.warn('API offline, using mock data:', e.message);
+    return null;
+  }
+}
+
+// ═══════════════════════════════════════════════
+// PROPERTIES
+// ═══════════════════════════════════════════════
+function formatPrice(price, type) {
+  if (price >= 1000000) return `$${(price/1000000).toFixed(1)}M`;
+  if (price >= 1000) return `$${(price/1000).toFixed(0)}K`;
+  return `$${price.toLocaleString()}`;
+}
+
+function renderProperties(props) {
+  const grid = document.getElementById('propertiesGrid');
+  if (!props || props.length === 0) {
+    grid.innerHTML = '<div style="grid-column:span 3; text-align:center; padding:80px; color:var(--mist);">No properties found matching your criteria.</div>';
+    return;
+  }
+  grid.innerHTML = props.map((p, i) => `
+    <div class="property-card ${i === 0 ? 'first' : ''}" onclick="openPropertyModal('${p._id}')">
+      <img class="property-img" src="${p.images?.[0] || 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80'}" alt="${p.title}" loading="lazy">
+      <div class="property-tag ${p.listingType === 'rent' ? 'rent' : p.listingType === 'auction' ? 'auction' : ''}">${p.listingType === 'rent' ? 'For Rent' : p.listingType === 'auction' ? 'Auction' : 'For Sale'}</div>
+      <button class="property-favorite" onclick="event.stopPropagation(); toggleFavorite('${p._id}', this)">♡</button>
+      <div class="property-overlay">
+        <div class="property-location">📍 ${p.city}</div>
+        <div class="property-name">${p.title}</div>
+        <div class="property-price">${formatPrice(p.price, p.listingType)}<sub>${p.listingType === 'rent' ? ' / month' : ''}</sub></div>
+        <div class="property-features">
+          ${p.bedrooms ? `<div class="property-feature">🛏 ${p.bedrooms} Beds</div>` : ''}
+          ${p.bathrooms ? `<div class="property-feature">🛁 ${p.bathrooms} Baths</div>` : ''}
+          ${p.area ? `<div class="property-feature">📐 ${p.area}m²</div>` : ''}
+        </div>
+      </div>
+      <div class="property-actions">
+        <button class="property-action-btn" onclick="event.stopPropagation(); openPropertyModal('${p._id}')">View Details</button>
+        <button class="property-action-btn outline" onclick="event.stopPropagation(); scheduleViewing('${p._id}')">Schedule Visit</button>
+      </div>
+    </div>
+  `).join('');
+  // Add hover cursor events
+  grid.querySelectorAll('.property-card').forEach(el => {
+    el.addEventListener('mouseenter', () => follower.classList.add('hovering'));
+    el.addEventListener('mouseleave', () => follower.classList.remove('hovering'));
+  });
+}
+
+async function loadProperties(filter = {}) {
+  const data = await apiCall('/properties?' + new URLSearchParams({ ...filter, limit: 6 }));
+  const props = data?.data || mockProperties;
+  // Filter mock data
+  let filtered = mockProperties;
+  if (filter.listingType) filtered = filtered.filter(p => p.listingType === filter.listingType);
+  if (filter.type) filtered = filtered.filter(p => p.type === filter.type);
+  if (filter.city) filtered = filtered.filter(p => p.city.toLowerCase().includes(filter.city.toLowerCase()));
+  renderProperties(data?.data || filtered);
+}
+
+function filterProperties(type, btn) {
+  document.querySelectorAll('.prop-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeFilter = type;
+  if (type === 'all') loadProperties();
+  else if (['sale', 'rent'].includes(type)) loadProperties({ listingType: type });
+  else loadProperties({ type });
+}
+
+function filterByCity(city) {
+  scrollToSection('properties');
+  setTimeout(() => loadProperties({ city }), 600);
+  showNotification(`Showing properties in ${city}`, 'info');
+}
+
+function performSearch() {
+  const city = document.getElementById('searchCity').value;
+  const type = document.getElementById('searchType').value;
+  const listing = document.getElementById('searchListing').value;
+  const maxPrice = document.getElementById('searchBudget').value;
+  const filter = {};
+  if (city) filter.city = city;
+  if (type) filter.type = type;
+  if (listing) filter.listingType = listing;
+  if (maxPrice) filter.maxPrice = maxPrice;
+  scrollToSection('properties');
+  setTimeout(() => loadProperties(filter), 400);
+  showNotification('Searching properties...', 'info');
+}
+
+// ═══════════════════════════════════════════════
+// PROPERTY MODAL
+// ═══════════════════════════════════════════════
+async function openPropertyModal(id) {
+  const prop = mockProperties.find(p => p._id === id) || mockProperties[0];
+  const data = await apiCall(`/properties/${id}`);
+  const p = data?.data || prop;
+  
+  document.getElementById('propModalImages').innerHTML = `
+    <div class="prop-modal-img-main"><img src="${p.images?.[0] || 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80'}" alt="${p.title}"></div>
+    <div class="prop-modal-img-grid">
+      <div class="prop-modal-img-small"><img src="${p.images?.[1] || 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&q=80'}" alt=""></div>
+      <div class="prop-modal-img-small"><img src="${p.images?.[2] || 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&q=80'}" alt=""></div>
+    </div>
+  `;
+  document.getElementById('propModalInfo').innerHTML = `
+    <div style="display:flex;gap:8px;margin-bottom:16px;">
+      <span class="badge badge-gold">${p.type?.toUpperCase() || 'PROPERTY'}</span>
+      <span class="badge ${p.listingType === 'rent' ? 'badge-emerald' : 'badge-gold'}">${p.listingType === 'rent' ? 'FOR RENT' : 'FOR SALE'}</span>
+    </div>
+    <div class="prop-modal-title">${p.title}</div>
+    <div class="prop-modal-location">📍 ${p.city}</div>
+    <p class="prop-modal-description">${p.description || 'An exceptional property offering the finest in luxury living.'}</p>
+    <div class="prop-modal-specs">
+      ${p.bedrooms ? `<div class="prop-spec"><div class="prop-spec-label">Bedrooms</div><div class="prop-spec-value">${p.bedrooms}</div></div>` : ''}
+      ${p.bathrooms ? `<div class="prop-spec"><div class="prop-spec-label">Bathrooms</div><div class="prop-spec-value">${p.bathrooms}</div></div>` : ''}
+      ${p.area ? `<div class="prop-spec"><div class="prop-spec-label">Area (m²)</div><div class="prop-spec-value">${p.area}</div></div>` : ''}
+    </div>
+    ${p.features ? `
+    <div>
+      <div class="prop-spec-label" style="margin-bottom:12px;">Amenities</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        ${p.features.map(f => `<span class="badge badge-gold">${f}</span>`).join('')}
+      </div>
+    </div>` : ''}
+  `;
+  document.getElementById('propModalSidebar').innerHTML = `
+    <div style="text-align:right; min-width:200px;">
+      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:2px;color:var(--mist);margin-bottom:8px;">ASKING PRICE</div>
+      <div class="prop-modal-price">${formatPrice(p.price, p.listingType)}<sub>${p.listingType === 'rent' ? ' /mo' : ''}</sub></div>
+      <div class="prop-modal-actions">
+        <button class="btn-primary" onclick="scheduleViewing('${p._id}')">Schedule Viewing</button>
+        <button class="btn-secondary" onclick="makeInquiry('${p._id}')">Send Inquiry</button>
+        <button class="btn-secondary" onclick="toggleFavorite('${p._id}', this)">♡ Save Property</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('propModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closePropModal(overlay) {
+  overlay.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+// ═══════════════════════════════════════════════
+// AUCTIONS
+// ═══════════════════════════════════════════════
+function formatTime(ms) {
+  const s = Math.floor(ms/1000);
+  const d = Math.floor(s/86400);
+  const h = Math.floor((s%86400)/3600);
+  const m = Math.floor((s%3600)/60);
+  const sec = s % 60;
+  return { d, h, m, sec };
+}
+
+function startTimer(auctionId, endDate, containerId) {
+  if (auctionTimers[auctionId]) clearInterval(auctionTimers[auctionId]);
+  auctionTimers[auctionId] = setInterval(() => {
+    const remaining = endDate - Date.now();
+    if (remaining <= 0) {
+      clearInterval(auctionTimers[auctionId]);
+      const el = document.getElementById(containerId);
+      if (el) el.innerHTML = '<div style="color:var(--crimson);font-family:var(--font-mono);font-size:11px;letter-spacing:2px;">AUCTION ENDED</div>';
+      return;
+    }
+    const { d, h, m, sec } = formatTime(remaining);
+    const el = document.getElementById(containerId);
+    if (el) el.innerHTML = `
+      <div class="auction-timer-section">
+        <div class="timer-unit"><div class="timer-number">${String(d).padStart(2,'0')}</div><div class="timer-label">Days</div></div>
+        <div class="timer-unit"><div class="timer-number">${String(h).padStart(2,'0')}</div><div class="timer-label">Hours</div></div>
+        <div class="timer-unit"><div class="timer-number">${String(m).padStart(2,'0')}</div><div class="timer-label">Mins</div></div>
+        <div class="timer-unit"><div class="timer-number">${String(sec).padStart(2,'0')}</div><div class="timer-label">Secs</div></div>
+      </div>
+    `;
+  }, 1000);
+}
+
+function renderAuctions() {
+  const featured = mockAuctions[0];
+  document.getElementById('featuredAuction').innerHTML = `
+    <img class="auction-img" src="${featured.image}" alt="${featured.title}">
+    <div class="auction-info">
+      <div class="badge badge-crimson" style="margin-bottom:16px;">🔴 LIVE AUCTION</div>
+      <div class="property-name" style="font-size:24px; margin-bottom:4px;">${featured.title}</div>
+      <div class="property-location" style="margin-bottom:20px;">📍 ${featured.city}</div>
+      <div id="featuredTimer"></div>
+      <div class="auction-bid-row">
+        <div>
+          <div class="current-bid-label">Current Bid</div>
+          <div class="current-bid-amount">${formatPrice(featured.currentBid)}</div>
+          <div style="font-size:12px;color:var(--mist);margin-top:4px;">${featured.bidders} bidders</div>
+        </div>
+        <button class="btn-primary" onclick="placeBid('${featured._id}', ${featured.currentBid})">Place Bid →</button>
+      </div>
+    </div>
+  `;
+  startTimer(featured._id, featured.endsAt, 'featuredTimer');
+
+  const list = document.getElementById('auctionList');
+  list.innerHTML = mockAuctions.slice(1).map((a, i) => `
+    <div style="background:var(--obsidian-4); padding:24px; border:1px solid rgba(192,57,43,0.15); margin-bottom:12px; display:grid; grid-template-columns:1fr auto; gap:16px; align-items:center; cursor:none;" class="auction-list-item">
+      <div>
+        <div style="font-family:var(--font-display);font-size:18px;margin-bottom:4px;">${a.title}</div>
+        <div style="font-family:var(--font-mono);font-size:9px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">📍 ${a.city} · ${a.bidders} Bidders</div>
+        <div id="aTimer${i}"></div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:10px;color:var(--mist);letter-spacing:2px;font-family:var(--font-mono);margin-bottom:4px;">CURRENT BID</div>
+        <div style="font-family:var(--font-display);font-size:24px;color:var(--white);">${formatPrice(a.currentBid)}</div>
+        <button style="margin-top:8px;padding:8px 16px;background:transparent;border:1px solid var(--crimson);color:var(--crimson);font-family:var(--font-mono);font-size:9px;letter-spacing:2px;cursor:none;transition:background 0.3s;" onclick="placeBid('${a._id}', ${a.currentBid})" onmouseenter="this.style.background='rgba(192,57,43,0.2)'" onmouseleave="this.style.background='transparent'">BID NOW</button>
+      </div>
+    </div>
+  `).join('');
+  mockAuctions.slice(1).forEach((a, i) => startTimer(a._id, a.endsAt, `aTimer${i}`));
+}
+
+async function placeBid(id, currentBid) {
+  if (!authToken) { openAuthModal(); showNotification('Please sign in to place bids', 'error'); return; }
+  const amount = prompt(`Current bid: ${formatPrice(currentBid)}\nEnter your bid amount ($):`);
+  if (!amount || isNaN(amount)) return;
+  if (Number(amount) <= currentBid) { showNotification('Bid must be higher than current bid', 'error'); return; }
+  const data = await apiCall('/bids', 'POST', { auctionId: id, amount: Number(amount) });
+  showNotification(data ? 'Bid placed successfully!' : `Bid of ${formatPrice(Number(amount))} submitted! ✓`, 'success');
+}
+
+// ═══════════════════════════════════════════════
+// AGENTS
+// ═══════════════════════════════════════════════
+function renderAgents() {
+  document.getElementById('agentsGrid').innerHTML = mockAgents.map(a => `
+    <div class="agent-card">
+      <div class="agent-img-container">
+        <div class="agent-img-placeholder">👤</div>
+      </div>
+      <div class="agent-info">
+        <div class="agent-name">${a.name}</div>
+        <div class="agent-specialty">${a.specialty}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px;">
+          ${a.countries.map(c => `<span style="font-family:var(--font-mono);font-size:8px;padding:3px 8px;border:1px solid rgba(201,169,110,0.2);color:var(--mist);letter-spacing:1px;">${c}</span>`).join('')}
+        </div>
+        <div class="agent-stats">
+          <div class="agent-stat-item"><div class="agent-stat-val">${a.sales}</div><div class="agent-stat-key">Sales</div></div>
+          <div class="agent-stat-item"><div class="agent-stat-val">${a.value}</div><div class="agent-stat-key">Volume</div></div>
+          <div class="agent-stat-item"><div class="agent-stat-val">⭐${a.rating}</div><div class="agent-stat-key">Rating</div></div>
+        </div>
+        <div class="agent-social">
+          <button class="agent-social-btn" onclick="contactAgent('${a.name}')">✉</button>
+          <button class="agent-social-btn" onclick="contactAgent('${a.name}')">📞</button>
+          <button class="agent-social-btn">in</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function contactAgent(name) {
+  showNotification(`Connecting you with ${name}...`, 'info');
+  setTimeout(() => showNotification(`${name} will contact you shortly!`, 'success'), 1500);
+}
+
+// ═══════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════
+function openAuthModal(tab = 'login') {
+  document.getElementById('authModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+  switchTab(tab);
+}
+function closeModal(overlay) {
+  overlay.classList.remove('active');
+  document.body.style.overflow = '';
+}
+function switchTab(tab) {
+  const isLogin = tab === 'login';
+  document.getElementById('loginTab').classList.toggle('active', isLogin);
+  document.getElementById('registerTab').classList.toggle('active', !isLogin);
+  document.getElementById('loginForm').style.display = isLogin ? 'block' : 'none';
+  document.getElementById('registerForm').style.display = !isLogin ? 'block' : 'none';
+  document.getElementById('modalTitle').textContent = isLogin ? 'Welcome Back' : 'Join LUXE Estates';
+}
+
+async function handleLogin() {
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
+  if (!email || !password) { showNotification('Please fill all fields', 'error'); return; }
+  const data = await apiCall('/auth/login', 'POST', { email, password });
+  if (data?.data) {
+    authToken = data.data.token;
+    currentUser = data.data.user;
+    localStorage.setItem('luxe_token', authToken);
+    localStorage.setItem('luxe_user', JSON.stringify(currentUser));
+    closeModal(document.getElementById('authModal'));
+    showNotification(`Welcome back, ${currentUser.name}! ✓`, 'success');
+  } else {
+    // Demo mode
+    authToken = 'demo-token';
+    currentUser = { name: 'Demo User', email, role: 'buyer' };
+    localStorage.setItem('luxe_token', authToken);
+    closeModal(document.getElementById('authModal'));
+    showNotification('Welcome to LUXE Estates! (Demo Mode)', 'success');
+  }
+}
+
+async function handleRegister() {
+  const name = document.getElementById('regName').value;
+  const email = document.getElementById('regEmail').value;
+  const password = document.getElementById('regPassword').value;
+  const role = document.getElementById('regRole').value;
+  if (!name || !email || !password) { showNotification('Please fill all fields', 'error'); return; }
+  const data = await apiCall('/auth/register', 'POST', { name, email, password, role });
+  if (data?.data) {
+    authToken = data.data.token;
+    currentUser = data.data.user;
+    localStorage.setItem('luxe_token', authToken);
+    localStorage.setItem('luxe_user', JSON.stringify(currentUser));
+    closeModal(document.getElementById('authModal'));
+    showNotification('Account created successfully! ✓', 'success');
+  } else {
+    authToken = 'demo-token';
+    currentUser = { name, email, role };
+    localStorage.setItem('luxe_token', authToken);
+    closeModal(document.getElementById('authModal'));
+    showNotification(`Welcome, ${name}! Account created (Demo Mode)`, 'success');
+  }
+}
+
+// ═══════════════════════════════════════════════
+// FAVORITES
+// ═══════════════════════════════════════════════
+async function toggleFavorite(id, btn) {
+  if (!authToken) { openAuthModal(); return; }
+  const data = await apiCall(`/favorites/${id}`, 'POST');
+  if (btn) {
+    btn.textContent = btn.textContent === '♡' ? '♥' : '♡';
+    btn.style.color = btn.textContent === '♥' ? 'var(--crimson)' : '';
+  }
+  showNotification(data ? 'Favorite updated!' : 'Property saved to favorites ♥', 'success');
+}
+
+// ═══════════════════════════════════════════════
+// VIEWING / INQUIRY
+// ═══════════════════════════════════════════════
+async function scheduleViewing(propId) {
+  if (!authToken) { openAuthModal(); showNotification('Sign in to schedule viewings', 'error'); return; }
+  const date = prompt('Enter preferred viewing date (YYYY-MM-DD):');
+  if (!date) return;
+  await apiCall('/viewings', 'POST', { propertyId: propId, date });
+  showNotification('Viewing scheduled! Our agent will confirm shortly.', 'success');
+}
+
+async function makeInquiry(propId) {
+  if (!authToken) { openAuthModal(); return; }
+  const msg = prompt('Your message to the agent:');
+  if (!msg) return;
+  await apiCall('/inquiries', 'POST', { propertyId: propId, message: msg });
+  showNotification('Inquiry sent! Agent will respond within 24 hours.', 'success');
+}
+
+// ═══════════════════════════════════════════════
+// NEWSLETTER
+// ═══════════════════════════════════════════════
+function subscribeNewsletter() {
+  const email = document.getElementById('newsletterEmail').value;
+  if (!email || !email.includes('@')) { showNotification('Please enter a valid email', 'error'); return; }
+  showNotification('You\'re subscribed to LUXE Market Intelligence! ✓', 'success');
+  document.getElementById('newsletterEmail').value = '';
+}
+
+// ═══════════════════════════════════════════════
+// NOTIFICATIONS
+// ═══════════════════════════════════════════════
+function showNotification(message, type = 'info') {
+  const icons = { info: 'ℹ', success: '✓', error: '✕' };
+  const container = document.getElementById('notifications');
+  const notif = document.createElement('div');
+  notif.className = `notification ${type}`;
+  notif.innerHTML = `
+    <div class="notification-icon">${icons[type]}</div>
+    <div class="notification-text">${message}</div>
+    <button class="notification-close" onclick="this.parentElement.remove()">✕</button>
+  `;
+  container.appendChild(notif);
+  requestAnimationFrame(() => notif.classList.add('show'));
+  setTimeout(() => {
+    notif.classList.remove('show');
+    setTimeout(() => notif.remove(), 400);
+  }, 4000);
+}
+
+// ═══════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  return false;
+}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+loadProperties();
+renderAuctions();
+renderAgents();
+
+// Keyboard ESC to close modals
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.getElementById('authModal').classList.remove('active');
+    document.getElementById('propModal').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+});
+
+// Check if user already logged in
+if (currentUser) {
+  setTimeout(() => showNotification(`Welcome back, ${currentUser.name}!`, 'info'), 3000);
+}
+
+console.log('%c LUXE ESTATES ', 'background:#C9A96E; color:#0A0A0F; font-size:20px; font-weight:bold; padding:10px 20px;');
+console.log('%cGlobal Real Estate Platform | API: ' + API_BASE, 'color:#C9A96E; font-size:13px;');
+console.log('%cVersion 2.0 | 2026', 'color:#8A8AA0; font-size:12px;');
+</script>
+</body>
+</html>

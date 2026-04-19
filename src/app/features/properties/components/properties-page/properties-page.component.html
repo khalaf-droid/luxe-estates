@@ -1,0 +1,77 @@
+<!-- ─────────────────────────────────────────────────────────────────────────
+  LUXE ESTATES — Properties Page
+  Visual reference: Template/index.html lines 1526–1553
+  Classes: .properties-section, .properties-header, .properties-tabs,
+           .prop-tab, .section-eyebrow, .section-title, .properties-grid
+───────────────────────────────────────────────────────────────────────────── -->
+
+<section class="properties-section" #sectionRef>
+
+  <!-- ── Section header — Template lines 1527–1534 ─────────────────────── -->
+  <div class="properties-header reveal">
+    <div>
+      <!-- Eyebrow — Template line 1529: .section-eyebrow -->
+      <div class="section-eyebrow">Curated Selection</div>
+      <!-- Title — Template line 1530: .section-title with <em> italic gold -->
+      <h2 class="section-title">Featured <em>Properties</em></h2>
+    </div>
+    <div>
+      <!-- Sub-text — Template line 1533 -->
+      <p class="section-sub">
+        Every listing is personally vetted by our expert team of global property consultants.
+      </p>
+    </div>
+  </div>
+
+  <!-- ── Filter tabs — Template lines 1537–1544 ────────────────────────── -->
+  <!-- .properties-tabs with .prop-tab, active state: gold border + gold text -->
+  <div class="properties-tabs reveal">
+    <button
+      *ngFor="let tab of filterTabs"
+      class="prop-tab"
+      [class.active]="activeFilter === tab.key"
+      (click)="onFilterClick(tab.key)"
+      data-cursor-hover>
+      {{ tab.label }}
+    </button>
+  </div>
+
+  <!-- ── Loading state ──────────────────────────────────────────────────── -->
+  <div *ngIf="isLoading" class="properties-loading">
+    <div class="loading-bar"></div>
+  </div>
+
+  <!-- ── Properties grid — Template lines 1546–1548 ────────────────────── -->
+  <!-- repeat(3, 1fr), gap: 2px, first card spans 2 cols at 16:9 -->
+  <div *ngIf="!isLoading" class="properties-grid">
+    <app-property-card
+      *ngFor="let prop of properties; let i = index; trackBy: trackById"
+      [property]="prop"
+      [isFirst]="i === 0"
+      (viewDetails)="onViewDetails($event)"
+      (scheduleViewing)="onScheduleViewing($event)"
+      (favoriteToggled)="onFavoriteToggled($event)">
+    </app-property-card>
+  </div>
+
+  <!-- Empty state — OUTSIDE the grid so it's not a grid item ──────────── -->
+  <div *ngIf="!isLoading && properties.length === 0" class="properties-empty reveal">
+    <p class="properties-empty-text">No properties match this filter.</p>
+  </div>
+
+  <!-- ── View All button — Template line 1550–1552 ──────────────────────── -->
+  <div class="properties-footer reveal">
+    <button class="btn-secondary" (click)="onViewAll()" data-cursor-hover>
+      View All Properties →
+    </button>
+  </div>
+
+</section>
+
+<!-- ── Property Modal — Task 04 ──────────────────────────────────────────── -->
+<!-- *ngIf: present in DOM only when a property is selected (opens modal) -->
+<app-property-modal
+  *ngIf="selectedProperty"
+  [property]="selectedProperty"
+  (closed)="onModalClosed()">
+</app-property-modal>

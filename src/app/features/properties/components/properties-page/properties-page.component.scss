@@ -1,0 +1,231 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// LUXE ESTATES — Properties Page Styles
+// Visual reference: Template/index.html lines 376–416 (sections) + 1276–1295 (tabs)
+// All values copied EXACTLY from the template — no deviations
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── Section container — Template line 408 ────────────────────────────────────
+.properties-section {
+  background: var(--obsidian-2);
+  padding: 120px 60px;        // Template line 377: section { padding: 120px 60px }
+}
+
+// ── Section header — Template lines 409–412 ──────────────────────────────────
+.properties-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 60px;
+}
+
+// ── Eyebrow — Template lines 378–390 ─────────────────────────────────────────
+// (global .section-eyebrow style — repeated here for encapsulation)
+.section-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+
+  // Gold line before eyebrow text — Template line 387–390
+  &::before {
+    content: '';
+    width: 30px;
+    height: 1px;
+    background: var(--gold);
+  }
+}
+
+// ── Section title — Template lines 391–399 ───────────────────────────────────
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 5vw, 72px);
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: -1px;
+  margin-bottom: 20px;
+
+  // <em> inside title → italic + gold (Template line 399)
+  em {
+    font-style: italic;
+    color: var(--gold);
+  }
+}
+
+// ── Section sub-text — Template lines 400–405 ────────────────────────────────
+.section-sub {
+  font-size: 15px;
+  color: var(--mist);
+  line-height: 1.7;
+  max-width: 500px;
+  text-align: end;            // RTL-safe: matches template "text-align:right"
+}
+
+// ── Filter tabs — Template lines 1276–1295 ───────────────────────────────────
+.properties-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 40px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+// Individual tab — Template lines 1281–1294
+.prop-tab {
+  padding: 16px 32px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--mist);
+  // cursor: none — global styles.scss handles this
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;         // overlap the container border
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  transition: color 0.3s var(--transition), border-color 0.3s var(--transition);
+
+  // Active state — Template line 1294
+  &.active {
+    color: var(--gold);
+    border-bottom-color: var(--gold);
+  }
+
+  // Hover state — Template line 1295
+  &:hover {
+    color: var(--white);
+  }
+}
+
+// ── Properties grid — Template lines 413–416 ─────────────────────────────────
+// repeat(3, 1fr), gap: 2px — the 2px gap creates the panel-grid luxury look
+.properties-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+
+// ── Loading state ─────────────────────────────────────────────────────────────
+.properties-loading {
+  padding: 80px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.loading-bar {
+  width: 200px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset-inline-start: -100%;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    background: var(--gold);
+    animation: loaderFill 1.4s var(--transition) infinite;
+  }
+}
+
+@keyframes loaderFill {
+  to { inset-inline-start: 100%; }
+}
+
+// ── Empty state ───────────────────────────────────────────────────────────────
+.properties-empty {
+  grid-column: 1 / -1;
+  padding: 80px 0;
+  text-align: center;
+}
+
+.properties-empty-text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--mist);
+}
+
+// ── View All button row ───────────────────────────────────────────────────────
+.properties-footer {
+  text-align: center;
+  margin-top: 60px;
+}
+
+// ── btn-secondary — Template lines 256–270 ───────────────────────────────────
+.btn-secondary {
+  padding: 16px 40px;
+  background: transparent;
+  color: var(--white);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  // cursor: none — global styles.scss handles this
+  transition: border-color 0.3s var(--transition), color 0.3s var(--transition);
+
+  &:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+}
+
+// ── Scroll-reveal — Template lines 1179–1187 ─────────────────────────────────
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s var(--transition), transform 0.8s var(--transition);
+
+  &.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+
+// ── Responsive — Template lines 1330–1368 ─────────────────────────────────────
+@media (max-width: 1024px) {
+  .properties-section {
+    padding: 80px 30px;
+  }
+
+  .properties-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .properties-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .section-sub {
+    text-align: start;
+  }
+}
+
+@media (max-width: 768px) {
+  .properties-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .prop-tab {
+    padding: 12px 16px;
+    font-size: 9px;
+  }
+}

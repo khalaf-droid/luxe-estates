@@ -1,0 +1,86 @@
+<!-- ─────────────────────────────────────────────────────────────────────────
+  LUXE ESTATES — Property Card
+  Visual reference: Template/index.html lines 2000–2025 (renderProperties fn)
+  CSS classes: .property-card, .property-img, .property-overlay, .property-tag,
+               .property-favorite, .property-location, .property-name,
+               .property-price, .property-features, .property-actions,
+               .property-action-btn
+───────────────────────────────────────────────────────────────────────────── -->
+
+<div
+  class="property-card"
+  [class.property-card--first]="isFirst"
+  (click)="onViewDetails($event)"
+  data-cursor-hover>
+
+  <!-- ── Image / Placeholder ─────────────────────────────────────────────── -->
+  <img
+    *ngIf="property.images?.length && !imageError"
+    class="property-img"
+    [src]="property.images[0]"
+    [alt]="property.title"
+    loading="lazy"
+    (error)="onImageError()" />
+
+  <!-- Placeholder when no image or image failed to load -->
+  <div *ngIf="!property.images?.length || imageError" class="property-img-placeholder"></div>
+
+  <!-- ── Badge — top left (Template line 445–457) ────────────────────────── -->
+  <div class="property-tag" [class.rent]="property.status === 'for-rent'">
+    {{ tagLabel }}
+  </div>
+
+  <!-- ── Favorite button — top right (Template line 458–470) ────────────── -->
+  <button
+    class="property-favorite"
+    [class.property-favorite--active]="isFavorited"
+    (click)="onFavoriteClick($event)"
+    [attr.aria-label]="isFavorited ? 'Remove from favorites' : 'Add to favorites'"
+    data-cursor-hover>
+    {{ isFavorited ? '♥' : '♡' }}
+  </button>
+
+  <!-- ── Overlay gradient + property info ─────────────────────────────────── -->
+  <div class="property-overlay">
+    <!-- City — Template line 471–478 -->
+    <div class="property-location">{{ property.city }}</div>
+
+    <!-- Title — Template line 479–486 -->
+    <div class="property-name">{{ property.title }}</div>
+
+    <!-- Price — Template line 487–494 -->
+    <div class="property-price">
+      {{ formattedPrice }}
+    </div>
+
+    <!-- Specs: beds | baths | area — Template line 495–505 -->
+    <div class="property-features">
+      <div *ngIf="property.bedrooms" class="property-feature">
+        <span class="feature-icon">bed</span> {{ property.bedrooms }} Beds
+      </div>
+      <div *ngIf="property.bathrooms" class="property-feature">
+        <span class="feature-icon">bath</span> {{ property.bathrooms }} Baths
+      </div>
+      <div *ngIf="property.area" class="property-feature">
+        <span class="feature-icon">m²</span> {{ property.area }}
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Hover action buttons — Template line 506–531 ───────────────────── -->
+  <div class="property-actions">
+    <button
+      class="property-action-btn"
+      (click)="onViewDetails($event)"
+      data-cursor-hover>
+      View Details
+    </button>
+    <button
+      class="property-action-btn property-action-btn--outline"
+      (click)="onScheduleViewing($event)"
+      data-cursor-hover>
+      Schedule Visit
+    </button>
+  </div>
+
+</div>

@@ -1,0 +1,191 @@
+<!-- ─────────────────────────────────────────────────────────────────────────
+  LUXE ESTATES — Property Modal (Task 06 update)
+  Visual reference: Template/index.html lines 1104–1150
+  Inline forms for Schedule Viewing + Make Inquiry (ReactiveFormsModule)
+  Style B inputs: coding-rules.md §3.5
+───────────────────────────────────────────────────────────────────────────── -->
+
+<div
+  class="prop-modal-overlay"
+  [class.active]="isActive"
+  (click)="onOverlayClick($event)"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-label]="property.title">
+
+  <div class="prop-modal">
+
+    <!-- ── Close button ─────────────────────────────────────────────────── -->
+    <button class="modal-close" (click)="close()" aria-label="Close" data-cursor-hover>
+      &times;
+    </button>
+
+    <!-- ── Image gallery — 2fr | 1fr ────────────────────────────────────── -->
+    <div class="prop-modal-images">
+      <div class="prop-modal-img-main">
+        <img *ngIf="mainImage"  [src]="mainImage"  [alt]="property.title" loading="eager" />
+        <div *ngIf="!mainImage" class="prop-modal-img-placeholder"></div>
+      </div>
+      <div class="prop-modal-img-grid">
+        <div class="prop-modal-img-small">
+          <img *ngIf="sideImage1"  [src]="sideImage1" [alt]="property.title" />
+          <div *ngIf="!sideImage1" class="prop-modal-img-placeholder"></div>
+        </div>
+        <div class="prop-modal-img-small">
+          <img *ngIf="sideImage2"  [src]="sideImage2" [alt]="property.title" />
+          <div *ngIf="!sideImage2" class="prop-modal-img-placeholder"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Modal body — 1fr | auto ──────────────────────────────────────── -->
+    <div class="prop-modal-body">
+
+      <!-- ── Left: property details ─────────────────────────────────────── -->
+      <div class="prop-modal-info">
+
+        <div class="prop-modal-title">{{ property.title }}</div>
+        <div class="prop-modal-location">{{ property.location }}</div>
+        <p   class="prop-modal-description">{{ property.description }}</p>
+
+        <!-- Specs: beds | baths | area — repeat(3,1fr) gap: 1px -->
+        <div class="prop-modal-specs">
+          <div class="prop-spec">
+            <div class="prop-spec-label">Bedrooms</div>
+            <div class="prop-spec-value">{{ property.bedrooms }}</div>
+          </div>
+          <div class="prop-spec">
+            <div class="prop-spec-label">Bathrooms</div>
+            <div class="prop-spec-value">{{ property.bathrooms }}</div>
+          </div>
+          <div class="prop-spec">
+            <div class="prop-spec-label">Area</div>
+            <div class="prop-spec-value">{{ property.area }}m²</div>
+          </div>
+        </div>
+
+        <!-- Feature tags -->
+        <div *ngIf="property.features?.length" class="prop-modal-features">
+          <span *ngFor="let f of property.features" class="prop-feature-tag">{{ f }}</span>
+        </div>
+
+        <!-- ── TASK 06 — Inline Schedule Viewing form ──────────────────── -->
+        <div *ngIf="activeForm === 'viewing'" class="modal-form-section">
+          <div class="modal-form-title">Schedule a Viewing</div>
+          <form [formGroup]="viewingForm" (ngSubmit)="submitViewing()">
+            <div class="form-group">
+              <label class="form-label" for="viewingDate">Preferred Date</label>
+              <!-- Style B input — coding-rules.md §3.5 -->
+              <input
+                id="viewingDate"
+                type="date"
+                class="form-input"
+                formControlName="date"
+                [min]="minDate"
+                [class.form-input--error]="viewingForm.get('date')?.invalid && viewingForm.get('date')?.touched" />
+              <span
+                *ngIf="viewingForm.get('date')?.invalid && viewingForm.get('date')?.touched"
+                class="form-error">
+                Please select a date
+              </span>
+            </div>
+            <div class="modal-form-actions">
+              <button
+                type="submit"
+                class="btn-primary"
+                [disabled]="viewingForm.invalid || isSubmitting"
+                data-cursor-hover>
+                {{ isSubmitting ? 'Scheduling…' : 'Confirm Viewing' }}
+              </button>
+              <button
+                type="button"
+                class="btn-ghost"
+                (click)="activeForm = 'none'"
+                data-cursor-hover>
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- ── TASK 06 — Inline Make Inquiry form ─────────────────────── -->
+        <div *ngIf="activeForm === 'inquiry'" class="modal-form-section">
+          <div class="modal-form-title">Send an Inquiry</div>
+          <form [formGroup]="inquiryForm" (ngSubmit)="submitInquiry()">
+            <div class="form-group">
+              <label class="form-label" for="inquiryMessage">Your Message</label>
+              <!-- Style B input — coding-rules.md §3.5 -->
+              <textarea
+                id="inquiryMessage"
+                class="form-input form-textarea"
+                formControlName="message"
+                rows="4"
+                placeholder="Tell us about your interest in this property…"
+                [class.form-input--error]="inquiryForm.get('message')?.invalid && inquiryForm.get('message')?.touched">
+              </textarea>
+              <span
+                *ngIf="inquiryForm.get('message')?.invalid && inquiryForm.get('message')?.touched"
+                class="form-error">
+                Message must be at least 10 characters
+              </span>
+            </div>
+            <div class="modal-form-actions">
+              <button
+                type="submit"
+                class="btn-primary"
+                [disabled]="inquiryForm.invalid || isSubmitting"
+                data-cursor-hover>
+                {{ isSubmitting ? 'Sending…' : 'Send Inquiry' }}
+              </button>
+              <button
+                type="button"
+                class="btn-ghost"
+                (click)="activeForm = 'none'"
+                data-cursor-hover>
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+      <!-- /prop-modal-info -->
+
+      <!-- ── Right: price + action buttons ─────────────────────────────── -->
+      <div class="prop-modal-sidebar">
+
+        <div class="prop-modal-price">{{ formattedPrice }}</div>
+
+        <div class="prop-modal-badge" [class.rent]="property.status === 'for-rent'">
+          {{ property.status === 'for-rent' ? 'For Rent' : 'For Sale' }}
+        </div>
+
+        <!-- Action buttons — Task 06: onclick triggers auth guard then shows form -->
+        <div class="prop-modal-actions">
+          <button
+            class="btn-primary"
+            [class.btn-primary--active]="activeForm === 'viewing'"
+            (click)="onScheduleViewingClick()"
+            data-cursor-hover>
+            Schedule Viewing
+          </button>
+          <button
+            class="btn-secondary"
+            [class.btn-secondary--active]="activeForm === 'inquiry'"
+            (click)="onMakeInquiryClick()"
+            data-cursor-hover>
+            Make Inquiry
+          </button>
+        </div>
+
+      </div>
+      <!-- /prop-modal-sidebar -->
+
+    </div>
+    <!-- /prop-modal-body -->
+
+  </div>
+  <!-- /prop-modal -->
+
+</div>
+<!-- /prop-modal-overlay -->
