@@ -1,11 +1,9 @@
 <nav class="nav" [class.scrolled]="isScrolled">
   <div class="nav-inner">
-    <!-- Logo -->
     <a class="nav-logo" routerLink="/">
       LUXE<span class="dot">·</span>ESTATES
     </a>
 
-    <!-- Links -->
     <ul class="nav-links">
       <li><a routerLink="/properties" routerLinkActive="active">Properties</a></li>
       <li><a routerLink="/auctions" routerLinkActive="active">Auctions</a></li>
@@ -13,10 +11,29 @@
       <li><a routerLink="/agents" routerLinkActive="active">Agents</a></li>
     </ul>
 
-    <!-- Actions -->
     <div class="nav-actions">
-      <a class="sign-in-btn" (click)="openLogin()" style="cursor: pointer;">SIGN IN</a>
-      <button class="btn-list" (click)="openLogin()">List Property</button>
+      <ng-container *ngIf="auth.currentUser$ | async as user; else guestTemplate">
+        <div class="user-profile-wrapper">
+          <div class="user-info" (click)="toggleDropdown()">
+            <div class="user-avatar">{{ user.name[0] | uppercase }}</div>
+            <span class="user-name">{{ user.name }}</span>
+            <span class="chevron" [class.open]="showDropdown">▾</span>
+          </div>
+
+          <div class="user-dropdown" *ngIf="showDropdown">
+            <a class="dropdown-item" routerLink="/dashboard" (click)="showDropdown = false">👤 Dashboard</a>
+            <a class="dropdown-item" routerLink="/favorites" (click)="showDropdown = false">❤️ Saved Items</a>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-item logout-btn" (click)="onLogout()">🚪 Sign Out</button>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-template #guestTemplate>
+        <button class="btn-signin" (click)="openLogin()">SIGN IN</button>
+      </ng-template>
+      
+      <button class="btn-list" (click)="onListPropertyClick()">List Property</button>
     </div>
   </div>
 </nav>

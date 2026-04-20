@@ -36,15 +36,8 @@
   color: #fafaf8;
   text-decoration: none;
   text-transform: uppercase;
-
-  .dot {
-    color: #c9a96e;
-  }
-
-  &:hover {
-    color: #c9a96e;
-    transition: color 0.3s ease;
-  }
+  .dot { color: #c9a96e; }
+  &:hover { color: #c9a96e; transition: color 0.3s ease; }
 }
 
 .nav-links {
@@ -53,7 +46,6 @@
   list-style: none;
   margin: 0;
   padding: 0;
-
   a {
     font-family: 'DM Sans', sans-serif;
     font-size: 12px;
@@ -64,87 +56,84 @@
     text-decoration: none;
     position: relative;
     transition: color 0.3s ease;
-
     &::after {
-      content: '';
-      position: absolute;
-      bottom: -4px;
-      left: 0;
-      width: 0;
-      height: 1px;
-      background: #c9a96e;
-      transition: width 0.3s ease;
+      content: ''; position: absolute; bottom: -4px; left: 0;
+      width: 0; height: 1px; background: #c9a96e; transition: width 0.3s ease;
     }
-
-    &:hover,
-    &.active {
-      color: #fafaf8;
-
-      &::after {
-        width: 100%;
-      }
-    }
+    &:hover, &.active { color: #fafaf8; &::after { width: 100%; } }
   }
 }
 
 .nav-actions {
   display: flex;
-  gap: 12px;
+  gap: 15px;
   align-items: center;
 }
 
-.btn-signin {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: rgba(250, 250, 248, 0.7);
-  background: transparent;
-  border: 1px solid rgba(250, 250, 248, 0.2);
-  padding: 9px 22px;
-  cursor: none;
-  transition: all 0.3s ease;
+/* --- إسلام: قسم البروفايل والقائمة المنسدلة --- */
+.user-profile-wrapper {
+  position: relative;
+}
 
-  &:hover {
-    color: #fafaf8;
-    border-color: rgba(250, 250, 248, 0.5);
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 5px;
+  
+  .user-avatar {
+    width: 30px; height: 30px; background: #c9a96e; color: #0a0a0f;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 12px; font-family: 'DM Sans', sans-serif;
   }
+  
+  .user-name {
+    font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 1px;
+    text-transform: uppercase; color: #fafaf8; transition: 0.3s;
+  }
+
+  .chevron { color: #c9a96e; font-size: 12px; transition: 0.3s; &.open { transform: rotate(180deg); } }
+  &:hover .user-name { color: #c9a96e; }
+}
+
+.user-dropdown {
+  position: absolute; top: calc(100% + 15px); right: 0;
+  background: #111118; border: 1px solid rgba(201, 169, 110, 0.2);
+  min-width: 190px; box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+  animation: fadeInDropdown 0.3s ease;
+  
+  .dropdown-item {
+    display: block; width: 100%; padding: 14px 20px; color: rgba(250, 250, 248, 0.7);
+    font-family: 'DM Sans', sans-serif; font-size: 11px; text-transform: uppercase;
+    letter-spacing: 1px; text-align: left; background: transparent; border: none;
+    cursor: pointer; text-decoration: none; transition: 0.2s;
+    &:hover { background: rgba(201, 169, 110, 0.08); color: #c9a96e; }
+  }
+  .dropdown-divider { height: 1px; background: rgba(201, 169, 110, 0.1); margin: 4px 0; }
+  .logout-btn { color: #c0392b; &:hover { background: #c0392b; color: #fff; } }
+}
+
+@keyframes fadeInDropdown { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* --- الأزرار الأصلية --- */
+.btn-signin {
+  font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500;
+  letter-spacing: 2px; text-transform: uppercase; color: rgba(250, 250, 248, 0.7);
+  background: transparent; border: 1px solid rgba(250, 250, 248, 0.2);
+  padding: 9px 22px; cursor: pointer; transition: all 0.3s ease;
+  &:hover { color: #fafaf8; border-color: rgba(250, 250, 248, 0.5); }
 }
 
 .btn-list {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: #0a0a0f;
-  background: #c9a96e;
-  border: 1px solid #c9a96e;
-  padding: 9px 22px;
-  cursor: none;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: #e8d5b0;
-    border-color: #e8d5b0;
-  }
+  font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500;
+  letter-spacing: 2px; text-transform: uppercase; color: #0a0a0f;
+  background: #c9a96e; border: 1px solid #c9a96e;
+  padding: 9px 22px; cursor: pointer; transition: all 0.3s ease;
+  &:hover { background: #e8d5b0; border-color: #e8d5b0; }
 }
 
 @media (max-width: 768px) {
-  .nav {
-    padding: 16px 20px;
-
-    &.scrolled {
-      padding: 12px 20px;
-    }
-  }
-
-  .nav-links {
-    display: none;
-  }
-
-  .btn-list {
-    display: none;
-  }
+  .nav { padding: 16px 20px; &.scrolled { padding: 12px 20px; } }
+  .nav-links, .btn-list { display: none; }
 }

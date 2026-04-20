@@ -27,7 +27,7 @@
         <input id="login-password" type="password" class="auth-input" [class.invalid]="isFieldInvalid(loginForm, 'password')" formControlName="password" placeholder="••••••••" />
         <span class="auth-validation" *ngIf="isFieldInvalid(loginForm, 'password')">Password is required</span>
         
-        <a href="javascript:void(0)" class="forgot-password" (click)="goForgot()" style="display: block; text-align: left; margin-top: 8px;">Forgot Password?</a>
+        <a href="javascript:void(0)" class="forgot-password" (click)="goForgot()" style="display: block; text-align: left; margin-top: 8px; direction: ltr;">Forgot Password?</a>
       </div>
 
       <button type="submit" class="auth-submit" [disabled]="isLoading">
@@ -38,9 +38,11 @@
     </form>
 
     <form *ngIf="activeTab === 'register'" [formGroup]="registerForm" (ngSubmit)="onRegister()" class="auth-form" novalidate>
+      
       <div class="auth-field">
         <label class="auth-label">Full Name</label>
-        <input type="text" class="auth-input" [class.invalid]="isFieldInvalid(registerForm, 'name')" formControlName="name" placeholder="John Doe" />
+        <input type="text" class="auth-input" [class.invalid]="isFieldInvalid(registerForm, 'name')" formControlName="name" placeholder="Enter your full name" />
+        <span class="auth-validation" *ngIf="isFieldInvalid(registerForm, 'name')">Name is required</span>
       </div>
 
       <div class="auth-field">
@@ -63,13 +65,6 @@
         <span class="auth-validation" *ngIf="isFieldInvalid(registerForm, 'confirmPassword')">Passwords do not match</span>
       </div>
 
-      <div class="auth-field">
-        <label class="auth-label">I am a...</label>
-        <select class="auth-input auth-select" formControlName="role">
-          <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
-        </select>
-      </div>
-
       <button type="submit" class="auth-submit" [disabled]="isLoading">CREATE ACCOUNT</button>
     </form>
 
@@ -83,6 +78,7 @@
       </div>
 
       <button type="submit" class="auth-submit">SEND OTP</button>
+      
       <button type="button" class="auth-switch-btn" style="margin-top: 15px;" (click)="switchTab('login')">← Back to Login</button>
     </form>
 
