@@ -1,6 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
+// ✅ استدعاء كومبوننت الترقية الجديد
+import { BecomeAgentComponent } from './features/become-agent/become-agent.component';
+
 const routes: Routes = [
   {
     path: '',
@@ -26,6 +29,14 @@ const routes: Routes = [
     loadChildren: () =>
       import('./features/agents/agents.module').then((m) => m.AgentsModule),
   },
+  
+  // ✅ إضافة المسار الجديد الخاص بصفحة الترقية (يجب أن يكون قبل مسار الـ Wildcard **)
+  {
+    path: 'become-agent',
+    component: BecomeAgentComponent,
+  },
+
+  // مسار الـ Wildcard لاصطياد أي روابط خاطئة (يجب أن يظل في النهاية دائمًا)
   {
     path: '**',
     redirectTo: '',
