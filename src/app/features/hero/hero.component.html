@@ -1,4 +1,5 @@
 <section class="hero">
+
   <!-- Layer 1: Gradient Background -->
   <div class="hero-bg"></div>
 
@@ -9,62 +10,76 @@
   <div class="hero-orb hero-orb-1"></div>
   <div class="hero-orb hero-orb-2"></div>
 
-  <!-- HERO CONTENT -->
+  <!-- ═══════════════════════════════════════════════════════════
+       HERO CONTENT
+       Each element has its OWN trigger — delay is baked into
+       the trigger definition in hero.component.ts (Task-02 spec).
+  ════════════════════════════════════════════════════════════ -->
   <div class="hero-content">
 
-    <!-- Eyebrow: Horizontal gold line + PREMIER GLOBAL REAL ESTATE -->
-    <div class="hero-eyebrow" [@fadeInUp]="eyebrowState">
+    <!-- Eyebrow: gold line (::before) + PREMIER GLOBAL REAL ESTATE -->
+    <!-- font-mono, 11px, letter-spacing 4px, color --gold          -->
+    <div class="hero-eyebrow" [@eyebrow]="animState">
       PREMIER GLOBAL REAL ESTATE
     </div>
 
-    <!-- Headline: "Find Your" light + "Perfect Home" italic gold -->
-    <h1 class="hero-headline" [@fadeInUp]="headlineState">
-      <span class="headline-light">Find Your</span>
-      <em class="headline-italic">Perfect Home</em>
+    <!-- Headline: font-display, clamp(56px,8vw,120px), line-height 0.95 -->
+    <!-- Line 1 and Line 2 are SEPARATE elements with SEPARATE triggers  -->
+    <h1 class="hero-headline">
+      <!-- Line 1: "Find Your" — font-weight 300, delay 0.4s -->
+      <span class="headline-light" [@headline1]="animState">Find Your</span>
+      <!-- Line 2: "Perfect Home" — italic, color --gold, delay 0.6s -->
+      <em   class="headline-gold"  [@headline2]="animState">Perfect Home</em>
     </h1>
 
-    <!-- Subtext -->
-    <p class="hero-sub" [@fadeInUp]="subState">
-      Access the world's most exclusive properties — from Dubai penthouses
-      to London townhouses — with unmatched discretion and expertise.
+    <!-- Sub-text: font-body, 16px, color --mist, max-width 480px, delay 0.8s -->
+    <p class="hero-sub" [@subText]="animState">
+      From penthouse suites in Manhattan to waterfront villas in Dubai
+      — discover extraordinary properties curated for the discerning.
     </p>
 
-    <!-- CTA Buttons -->
-    <div class="hero-actions" [@fadeInUp]="actionsState">
-      <button class="btn-primary" (click)="scrollToProperties()">
+    <!-- CTA buttons: font-mono, uppercase, letter-spacing 2px, delay 1.0s -->
+    <div class="hero-actions" [@buttons]="animState">
+      <button
+        id="btn-explore-properties"
+        class="btn-primary"
+        data-cursor-hover
+        (click)="scrollToProperties()">
         EXPLORE PROPERTIES
       </button>
-      <button class="btn-secondary">
+      <button
+        id="btn-list-property"
+        class="btn-secondary"
+        data-cursor-hover>
         LIST YOUR PROPERTY
       </button>
     </div>
 
-  </div>
+  </div><!-- /hero-content -->
 
-  <!-- Search Bar -->
-  <div class="hero-search-wrap" [@fadeInUp]="searchState">
-    <app-search-bar (explore)="scrollToProperties()"></app-search-bar>
-  </div>
-
-  <!-- Stats Row -->
-  <div class="hero-stats" [@fadeIn]="statsState">
+  <!-- Stats: bottom-right, delay 1.2s (matches reference: hero-stats) -->
+  <div class="hero-stats" [@stats]="animState">
     <div class="hero-stat">
-      <div class="stat-number">{{ countriesVal }}<span class="stat-suffix">+</span></div>
-      <div class="stat-label">Countries</div>
+      <div class="stat-number">
+        {{ formatCount(propertiesVal) }}<span class="stat-suffix">+</span>
+      </div>
+      <div class="stat-label">Properties Listed</div>
     </div>
-    <div class="stat-divider"></div>
     <div class="hero-stat">
-      <div class="stat-number">{{ propertiesVal }}K<span class="stat-suffix">+</span></div>
-      <div class="stat-label">Properties</div>
+      <div class="stat-number">
+        {{ satisfactionVal }}<span class="stat-suffix">%</span>
+      </div>
+      <div class="stat-label">Client Satisfaction</div>
     </div>
-    <div class="stat-divider"></div>
     <div class="hero-stat">
-      <div class="stat-number">{{ citiesVal }}</div>
+      <div class="stat-number">
+        {{ citiesVal }}<span class="stat-suffix">+</span>
+      </div>
       <div class="stat-label">Global Cities</div>
     </div>
   </div>
 
-  <!-- Scroll Indicator -->
+  <!-- Scroll indicator: bottom-left (no animation — always visible after hero loads) -->
   <div class="hero-scroll-indicator">
     <span class="scroll-label">Scroll to Explore</span>
     <div class="scroll-line"></div>
@@ -72,15 +87,15 @@
 
 </section>
 
-<!-- Market Ticker Strip -->
-<div class="ticker-wrap">
-  <div class="ticker-track">
-    <span class="ticker-item" *ngFor="let item of allTickerItems">
-      <span class="ticker-label">{{ item.label }}</span>
-      <span class="ticker-change" [class.positive]="item.positive" [class.negative]="!item.positive">
-        {{ item.positive ? '↑' : '↓' }} {{ item.change }}%
-      </span>
-      <span class="ticker-sep">·</span>
-    </span>
+<!-- ═══════════════════════════════════════════════════════════
+     MARQUEE STRIP — infinitely scrolling property categories
+     Pauses on hover (CSS animation-play-state: paused)
+════════════════════════════════════════════════════════════ -->
+<div class="marquee-section">
+  <div class="marquee-track">
+    <div class="marquee-item" *ngFor="let item of allMarqueeItems">
+      {{ item }}
+      <div class="marquee-dot"></div>
+    </div>
   </div>
 </div>

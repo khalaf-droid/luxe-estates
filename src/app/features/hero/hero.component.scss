@@ -2,6 +2,7 @@
 // LUXE ESTATES — Hero Component
 // Based on reference design: index.html
 // ============================================================
+@use 'variables' as *;
 
 .hero {
   height: 100vh;
@@ -17,53 +18,70 @@
 }
 
 // ---- Layer 1: Gradient Background --------------------------
+// Exact stops from reference design — #0F0F1A and #1A1020 are
+// intermediate values not mapped to a CSS variable; use them as-is
+// per the template spec. --obsidian (#0A0A0F) is used at 0%.
 .hero-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #0A0A0F 0%, #0F0F1A 40%, #1A1020 100%);
+  background: linear-gradient(
+    135deg,
+    var(--obsidian)    0%,   // #0A0A0F — mapped token
+    #0F0F1A           40%,  // intermediate — no token exists
+    #1A1020          100%   // intermediate — no token exists
+  );
   z-index: 0;
 }
 
 // ---- Layer 2: Perspective Grid -----------------------------
+// Exact match to reference: 1px gold lines at 4% opacity,
+// 80x80px cells, 3D perspective tilt from bottom-center.
 .hero-grid {
   position: absolute;
   inset: 0;
+  top: -100px; // pulls grid up so bottom vanishing point stays in frame
   background-image:
     linear-gradient(rgba(201, 169, 110, 0.04) 1px, transparent 1px),
     linear-gradient(90deg, rgba(201, 169, 110, 0.04) 1px, transparent 1px);
   background-size: 80px 80px;
   transform: perspective(1000px) rotateX(60deg) scale(2);
   transform-origin: 50% 100%;
-  top: -100px;
   z-index: 1;
   pointer-events: none;
 }
 
-// ---- Layer 3: Orbs -----------------------------------------
+// ---- Layer 3: Floating Orbs --------------------------------
+// orbFloat keyframe lives in src/styles/_animations.scss (shared).
+// Do NOT redefine it here.
 .hero-orb {
   position: absolute;
   border-radius: 50%;
   filter: blur(80px);
+  // 8s ease-in-out infinite — exact match to reference
   animation: orbFloat 8s ease-in-out infinite;
   z-index: 2;
   pointer-events: none;
 }
 
+// Orb 1: Gold — top-right, 500×500px
 .hero-orb-1 {
   width: 500px;
   height: 500px;
+  // Gold tint at 15% opacity — matches reference rgba(201,169,110,0.15)
   background: radial-gradient(circle, rgba(201, 169, 110, 0.15) 0%, transparent 70%);
   top: -100px;
   right: -100px;
 }
 
+// Orb 2: Sapphire — bottom-left, 400×400px, -4s phase offset
 .hero-orb-2 {
   width: 400px;
   height: 400px;
+  // Sapphire tint at 10% opacity — matches reference rgba(41,128,185,0.1)
   background: radial-gradient(circle, rgba(41, 128, 185, 0.10) 0%, transparent 70%);
   bottom: 0;
   left: -50px;
-  animation-delay: -4s;
+  animation-delay: -4s; // phase-offset so orbs move independently
 }
 
 // ---- Hero Content ------------------------------------------
@@ -118,12 +136,15 @@
   .headline-light {
     font-weight: 300;
     color: var(--white);
+    display: block;
   }
 
-  .headline-italic {
+  // em element — italic gold (reference: .hero-headline em)
+  .headline-gold {
     font-style: italic;
     color: var(--gold);
     font-weight: 300;
+    display: block;
   }
 }
 
@@ -144,52 +165,57 @@
   flex-wrap: wrap;
 }
 
+// btn-primary: gold fill, shine sweep on hover
+// font-mono REQUIRED — coding-rules §3.2: never use font-family on a button
+// without var(--font-mono)
 .btn-primary {
-  font-family: var(--font-body);
-  font-size: 11px;
+  font-family: var(--font-mono); // ✅ rule §3.2
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 2.5px;
+  letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--obsidian);
   background: var(--gold);
-  border: 1px solid var(--gold);
+  border: none;
   padding: 16px 40px;
   cursor: none;
   position: relative;
   overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.3s var(--transition-bounce), box-shadow 0.3s var(--transition);
 
+  // Shine sweep (::before) — exact from reference template
   &::before {
     content: '';
     position: absolute;
     inset: 0;
     background: rgba(255, 255, 255, 0.2);
-    transform: translateX(-110%) skewX(-20deg);
-    transition: transform 0.5s ease;
+    transform: translateX(-100%) skewX(-20deg);
+    transition: transform 0.5s var(--transition);
   }
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 16px 48px rgba(201, 169, 110, 0.3);
+    box-shadow: 0 20px 60px rgba(201, 169, 110, 0.3);
 
     &::before {
-      transform: translateX(110%) skewX(-20deg);
+      transform: translateX(100%) skewX(-20deg);
     }
   }
 }
 
+// btn-secondary: ghost/outline
 .btn-secondary {
-  font-family: var(--font-body);
-  font-size: 11px;
+  font-family: var(--font-mono); // ✅ rule §3.2
+  font-size: 12px;
   font-weight: 500;
-  letter-spacing: 2.5px;
+  letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--white);
   background: transparent;
-  border: 1px solid rgba(250, 250, 248, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 16px 40px;
   cursor: none;
-  transition: border-color 0.3s ease, color 0.3s ease;
+  transition: border-color 0.3s var(--transition), color 0.3s var(--transition);
 
   &:hover {
     border-color: var(--gold);
@@ -197,29 +223,7 @@
   }
 }
 
-// ---- Search Bar Wrapper ------------------------------------
-// Design: search-section is OUTSIDE hero with margin-top: -60px
-// Angular keeps it inside hero for animation — match positioning
-.hero-search-wrap {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 10;
-  transform: translateY(50%);
-  padding: 0 60px;
 
-  @media (max-width: 1024px) {
-    padding: 0 30px;
-  }
-
-  @media (max-width: 768px) {
-    padding: 0 20px;
-    position: relative;
-    transform: none;
-    margin-top: 32px;
-  }
-}
 
 // ---- Stats Row ---------------------------------------------
 // Design: position absolute, bottom-right corner
@@ -308,62 +312,60 @@
   100% { transform: scaleY(0); transform-origin: bottom; }
 }
 
-// ---- Market Ticker Strip -----------------------------------
-.ticker-wrap {
-  width: 100%;
-  background: rgba(10, 10, 15, 0.9);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-top: 1px solid rgba(201, 169, 110, 0.12);
-  border-bottom: 1px solid rgba(201, 169, 110, 0.12);
+// ---- Marquee Strip -----------------------------------------
+// Exact match to reference: .marquee-section
+// padding: 40px 0, gold top+bottom borders, obsidian-2 bg
+.marquee-section {
+  padding: 40px 0;
   overflow: hidden;
-  position: relative;
-  z-index: 20;
+  border-top: 1px solid rgba(201, 169, 110, 0.1);
+  border-bottom: 1px solid rgba(201, 169, 110, 0.1);
+  background: var(--obsidian-2);
 }
 
-.ticker-track {
+// .marquee-track — translateX(-50%) for seamless loop
+// (duplicate items already applied in component via allMarqueeItems getter)
+.marquee-track {
   display: flex;
-  align-items: center;
+  gap: 60px;
+  animation: marquee 30s linear infinite;
   width: max-content;
-  animation: tickerScroll 35s linear infinite;
-  padding: 12px 0;
 
+  // Pause on hover — exact from reference
   &:hover { animation-play-state: paused; }
 }
 
-.ticker-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 28px;
+// marquee keyframe — component-specific, not shared globally
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.marquee-item {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-style: italic;
+  color: var(--mist);
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+// The gold dot separator between items
+.marquee-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--gold);
+  border-radius: 50%;
   flex-shrink: 0;
 }
 
-.ticker-label {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 2px;
-  color: rgba(250, 250, 248, 0.5);
-  text-transform: uppercase;
-}
-
-.ticker-change {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 1px;
-  font-weight: 700;
-
-  &.positive { color: var(--emerald); }
-  &.negative { color: var(--crimson); }
-}
-
-.ticker-sep {
-  color: rgba(201, 169, 110, 0.25);
-  font-size: 10px;
-}
-
 // ---- Responsive --------------------------------------------
+@media (max-width: 1024px) {
+  .hero-stat { gap: 40px; }
+}
+
 @media (max-width: 768px) {
   .hero-headline { letter-spacing: -1px; }
   .hero-sub { font-size: 14px; }
@@ -371,21 +373,9 @@
     flex-direction: column;
     align-items: flex-start;
 
-    .btn-primary, .btn-secondary { width: 100%; text-align: center; }
+    .btn-primary,
+    .btn-secondary { width: 100%; text-align: center; }
   }
-  .hero-stats { flex-wrap: wrap; }
+  .hero-stats { display: none; } // hidden on mobile per reference
   .stat-number { font-size: 36px; }
-  .hero-search-wrap { margin-top: 32px; }
-}
-
-// ---- Ticker Noise Overlay (task requirement) ---------------
-// Applied via ::after — subtle grain texture on ticker strip
-.ticker-wrap::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-  opacity: 0.015;
-  pointer-events: none;
-  z-index: 1;
 }
