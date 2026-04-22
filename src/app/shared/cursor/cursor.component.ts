@@ -45,20 +45,21 @@ export class CursorComponent implements OnInit, OnDestroy {
     this.targetY = event.clientY;
   }
 
-  @HostListener('document:mouseenter', ['$event.target'])
-  onMouseEnterElement(target: EventTarget | null): void {
+  @HostListener('document:mouseover', ['$event.target'])
+  onMouseOverElement(target: EventTarget | null): void {
     if (!target) return;
     const el = target as HTMLElement;
-    if (el.matches('button, a, .card, [data-cursor-hover]')) {
+    // Ensure element supports closest before calling it
+    if (el.closest && el.closest('button, a, .card, [data-cursor-hover]')) {
       this.isHovering = true;
     }
   }
 
-  @HostListener('document:mouseleave', ['$event.target'])
-  onMouseLeaveElement(target: EventTarget | null): void {
+  @HostListener('document:mouseout', ['$event.target'])
+  onMouseOutElement(target: EventTarget | null): void {
     if (!target) return;
     const el = target as HTMLElement;
-    if (el.matches('button, a, .card, [data-cursor-hover]')) {
+    if (el.closest && el.closest('button, a, .card, [data-cursor-hover]')) {
       this.isHovering = false;
     }
   }

@@ -1,29 +1,59 @@
 <nav class="nav" [class.scrolled]="isScrolled">
   <div class="nav-inner">
+
     <!-- Logo -->
     <a class="nav-logo" routerLink="/">
       LUXE<span class="dot">·</span>ESTATES
     </a>
 
-    <!-- Links -->
+    <!-- Desktop Links -->
     <ul class="nav-links">
       <li><a routerLink="/properties" routerLinkActive="active">Properties</a></li>
-      <li><a routerLink="/auctions" routerLinkActive="active">Auctions</a></li>
-      <li><a routerLink="/" fragment="explore" routerLinkActive="active">Explore</a></li>
-      <li><a routerLink="/agents" routerLinkActive="active">Agents</a></li>
+      <li><a routerLink="/auctions"   routerLinkActive="active">Auctions</a></li>
+      <li><a routerLink="/" fragment="explore">Explore</a></li>
+      <li><a routerLink="/agents"     routerLinkActive="active">Agents</a></li>
     </ul>
 
-    <!-- Actions -->
+    <!-- Desktop Actions -->
     <div class="nav-actions">
-      <a class="sign-in-btn" (click)="openLogin()" style="cursor: pointer;">SIGN IN</a>
-      <button class="btn-list" (click)="openLogin()">List Property</button>
-      
-      <!-- Hamburger Toggle -->
-      <button class="hamburger" [class.open]="isMobileMenuOpen" (click)="toggleMobileMenu()" aria-label="Toggle navigation">
+
+      <!-- Logged-in: user profile + dropdown -->
+      <ng-container *ngIf="auth.currentUser$ | async as user; else guestTemplate">
+        <div class="user-profile-wrapper">
+          <div class="user-info" (click)="toggleDropdown()">
+            <div class="user-avatar">{{ user.name[0] | uppercase }}</div>
+            <span class="user-name">{{ user.name }}</span>
+            <span class="chevron" [class.open]="showDropdown">▾</span>
+          </div>
+
+          <div class="user-dropdown" *ngIf="showDropdown">
+            <a class="dropdown-item" routerLink="/dashboard"  (click)="showDropdown = false">Dashboard</a>
+            <a class="dropdown-item" routerLink="/favorites"  (click)="showDropdown = false">Saved Items</a>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-item logout-btn" (click)="onLogout()">Sign Out</button>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Guest: sign in button -->
+      <ng-template #guestTemplate>
+        <button class="btn-signin" (click)="openLogin()">Sign In</button>
+      </ng-template>
+
+      <!-- List Property — always visible on desktop -->
+      <button class="btn-list" (click)="onListPropertyClick()">List Property</button>
+
+      <!-- Hamburger — visible on mobile only (CSS handles display) -->
+      <button
+        class="hamburger"
+        [class.open]="isMobileMenuOpen"
+        (click)="toggleMobileMenu()"
+        aria-label="Toggle navigation">
         <span class="bar"></span>
         <span class="bar"></span>
         <span class="bar"></span>
       </button>
+
     </div>
   </div>
 
@@ -31,12 +61,28 @@
   <div class="mobile-menu" [class.open]="isMobileMenuOpen">
     <ul class="mobile-nav-links">
       <li><a routerLink="/properties" routerLinkActive="active" (click)="closeMobileMenu()">Properties</a></li>
-      <li><a routerLink="/auctions" routerLinkActive="active" (click)="closeMobileMenu()">Auctions</a></li>
-      <li><a routerLink="/" fragment="explore" routerLinkActive="active" (click)="closeMobileMenu()">Explore</a></li>
-      <li><a routerLink="/agents" routerLinkActive="active" (click)="closeMobileMenu()">Agents</a></li>
+      <li><a routerLink="/auctions"   routerLinkActive="active" (click)="closeMobileMenu()">Auctions</a></li>
+      <li><a routerLink="/" fragment="explore"                  (click)="closeMobileMenu()">Explore</a></li>
+      <li><a routerLink="/agents"     routerLinkActive="active" (click)="closeMobileMenu()">Agents</a></li>
     </ul>
+
     <div class="mobile-nav-actions">
-      <button class="btn-list w-full" (click)="openLogin(); closeMobileMenu()">List Property</button>
+      <!-- Logged-in on mobile -->
+      <ng-container *ngIf="auth.currentUser$ | async as user">
+        <button class="btn-signin" (click)="onLogout(); closeMobileMenu()">
+          Sign Out ({{ user.name }})
+        </button>
+      </ng-container>
+
+      <!-- Guest on mobile -->
+      <ng-container *ngIf="!(auth.currentUser$ | async)">
+        <button class="btn-signin" (click)="openLogin(); closeMobileMenu()">Sign In</button>
+      </ng-container>
+
+      <button class="btn-list" (click)="onListPropertyClick(); closeMobileMenu()">
+        List Property
+      </button>
     </div>
   </div>
+
 </nav>

@@ -4,6 +4,9 @@ import { CommonModule } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
 import { AuthService } from '../auth.service';
 
+// ─── Custom Validators (متحققات مخصصة) ──────────────────────────────────
+
+// 1. التحقق من قوة كلمة المرور (لازم 8 حروف، حرف كبير، صغير، رقم، ورمز)
 export function strongPasswordValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const value = control.value;
@@ -13,15 +16,18 @@ export function strongPasswordValidator(): ValidatorFn {
       /[A-Z]/.test(value) && /[a-z]/.test(value) &&
       /[0-9]/.test(value) && /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value);
 
+    // لو الباسورد ضعيف بنرجع إيرور اسمه strongPassword، لو قوي بنرجع null (سليم)
     return !isStrong ? { strongPassword: true } : null;
   };
 }
 
+// 2. التحقق من تطابق كلمتي المرور في شاشة التسجيل
 export function passwordsMatchValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const password = control.get('password')?.value;
     const confirmPassword = control.get('confirmPassword')?.value;
 
+    // لو مش متطابقين، بنحط الإيرور على حقل confirmPassword تحديداً عشان يظهر تحته رسالة الغلط
     if (password && confirmPassword && password !== confirmPassword) {
       control.get('confirmPassword')?.setErrors({ passwordMismatch: true });
       return { passwordMismatch: true };
@@ -30,50 +36,60 @@ export function passwordsMatchValidator(): ValidatorFn {
   };
 }
 
+// ─── Component Setup ──────────────────────────────────────────────────
+
+// تحديد التابات المتاحة في المودال عشان نمنع أي أخطاء إملائية في الكود
 type AuthTab = 'login' | 'register' | 'forgot' | 'otp' | 'reset';
-type UserRole = 'Buyer' | 'Seller' | 'Agent' | 'Investor';
 
 @Component({
   selector: 'app-auth-modal',
-  standalone: true,
+  standalone: true, // بنستخدم Standalone Component عشان يكون خفيف وسريع
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './auth-modal.component.html',
   styleUrls: ['./auth-modal.component.scss'],
 })
 export class AuthModalComponent implements OnInit, OnDestroy {
 
+  // حقن الخدمات (Dependency Injection) بالطريقة الحديثة في Angular
   private auth = inject(AuthService);
   private fb   = inject(FormBuilder);
 
-  isOpen    = false;
-  activeTab: AuthTab = 'login';
-  isLoading = false;
-  errorMsg  = '';
+  // ─── State Variables (متغيرات الحالة) ───
+  isOpen    = false;           // للتحكم في ظهور أو إخفاء المودال
+  activeTab: AuthTab = 'login'; // التاب المفتوح حالياً (افتراضياً تسجيل الدخول)
+  isLoading = false;           // لتشغيل الأنيميشن بتاع التحميل جوه الزرار
+  errorMsg  = '';              // لعرض رسائل الخطأ العامة (زي: الإيميل مسجل مسبقاً)
 
-  readonly roles: UserRole[] = ['Buyer', 'Seller', 'Agent', 'Investor'];
-
+  // ─── Forms (تعريف الفورمز) ───
   loginForm!: FormGroup;
   registerForm!: FormGroup;
   forgotForm!: FormGroup;
   otpForm!: FormGroup;
   resetForm!: FormGroup;
 
-  resetEmail: string = '';
-  expectedOtp: string = '';
+  // ─── OTP State (حفظ بيانات تغيير الباسورد مؤقتاً) ───
+  resetEmail: string = '';     // الإيميل اللي اليوزر عايز يغير الباسورد بتاعه
+  expectedOtp: string = '';    // كود الـ OTP اللي المفروض اليوزر يكتبه
 
+  // Subject لإنهاء الاشتراكات (Subscriptions) لما الكومبوننت يتقفل عشان نمنع تسريب الميموري
   private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
-    this.buildForms();
+    this.buildForms(); // أول ما المودال يفتح، بنبني الفورمز
+    
+    // بنراقب خدمة الـ Auth عشان نعرف إمتى نظهر أو نخفي المودال
     this.auth.isModalOpen$.pipe(takeUntil(this.destroy$)).subscribe(open => this.isOpen = open);
   }
 
   ngOnDestroy(): void {
+    // تنظيف الميموري لما الكومبوننت يتم تدميره
     this.destroy$.next();
     this.destroy$.complete();
   }
 
+  // دالة بناء الفورمز وربطها بالـ Validators
   private buildForms(): void {
+    // Regex قوي للتأكد إن الإيميل مكتوب بصيغة صحيحة (زي name@domain.com)
     const emailRegex = '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$';
 
     this.loginForm = this.fb.group({
@@ -84,17 +100,17 @@ export class AuthModalComponent implements OnInit, OnDestroy {
     this.registerForm = this.fb.group({
       name:            ['', Validators.required],
       email:           ['', [Validators.required, Validators.pattern(emailRegex)]],
-      password:        ['', [Validators.required, strongPasswordValidator()]],
+      password:        ['', [Validators.required, strongPasswordValidator()]], // استخدام الـ Validator المخصص
       confirmPassword: ['', Validators.required],
-      role:            ['Buyer', Validators.required],
-    }, { validators: passwordsMatchValidator() });
+      // 💡 ملحوظة: تم حذف حقل الـ Role من هنا لتسهيل التسجيل على المستخدم
+    }, { validators: passwordsMatchValidator() }); // التأكد من تطابق الباسوردين
 
     this.forgotForm = this.fb.group({
       email: ['', [Validators.required, Validators.pattern(emailRegex)]]
     });
 
     this.otpForm = this.fb.group({
-      otp: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(4)]]
+      otp: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(4)]] // لازم 4 أرقام بالظبط
     });
 
     this.resetForm = this.fb.group({
@@ -103,55 +119,60 @@ export class AuthModalComponent implements OnInit, OnDestroy {
     }, { validators: passwordsMatchValidator() });
   }
 
+  // دالة للتنقل بين التابات (Login, Register, OTP...)
   switchTab(tab: AuthTab): void {
     this.activeTab = tab;
-    this.errorMsg = '';
+    this.errorMsg = ''; // بنمسح أي إيرور قديم لما اليوزر يغير التاب
   }
 
-  // ── OTP Flow Logic ─────────────────────────────────────────────
+  // ─── OTP Flow Logic (دورة حياة نسيان الباسورد) ─────────────────────
 
+  // 1. الانتقال لشاشة نسيان الباسورد
   goForgot(): void {
     this.switchTab('forgot');
   }
 
+  // 2. إرسال الإيميل لطلب الـ OTP
   onForgotSubmit(): void {
-    if (this.forgotForm.invalid) { this.forgotForm.markAllAsTouched(); return; }
+    if (this.forgotForm.invalid) { this.forgotForm.markAllAsTouched(); return; } // لو الفورم ناقصة بنظهر الأخطاء
     
     const email = this.forgotForm.value.email;
     
-    if (this.auth.checkEmailExists(email)) {
+    if (this.auth.checkEmailExists(email)) { // بنتأكد إن الإيميل ده مسجل عندنا أصلاً
       this.resetEmail = email;
+      this.expectedOtp = '1234'; // 💡 كود ثابت مؤقتاً للتجربة (في البيئة الحقيقية الباك إند هو اللي بيبعته)
       
-      // ✅ تثبيت الكود لـ 1234 عشان تعرف تتست الفرونت إند، لإن مفيش باك إند يبعت إيميل حقيقي
-      this.expectedOtp = '1234'; 
-      
-      // ✅ الإشعار هيقولك راجع إيميلك بس
-      this.showNotification(`OTP sent successfully to ${email}`, 'success');
-      this.switchTab('otp');
+      this.showNotification(`OTP sent successfully to ${email}`, 'info'); // إشعار للمستخدم
+      this.switchTab('otp'); // نقله لشاشة إدخال الكود
     } else {
       this.errorMsg = 'No account found with that email address.';
     }
   }
 
+  // 3. التحقق من كود الـ OTP
   onOtpSubmit(): void {
     if (this.otpForm.invalid) { this.otpForm.markAllAsTouched(); return; }
     
-    if (this.otpForm.value.otp === this.expectedOtp) {
-      this.switchTab('reset');
+    if (this.otpForm.value.otp === this.expectedOtp) { // لو الكود صح
+      this.switchTab('reset'); // وديه لشاشة الباسورد الجديد
       this.showNotification('OTP Verified Successfully', 'success');
     } else {
       this.errorMsg = 'Invalid OTP code. Please try again.';
     }
   }
 
+  // 4. حفظ الباسورد الجديد
   onResetSubmit(): void {
     if (this.resetForm.invalid) { this.resetForm.markAllAsTouched(); return; }
     
+    // بنبعت الإيميل والباسورد الجديد لخدمة الـ Auth عشان تحفظهم
     this.auth.updatePassword(this.resetEmail, this.resetForm.value.password);
-    
     this.showNotification('Password updated successfully!', 'success');
+    
+    // بنحط الإيميل في شاشة اللوجين عشان اليوزر ميكتبوش تاني (UX ممتاز)
     this.loginForm.patchValue({ email: this.resetEmail });
     
+    // تنظيف البيانات المؤقتة والرجوع لشاشة اللوجين
     this.resetEmail = '';
     this.expectedOtp = '';
     this.forgotForm.reset();
@@ -160,7 +181,7 @@ export class AuthModalComponent implements OnInit, OnDestroy {
     this.switchTab('login');
   }
 
-  // ── Auth Logic ────────────────────────────────────────────────
+  // ─── Auth Logic (تسجيل الدخول وإنشاء حساب) ─────────────────────
   
   onLogin(): void {
     if (this.loginForm.invalid) { this.loginForm.markAllAsTouched(); return; }
@@ -172,7 +193,7 @@ export class AuthModalComponent implements OnInit, OnDestroy {
       next: (user: any) => {
         this.isLoading = false;
         this.showNotification(`Welcome back, ${user.name}!`, 'success');
-        this.close();
+        this.close(); // لو النجاح، بنقفل المودال خالص
       },
       error: () => {
         this.isLoading = false;
@@ -185,15 +206,17 @@ export class AuthModalComponent implements OnInit, OnDestroy {
     if (this.registerForm.invalid) { this.registerForm.markAllAsTouched(); return; }
     this.isLoading = true;
     this.errorMsg = '';
-    const { name, email, password, role } = this.registerForm.value;
+    
+    const { name, email, password } = this.registerForm.value;
 
-    this.auth.register(name, email, password, role).pipe(takeUntil(this.destroy$)).subscribe({
+    // 💡 بنبعت 'Buyer' كـ Hardcoded Role عشان اليوزر ميتعطلش، ولما يعوز يبيع عقار بنرقيه بعدين
+    this.auth.register(name, email, password, 'Buyer').pipe(takeUntil(this.destroy$)).subscribe({
       next: (user: any) => {
         this.isLoading = false;
         this.showNotification(`Account created successfully! Welcome ${user.name}`, 'success');
-        this.registerForm.reset({ role: 'Buyer' }); 
-        this.loginForm.patchValue({ email: email });
-        this.switchTab('login');
+        this.registerForm.reset(); 
+        this.loginForm.patchValue({ email: email }); // تجهيز الإيميل للوجين
+        this.switchTab('login'); // بعد ما يسجل بنوديه للوجين عشان يدخل
       },
       error: () => {
         this.isLoading = false;
@@ -202,26 +225,46 @@ export class AuthModalComponent implements OnInit, OnDestroy {
     });
   }
 
+  // ─── UI Helpers (دوال مساعدة للواجهة) ─────────────────────
+
   close(): void { this.auth.closeModal(); }
 
+  // دالة لقفل المودال لو اليوزر داس في المساحة الفاضية براه
   onOverlayClick(event: MouseEvent): void {
     if ((event.target as HTMLElement).classList.contains('auth-overlay')) this.close();
   }
 
+  // دالة للتحقق لو الحقل فيه خطأ وتم لمسه (عشان نظهر الرسالة الحمراء في الـ HTML)
   isFieldInvalid(form: FormGroup, field: string): boolean {
     const ctrl = form.get(field);
     return !!(ctrl && ctrl.invalid && ctrl.touched);
   }
 
+  // ─── Custom Toast Notification (إشعار منبثق احترافي) ───
+  // تم تصميمه برمجياً عشان ميعتمدش على مكاتب خارجية ويطابق الـ Design System
   private showNotification(message: string, type: 'success' | 'error' | 'info' = 'success'): void {
     const el = document.createElement('div');
-    const isSuccess = type === 'success';
-    const borderColor = isSuccess ? '#27AE60' : '#C9A96E'; 
-    const icon = isSuccess ? '✓' : 'ℹ';
+    
+    // الألوان معتمدة من ملف coding-rules.md
+    const colorEmerald = '#27AE60'; // للنجاح
+    const colorCrimson = '#C0392B'; // للأخطاء
+    const colorGold    = '#C9A96E'; // للمعلومات
+    
+    let borderColor = colorEmerald;
+    let icon = '✓';
+
+    if (type === 'error') {
+      borderColor = colorCrimson;
+      icon = '✕';
+    } else if (type === 'info') {
+      borderColor = colorGold;
+      icon = 'ℹ';
+    }
 
     el.className = 'luxe-toast';
+    // التنسيق (مكانه فوق يمين حسب البند 3.9)
     el.style.cssText = `
-      position: fixed; top: 20px; right: 20px; background: rgba(10, 10, 15, 0.98);
+      position: fixed; top: 100px; right: 24px; background: rgba(10, 10, 15, 0.98);
       border: 1px solid #333; border-left: 3px solid ${borderColor}; color: #FAFAF8;
       padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;
       min-width: 320px; z-index: 100000; font-family: 'DM Sans', sans-serif;
@@ -239,6 +282,7 @@ export class AuthModalComponent implements OnInit, OnDestroy {
 
     document.body.appendChild(el);
 
+    // إضافة الأنيميشن للصفحة لو مش موجود
     if (!document.getElementById('luxe-toast-styles')) {
       const style = document.createElement('style');
       style.id = 'luxe-toast-styles';
@@ -249,12 +293,14 @@ export class AuthModalComponent implements OnInit, OnDestroy {
       document.head.appendChild(style);
     }
 
+    // قفل الإشعار يدوياً
     const closeBtn = el.querySelector('.toast-close-btn');
     closeBtn?.addEventListener('click', () => {
       el.style.animation = 'fadeOutRight 0.3s forwards';
       setTimeout(() => el.remove(), 300);
     });
 
+    // قفل الإشعار تلقائياً بعد 4 ثواني
     setTimeout(() => {
       if (document.body.contains(el)) {
         el.style.animation = 'fadeOutRight 0.3s forwards';
