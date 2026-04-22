@@ -10,10 +10,18 @@
   position: relative;
   display: flex;
   align-items: center;
+  box-sizing: border-box;
+  padding-bottom: 120px; // Shifts center UP to prevent overlap with the bottom search bar
   overflow: hidden;
 
-  @media (max-width: 768px) {
+  @media (max-width: 1024px) {
+    height: auto;
     min-height: 100svh;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 140px; // Accounts for navbar room
+    padding-bottom: 40px;
   }
 }
 
@@ -223,6 +231,30 @@
   }
 }
 
+// ---- Search Bar Wrapper ------------------------------------
+// Sits at the bottom of .hero; translateY(50%) makes it overlap
+// onto the next section — mirrors reference margin-top: -60px.
+.hero-search-wrap {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  transform: translateY(50%);
+  padding: 0 60px;
+
+  @media (max-width: 1024px) {
+    padding: 0 30px;
+    position: relative;
+    transform: none;
+    margin-top: 40px;
+    width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    padding: 0 20px;
+  }
+}
 
 
 // ---- Stats Row ---------------------------------------------
@@ -312,53 +344,76 @@
   100% { transform: scaleY(0); transform-origin: bottom; }
 }
 
-// ---- Marquee Strip -----------------------------------------
-// Exact match to reference: .marquee-section
-// padding: 40px 0, gold top+bottom borders, obsidian-2 bg
-.marquee-section {
-  padding: 40px 0;
+// ---- Market Ticker Strip (Task 05) ----------------------------
+.ticker-wrap {
+  width: 100%;
+  background: rgba(10, 10, 15, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(201, 169, 110, 0.12);
+  border-bottom: 1px solid rgba(201, 169, 110, 0.12);
   overflow: hidden;
-  border-top: 1px solid rgba(201, 169, 110, 0.1);
-  border-bottom: 1px solid rgba(201, 169, 110, 0.1);
-  background: var(--obsidian-2);
+  position: relative;
+  z-index: 20;
+
+  // Noise Overlay
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+    opacity: 0.015;
+    pointer-events: none;
+    z-index: 1;
+  }
 }
 
-// .marquee-track — translateX(-50%) for seamless loop
-// (duplicate items already applied in component via allMarqueeItems getter)
-.marquee-track {
+.ticker-track {
   display: flex;
-  gap: 60px;
-  animation: marquee 30s linear infinite;
+  align-items: center;
   width: max-content;
+  // Use shared keyframe tickerScroll if available, or define local marquee
+  animation: marquee 35s linear infinite;
+  padding: 12px 0;
 
-  // Pause on hover — exact from reference
   &:hover { animation-play-state: paused; }
 }
 
-// marquee keyframe — component-specific, not shared globally
 @keyframes marquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
-.marquee-item {
-  font-family: var(--font-display);
-  font-size: 20px;
-  font-style: italic;
-  color: var(--mist);
-  white-space: nowrap;
-  display: flex;
+.ticker-item {
+  display: inline-flex;
   align-items: center;
-  gap: 40px;
+  gap: 8px;
+  padding: 0 28px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
-// The gold dot separator between items
-.marquee-dot {
-  width: 6px;
-  height: 6px;
-  background: var(--gold);
-  border-radius: 50%;
-  flex-shrink: 0;
+.ticker-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: rgba(250, 250, 248, 0.5);
+  text-transform: uppercase;
+}
+
+.ticker-change {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+  font-weight: 700;
+
+  &.positive { color: #27AE60; } // emerald
+  &.negative { color: #C0392B; } // crimson
+}
+
+.ticker-sep {
+  color: rgba(201, 169, 110, 0.25);
+  font-size: 10px;
 }
 
 // ---- Responsive --------------------------------------------

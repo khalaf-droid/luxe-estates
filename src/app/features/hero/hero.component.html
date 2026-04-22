@@ -61,41 +61,50 @@
   <div class="hero-stats" [@stats]="animState">
     <div class="hero-stat">
       <div class="stat-number">
-        {{ formatCount(propertiesVal) }}<span class="stat-suffix">+</span>
+        {{ countriesVal }}<span class="stat-suffix">+</span>
       </div>
-      <div class="stat-label">Properties Listed</div>
+      <div class="stat-label">Countries</div>
     </div>
     <div class="hero-stat">
       <div class="stat-number">
-        {{ satisfactionVal }}<span class="stat-suffix">%</span>
+        {{ propertiesVal }}K<span class="stat-suffix">+</span>
       </div>
-      <div class="stat-label">Client Satisfaction</div>
+      <div class="stat-label">Properties</div>
     </div>
     <div class="hero-stat">
       <div class="stat-number">
-        {{ citiesVal }}<span class="stat-suffix">+</span>
+        {{ citiesVal }}
       </div>
-      <div class="stat-label">Global Cities</div>
+      <div class="stat-label">Cities</div>
     </div>
   </div>
 
-  <!-- Scroll indicator: bottom-left (no animation — always visible after hero loads) -->
+  <!-- Scroll indicator: bottom-left -->
   <div class="hero-scroll-indicator">
     <span class="scroll-label">Scroll to Explore</span>
     <div class="scroll-line"></div>
   </div>
 
+  <!-- Search Bar — positioned at hero bottom, overlaps section below -->
+  <!-- Reference: .search-section { margin-top: -60px }               -->
+  <div class="hero-search-wrap" [@buttons]="animState">
+    <app-search-bar (explore)="scrollToProperties()"></app-search-bar>
+  </div>
+
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════
-     MARQUEE STRIP — infinitely scrolling property categories
-     Pauses on hover (CSS animation-play-state: paused)
+     MARKET TICKER STRIP — Task 05
+     Infinitely scrolling property market data
 ════════════════════════════════════════════════════════════ -->
-<div class="marquee-section">
-  <div class="marquee-track">
-    <div class="marquee-item" *ngFor="let item of allMarqueeItems">
-      {{ item }}
-      <div class="marquee-dot"></div>
-    </div>
+<div class="ticker-wrap">
+  <div class="ticker-track">
+    <span class="ticker-item" *ngFor="let item of allTickerItems">
+      <span class="ticker-label">{{ item.label }}</span>
+      <span class="ticker-change" [class.positive]="item.positive" [class.negative]="!item.positive">
+        {{ item.positive ? '↑' : '↓' }} {{ item.change }}%
+      </span>
+      <span class="ticker-sep">·</span>
+    </span>
   </div>
 </div>

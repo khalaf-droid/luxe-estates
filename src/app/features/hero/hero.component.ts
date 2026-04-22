@@ -13,8 +13,8 @@ import {
   transition,
   animate,
 } from '@angular/animations';
-import { interval, Subscription } from 'rxjs';
-import { takeWhile } from 'rxjs/operators';
+import { interval, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 // ─── Shared easing curve (mirrors var(--transition) from _variables.scss) ───
 const EASE = 'cubic-bezier(0.25, 0.46, 0.45, 0.94)';
@@ -55,25 +55,28 @@ export class HeroComponent implements OnInit, OnDestroy, AfterViewInit {
   animState: 'hidden' | 'visible' = 'hidden';
 
   // Animated counters
-  propertiesVal = 0;  // → 12,500
-  satisfactionVal = 0; // → 89 %
-  citiesVal = 0;       // → 45 +
+  countriesVal = 0;   // → 120
+  propertiesVal = 0;  // → 50
+  citiesVal = 0;      // → 45
 
-  private subs = new Subscription();
+  private destroy$ = new Subject<void>();
 
-  // Marquee items — duplicated in getter for seamless loop
-  readonly marqueeItems = [
-    'Luxury Penthouses',
-    'Waterfront Villas',
-    'Urban Apartments',
-    'Commercial Spaces',
-    'Investment Properties',
-    'Holiday Retreats',
-    'Historic Mansions',
+  // ── Market Ticker — Task 05 ────────────────────────────────────────────────
+  tickerItems = [
+    { label: 'DUBAI MARINA',        change: 12.4, positive: true  },
+    { label: 'MANHATTAN PENTHOUSE', change: 8.2,  positive: true  },
+    { label: 'LONDON MAYFAIR',      change: 2.1,  positive: false },
+    { label: 'PALM JUMEIRAH',       change: 15.7, positive: true  },
+    { label: 'PARIS 8ÈME',          change: 5.3,  positive: true  },
+    { label: 'HONG KONG PEAK',      change: 1.8,  positive: false },
+    { label: 'MONACO WATERFRONT',   change: 9.1,  positive: true  },
+    { label: 'MILAN CENTRO',        change: 3.4,  positive: true  },
+    { label: 'TOKYO ROPPONGI',      change: 0.7,  positive: false },
+    { label: 'SYDNEY HARBOUR',      change: 6.9,  positive: true  },
   ];
 
-  get allMarqueeItems() {
-    return [...this.marqueeItems, ...this.marqueeItems];
+  get allTickerItems() {
+    return [...this.tickerItems, ...this.tickerItems];
   }
 
   constructor(private cdr: ChangeDetectorRef, private ngZone: NgZone) {}
@@ -95,17 +98,19 @@ export class HeroComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy(): void {
-    this.subs.unsubscribe();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   // ── Counter animation ──────────────────────────────────────────────────────
   private startCounters(): void {
-    this.animateCounter(0, 12500, 2000,
-      (v) => this.ngZone.run(() => { this.propertiesVal = v;   this.cdr.detectChanges(); }));
-    this.animateCounter(0, 89,    2000,
-      (v) => this.ngZone.run(() => { this.satisfactionVal = v; this.cdr.detectChanges(); }));
-    this.animateCounter(0, 45,    2000,
-      (v) => this.ngZone.run(() => { this.citiesVal = v;       this.cdr.detectChanges(); }));
+    // 2000ms duration
+    this.animateCounter(0, 120, 2000,
+      (v) => this.ngZone.run(() => { this.countriesVal = Math.floor(v); this.cdr.detectChanges(); }));
+    this.animateCounter(0, 50, 2000,
+      (v) => this.ngZone.run(() => { this.propertiesVal = Math.floor(v); this.cdr.detectChanges(); }));
+    this.animateCounter(0, 45, 2000,
+      (v) => this.ngZone.run(() => { this.citiesVal = Math.floor(v); this.cdr.detectChanges(); }));
   }
 
   private animateCounter(
@@ -114,19 +119,22 @@ export class HeroComponent implements OnInit, OnDestroy, AfterViewInit {
     duration: number,
     setter: (val: number) => void
   ): void {
-    const steps = 60;
-    const stepTime = duration / steps;
+    const stepTime = 16; // ~60fps
+    const steps = duration / stepTime;
     const increment = (to - from) / steps;
     let current = from;
 
-    const sub = interval(stepTime)
-      .pipe(takeWhile(() => current < to))
-      .subscribe(() => {
+    interval(stepTime)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((val) => {
+        if (current >= to) {
+          setter(to);
+          // Only the component's destroy$ cleans up the global subscription automatically
+          return;
+        }
         current = Math.min(current + increment, to);
-        setter(Math.floor(current));
+        setter(current);
       });
-
-    this.subs.add(sub);
   }
 
   // ── Navigation helpers ─────────────────────────────────────────────────────
@@ -139,8 +147,5 @@ export class HeroComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  formatCount(val: number): string {
-    if (val >= 1000) return `${(val / 1000).toFixed(1)}K`;
-    return `${val}`;
-  }
+
 }
