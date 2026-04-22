@@ -21,4 +21,15 @@ export class NavComponent {
   openLogin(): void {
     this.auth.openModal(); 
   }
+
+  // ✅ 3. Mobile Menu Logic
+  isMobileMenuOpen = false;
+
+  toggleMobileMenu(): void {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  }
+
+  closeMobileMenu(): void {
+    this.isMobileMenuOpen = false;
+  }
 }
