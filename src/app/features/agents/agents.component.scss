@@ -1,0 +1,227 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// LUXE ESTATES — Agents Component Styles
+// Author: مينا
+// ─────────────────────────────────────────────────────────────────────────────
+
+.agents-section {
+  background: var(--obsidian-2, #111118);
+  padding: 100px 40px;
+}
+
+// ── Section Header ───────────────────────────────────────────────────────────
+.section-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--gold);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.section-title {
+  font-family: var(--font-display, 'Cormorant Garamond', serif);
+  font-size: clamp(36px, 5vw, 64px);
+  font-weight: 400;
+  color: var(--white);
+  margin-bottom: 16px;
+
+  em {
+    font-style: italic;
+    color: var(--gold);
+  }
+}
+
+.section-sub {
+  color: var(--mist);
+  font-size: 16px;
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+// ── Agents Grid — Task 04 ─────────────────────────────────────────────────────
+// 4 columns desktop, 2 tablet, 1 mobile
+.agents-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+// ── Agent Card ────────────────────────────────────────────────────────────────
+.agent-card {
+  background: var(--obsidian-3, #1A1A24);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 0 0 0;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.35s ease, border-color 0.35s ease;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-8px);
+    border-color: rgba(201, 169, 110, 0.3);
+  }
+}
+
+// ── Avatar ────────────────────────────────────────────────────────────────────
+.agent-avatar-wrap {
+  padding: 32px 24px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.agent-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(201, 169, 110, 0.15), rgba(201, 169, 110, 0.05));
+  border: 2px solid rgba(201, 169, 110, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display, 'Cormorant Garamond', serif);
+  font-size: 32px;
+  font-weight: 500;
+  color: var(--gold);
+}
+
+// ── Agent Info ────────────────────────────────────────────────────────────────
+.agent-info {
+  padding: 20px 24px 16px;
+  text-align: center;
+  flex: 1;
+}
+
+.agent-name {
+  font-family: var(--font-display, 'Cormorant Garamond', serif);
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--white);
+  margin-bottom: 6px;
+}
+
+.agent-specialty {
+  font-size: 12px;
+  color: var(--mist);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.agent-countries {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.country-tag {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--gold);
+  border: 1px solid rgba(201, 169, 110, 0.25);
+  padding: 3px 8px;
+  text-transform: uppercase;
+}
+
+// ── Stats Row — Task 05 ───────────────────────────────────────────────────────
+.agent-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 16px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-val {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--white);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.stat-key {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--mist);
+  text-transform: uppercase;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+// ── Social Buttons — Task 05 ──────────────────────────────────────────────────
+.agent-social {
+  display: flex;
+  gap: 0;
+  padding: 16px 24px;
+  justify-content: center;
+}
+
+.social-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--mist);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.25s, color 0.25s, background 0.25s;
+  margin: 0 4px;
+
+  &:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(201, 169, 110, 0.08);
+  }
+}
+
+// ── Reveal Animation ──────────────────────────────────────────────────────────
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+
+  &.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+@media (max-width: 1200px) {
+  .agents-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .agents-section {
+    padding: 60px 20px;
+  }
+
+  .agents-grid {
+    grid-template-columns: 1fr;
+  }
+}

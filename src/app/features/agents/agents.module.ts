@@ -1,35 +1,25 @@
-import { NgModule, Component } from '@angular/core';
+// ─────────────────────────────────────────────────────────────────────────────
+// LUXE ESTATES — Agents Module
+// Author: مينا — feature/mina-auctions
+// ─────────────────────────────────────────────────────────────────────────────
+
+import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 
-// ─────────────────────────────────────────────────────────────
-// PLACEHOLDER — مينا: استبدلي الـ component ده بـ AgentsComponent
-// بتاعتك لما تخلص شغلك، وامسحي الـ placeholder
-// ─────────────────────────────────────────────────────────────
-@Component({
-  template: `
-    <div style="display:flex;align-items:center;justify-content:center;
-                height:100vh;background:#0A0A0F;color:#E74C3C;
-                font-family:'Space Mono',monospace;font-size:14px;letter-spacing:2px;">
-      AGENTS MODULE — جاهز لـ مينا ✦
-    </div>
-  `,
-})
-export class AgentsPlaceholderComponent {}
+import { AgentsComponent } from './agents.component';
 
 const routes: Routes = [
-  { path: '', component: AgentsPlaceholderComponent },
+  { path: '', component: AgentsComponent },
 ];
 
 @NgModule({
   declarations: [
-    AgentsPlaceholderComponent,
-    // AgentsComponent     ← مينا تضيف
-    // AgentCardComponent  ← مينا تضيف
+    AgentsComponent,
   ],
   imports: [
     CommonModule,
-    RouterModule.forChild(routes), // ✅ forChild — لا تغيرها لـ forRoot أبداً
+    RouterModule.forChild(routes),  // ← forChild, NOT forRoot
   ],
 })
 export class AgentsModule {}
