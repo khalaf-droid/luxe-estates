@@ -1,5 +1,12 @@
-import { Component } from '@angular/core';
-import { AuthService } from './core/auth/auth.service'; // استدعاء الـ Service
+// ============================================================
+// LUXE ESTATES — App Shell Component
+// Global ESC listener lives here — single source of truth for
+// keyboard modal dismissal across the entire application.
+// ============================================================
+
+import { Component, HostListener } from '@angular/core';
+import { AuthService } from './core/auth/auth.service';
+import { ModalEscapeService } from './core/services/modal-escape.service';
 
 @Component({
   selector: 'app-root',
@@ -7,6 +14,7 @@ import { AuthService } from './core/auth/auth.service'; // استدعاء الـ
     <app-cursor></app-cursor>
     <app-nav></app-nav>
     <router-outlet></router-outlet>
+    <app-footer></app-footer>
     <app-notification></app-notification>
 
     <app-auth-modal></app-auth-modal>
@@ -20,13 +28,25 @@ import { AuthService } from './core/auth/auth.service'; // استدعاء الـ
 export class AppComponent {
   title = 'luxe-estates';
 
-  // حقن الـ AuthService عشان نقدر نفتح المودال
-  constructor(private auth: AuthService) {}
+  constructor(
+    private auth: AuthService,
+    private modalEscapeService: ModalEscapeService, // injected — broadcasts ESC to all modals
+  ) {}
 
-  // دالة مؤقتة لفتح المودال
-  testOpenModal() {
-    // استخدم الدالة اللي موجودة عندك في AuthService لفتح المودال
-    // لو مفيهاش parameters سيبها فاضية () ولو بتاخد 'login' حطها
-    this.auth.openModal(); 
+  /**
+   * Single document-level ESC listener for the entire app.
+   * Triggers the ModalEscapeService bus so any subscribed modal
+   * can close itself without competing @HostListeners.
+   *
+   * Reference: index.html lines 2388–2394 (keyboard ESC handler)
+   */
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.modalEscapeService.trigger();
+  }
+
+  // Helper kept for dev/testing convenience — open auth modal programmatically
+  testOpenModal(): void {
+    this.auth.openModal();
   }
 }

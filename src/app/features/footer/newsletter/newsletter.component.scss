@@ -1,0 +1,204 @@
+// ============================================================
+// LUXE ESTATES — Newsletter Component Styles
+// Reference: Template/index.html .newsletter-section (lines 896–936)
+// Rule §5.1: @use 'variables' as * (path relative from nested component)
+// Rule §3.5: Style A inputs — underline only, no full border
+// ============================================================
+@use 'variables' as *;
+
+// ── Section wrapper ───────────────────────────────────────────
+// Reference: .newsletter-section (lines 897–905)
+// background: var(--obsidian-3), padding 80px 60px,
+// grid 1fr 1fr gap 80px, border-top gold 0.1
+.newsletter-section {
+  background: var(--obsidian-3);
+  padding: 80px 60px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;   // reference: 1fr 1fr
+  gap: 80px;                         // reference: gap 80px
+  align-items: center;
+  border-top: 1px solid rgba(201, 169, 110, 0.1); // gold 10%
+
+  // ≤1024px: stack to single column (reference line 1346)
+  @media (max-width: $bp-desktop) {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    padding: 60px 30px;
+  }
+
+  @media (max-width: $bp-tablet) {
+    padding: 48px 20px;
+    gap: 32px;
+  }
+}
+
+// ── Left column: content ──────────────────────────────────────
+
+// Eyebrow: font-mono, 10px, letter-spacing 4px, gold, uppercase
+// §3.1 — matches global .section-eyebrow pattern
+.newsletter-eyebrow {
+  font-family: var(--font-mono);      // ✅ §3.2 — mono for eyebrows/labels
+  font-size: 10px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+
+  // Gold rule before the eyebrow text (§3.1 ::before pattern)
+  &::before {
+    content: '';
+    width: 30px;
+    height: 1px;
+    background: var(--gold);
+    flex-shrink: 0;
+  }
+}
+
+// Title: font-display, clamp → 48px target, weight 300
+// Reference: .section-title pattern
+.newsletter-title {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 3vw, 48px);  // reference: clamp(28px,3vw,48px)
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: -1px;
+  color: var(--white);
+  margin-bottom: 20px;
+
+  // em inside title → italic + gold (§1.2 signature style)
+  em {
+    font-style: italic;
+    color: var(--gold);
+  }
+}
+
+// Description: font-body, 15px, mist
+.newsletter-desc {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--mist);
+  line-height: 1.7;
+  max-width: 440px;
+}
+
+// ── Right column: form wrapper ────────────────────────────────
+
+.newsletter-form-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.newsletter-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+// Input + button row — gold border wrapping both
+// Reference: .newsletter-form (lines 906–909)
+.newsletter-input-row {
+  display: flex;
+  gap: 0;
+  border: 1px solid rgba(201, 169, 110, 0.2); // gold 20% wrapper
+  transition: border-color 0.3s var(--transition);
+
+  // Error state — red border
+  &.has-error {
+    border-color: rgba(192, 57, 43, 0.5); // crimson 50%
+  }
+}
+
+// ── Email input — Style A (underline only — §3.5) ─────────────
+// Reference: .newsletter-input (lines 910–920)
+// CRITICAL: Style A = NO full border. Only bottom border internally.
+// The outer .newsletter-input-row provides the visual container border.
+.newsletter-input {
+  flex: 1;
+  background: transparent;
+  border: none;                        // ✅ §3.5 Style A — no side/top/bottom borders here
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 15px;
+  padding: 16px 24px;                  // reference: 16px 24px
+  outline: none;
+  min-width: 0;                        // flex shrink fix
+
+  &::placeholder {
+    color: var(--mist);               // ✅ var(--mist)
+  }
+
+  // Focus state: The parent wrapper handles visual focus ring via the input-row
+  &:focus {
+    outline: none;
+  }
+}
+
+// Focus-within: when the input is focused, upgrade the container border to gold
+.newsletter-input-row:focus-within {
+  border-color: var(--gold);           // §3.5: focus → border-color var(--gold)
+}
+
+// ── Submit button ─────────────────────────────────────────────
+// Reference: .newsletter-btn (lines 922–936)
+// font-mono REQUIRED — §3.2: never use font-family on a button
+// without var(--font-mono)
+.newsletter-btn {
+  padding: 16px 32px;
+  background: var(--gold);
+  color: var(--obsidian);
+  border: none;
+  font-family: var(--font-mono);      // ✅ §3.2
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: none;
+  transition: opacity 0.3s var(--transition), transform 0.3s var(--transition-bounce);
+  flex-shrink: 0;
+
+  &:hover:not(:disabled) {
+    opacity: 0.85;
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// ── Inline error message ──────────────────────────────────────
+// Task spec: font-mono, 10px, color var(--crimson)
+// Only shown when touched + invalid — via *ngIf in template
+.newsletter-error {
+  font-family: var(--font-mono);      // ✅ §3.2 — mono for all labels/messages
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--crimson);              // ✅ var(--crimson)
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  // Bullet indicator before the error text
+  &::before {
+    content: '✕';
+    font-size: 8px;
+  }
+}
+
+// ── Tagline below form ────────────────────────────────────────
+// Reference: "Join 18,000+ subscribers. Unsubscribe anytime." (line 1755)
+// Task spec: font-mono, 10px, color var(--mist)
+.newsletter-tagline {
+  font-family: var(--font-mono);      // ✅ §3.2 — mono for labels
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--mist);
+  margin-top: 4px;
+}

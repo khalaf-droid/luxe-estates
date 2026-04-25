@@ -1,0 +1,88 @@
+<!-- ============================================================
+     LUXE ESTATES — Newsletter Component Template
+     Reference: Template/index.html .newsletter-section (lines 1743–1757)
+     Rules: §3.1 eyebrow, §3.5 Style A inputs (underline only),
+            §4 scroll reveal, §5.5 NotificationService
+     ============================================================ -->
+
+<section class="newsletter-section" aria-labelledby="newsletter-heading">
+
+  <!-- Left column: eyebrow + title + description ──────────── -->
+  <div class="newsletter-content reveal">
+
+    <!-- Eyebrow: §3.1 — font-mono, gold, letter-spacing 4px, uppercase -->
+    <div class="newsletter-eyebrow">Stay Ahead</div>
+
+    <!-- Title: font-display weight 300, em → italic gold -->
+    <h2 class="newsletter-title" id="newsletter-heading">
+      Market <em>Intelligence</em>
+    </h2>
+
+    <!-- Description: font-body, var(--mist) -->
+    <p class="newsletter-desc">
+      Weekly curated insights from the global luxury real estate
+      market, delivered to your inbox.
+    </p>
+
+  </div><!-- /newsletter-content -->
+
+  <!-- Right column: form ────────────────────────────────────── -->
+  <div class="newsletter-form-wrap reveal reveal-delay-1">
+
+    <form
+      [formGroup]="newsletterForm"
+      (ngSubmit)="onSubmit()"
+      novalidate
+      class="newsletter-form"
+      id="newsletter-form"
+    >
+      <!-- Email input row: input + button inside gold-border wrapper -->
+      <div
+        class="newsletter-input-row"
+        [class.has-error]="showError"
+      >
+        <!-- Style A input: underline only (§3.5) ── no full border -->
+        <input
+          id="newsletter-email"
+          type="email"
+          class="newsletter-input"
+          formControlName="email"
+          placeholder="your@email.com"
+          autocomplete="email"
+          [attr.aria-invalid]="showError ? 'true' : null"
+          aria-describedby="newsletter-error"
+          [attr.data-cursor-hover]="true"
+        />
+
+        <!-- Submit button: btn-primary, font-mono, "SUBSCRIBE →" -->
+        <button
+          type="submit"
+          class="newsletter-btn"
+          [disabled]="isSubmitting"
+          [attr.data-cursor-hover]="true"
+          aria-label="Subscribe to newsletter"
+        >
+          {{ isSubmitting ? 'SUBSCRIBING…' : 'SUBSCRIBE →' }}
+        </button>
+      </div><!-- /newsletter-input-row -->
+
+      <!-- Validation error message (touched + invalid only) ── -->
+      <p
+        *ngIf="showError"
+        class="newsletter-error"
+        id="newsletter-error"
+        role="alert"
+      >
+        Please enter a valid email address
+      </p>
+
+    </form><!-- /newsletter-form -->
+
+    <!-- Subscriber count tagline ──────────────────────────── -->
+    <p class="newsletter-tagline">
+      Join 25,000+ subscribers. Unsubscribe anytime.
+    </p>
+
+  </div><!-- /newsletter-form-wrap -->
+
+</section>

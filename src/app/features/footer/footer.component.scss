@@ -1,0 +1,188 @@
+// ============================================================
+// LUXE ESTATES — Footer Component Styles
+// Reference: Template/index.html — footer, .footer-* rules (lines 938–1002)
+// Import rule §5.1: @use 'variables' as * (path relative to component)
+// ============================================================
+@use 'variables' as *;
+
+// ── Host wrapper ─────────────────────────────────────────────
+:host {
+  display: block; // ensure footer stretches full width as a block
+}
+
+// ── Outer <footer> element ────────────────────────────────────
+// Reference: background var(--obsidian), padding 80px 60px 40px,
+//            border-top 1px solid rgba(gold, 0.1)
+.site-footer {
+  background: var(--obsidian);
+  padding: 80px 60px 40px;
+  border-top: 1px solid rgba(201, 169, 110, 0.1); // gold 10% — matches reference
+
+  @media (max-width: $bp-desktop) {
+    padding: 60px 30px 30px;
+  }
+
+  @media (max-width: $bp-tablet) {
+    padding: 48px 20px 24px;
+  }
+}
+
+// ── Top grid: 2fr 1fr 1fr 1fr, gap 60px ──────────────────────
+// Reference: .footer-top (lines 944–948)
+.footer-top {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 60px;
+  margin-bottom: 60px;
+
+  // ≤1024px: 2-col layout (reference line 1344)
+  @media (max-width: $bp-desktop) {
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 40px;
+  }
+
+  // ≤768px: single column (reference line 1360)
+  @media (max-width: $bp-tablet) {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    margin-bottom: 32px;
+  }
+}
+
+// ── Column 1: Brand block ─────────────────────────────────────
+
+// Logo: font-display, 28px, weight 600, letter-spacing 4px
+// Reference: .footer-logo (lines 950–957)
+.footer-logo {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  color: var(--white);
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+// The · separator in the logo gets gold accent (reference line 957)
+.footer-logo-dot {
+  color: var(--gold);
+}
+
+// Description paragraph
+// Reference: .footer-desc (lines 958–964)
+.footer-desc {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--mist);
+  line-height: 1.8;
+  max-width: 280px;
+  margin-bottom: 30px;
+}
+
+// Social icons row ────────────────────────────────────────────
+// Reference: .footer-social (line 992)
+.footer-social {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+// Each icon: 40×40 square, border slate, hover → gold
+// Reference: .footer-social-link (lines 993–1002)
+.footer-social-link {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--slate);      // ✅ var(--slate) — no hardcoded hex
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-family: var(--font-mono);        // ✅ §3.2 — mono for all labels
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--mist);
+  transition: border-color 0.3s var(--transition), color 0.3s var(--transition);
+
+  &:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+}
+
+// ── Navigation columns (2, 3, 4) ─────────────────────────────
+
+// Column header: font-mono, 10px, letter-spacing 3px, gold, uppercase
+// Reference: .footer-col-title (lines 965–972)
+.footer-col-title {
+  font-family: var(--font-mono);        // ✅ §3.2 — mono for labels
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 24px;
+}
+
+// Links list — reset, vertical stack
+// Reference: .footer-links (line 973)
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+// Individual link: font-body, 13px (task spec), mist → gold on hover
+// Reference: .footer-links a (lines 974–980)
+.footer-link {
+  font-family: var(--font-body);
+  font-size: 13px;                       // task spec: 13px (template uses 14px, task spec 13px)
+  color: var(--mist);
+  text-decoration: none;
+  transition: color 0.3s var(--transition);
+  display: inline-block;                 // ensures transition works smoothly
+
+  &:hover {
+    color: var(--gold);                  // ✅ var(--gold) — no hardcoded hex
+  }
+}
+
+// ── Copyright bar ─────────────────────────────────────────────
+// Reference: .footer-bottom (lines 981–991)
+.footer-bottom {
+  padding-top: 40px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05); // very subtle — reference line 983
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  @media (max-width: $bp-tablet) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding-top: 24px;
+  }
+}
+
+// Copyright text: font-mono, 11px → task spec 10px
+// Reference: .footer-copy (lines 986–991)
+.footer-copy {
+  font-family: var(--font-mono);        // ✅ §3.2 — mono for copyright
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--mist);
+  text-transform: uppercase;
+}
+
+// Right-side tagline (reference line 1807): gold, mono, 10px
+.footer-powered {
+  font-family: var(--font-mono);        // ✅ mono for labels
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--gold);
+  text-transform: uppercase;
+}

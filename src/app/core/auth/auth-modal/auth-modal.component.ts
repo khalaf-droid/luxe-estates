@@ -3,6 +3,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractContro
 import { CommonModule } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
 import { AuthService } from '../auth.service';
+import { ModalEscapeService } from '../../services/modal-escape.service';
 
 // ─── Custom Validators (متحققات مخصصة) ──────────────────────────────────
 
@@ -51,8 +52,9 @@ type AuthTab = 'login' | 'register' | 'forgot' | 'otp' | 'reset';
 export class AuthModalComponent implements OnInit, OnDestroy {
 
   // حقن الخدمات (Dependency Injection) بالطريقة الحديثة في Angular
-  private auth = inject(AuthService);
-  private fb   = inject(FormBuilder);
+  private auth          = inject(AuthService);
+  private fb            = inject(FormBuilder);
+  private modalEscape   = inject(ModalEscapeService); // ESC global bus
 
   // ─── State Variables (متغيرات الحالة) ───
   isOpen    = false;           // للتحكم في ظهور أو إخفاء المودال
@@ -76,9 +78,19 @@ export class AuthModalComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.buildForms(); // أول ما المودال يفتح، بنبني الفورمز
-    
+
     // بنراقب خدمة الـ Auth عشان نعرف إمتى نظهر أو نخفي المودال
     this.auth.isModalOpen$.pipe(takeUntil(this.destroy$)).subscribe(open => this.isOpen = open);
+
+    // Subscribe to global ESC bus — only closes when this modal is actually open.
+    // close() → AuthService.closeModal() → isModalOpen$ emits false → isOpen = false.
+    // body.style.overflow is reset inside AuthService.closeModal() indirectly via
+    // AuthModalComponent reacting to isOpen = false (overlay *ngIf removal).
+    this.modalEscape.escape$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (this.isOpen) this.close();
+      });
   }
 
   ngOnDestroy(): void {

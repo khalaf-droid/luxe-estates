@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { FooterModule } from './features/footer/footer.module';
 import { NavComponent } from './core/nav/nav.component';
 import { CursorComponent } from './shared/cursor/cursor.component';
 import { NotificationComponent } from './shared/notification/notification.component';
@@ -30,7 +31,10 @@ import { AuthModalComponent } from './core/auth/auth-modal/auth-modal.component'
     AppRoutingModule,
 
     // ✅ FIX: standalone component must be in imports
-    AuthModalComponent
+    AuthModalComponent,
+
+    // Footer feature module — exports FooterComponent as <app-footer>
+    FooterModule,
   ],
 
   providers: [

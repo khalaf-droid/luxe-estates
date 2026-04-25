@@ -1,0 +1,78 @@
+<!-- ============================================================
+     LUXE ESTATES — Footer Component Template
+     Reference: Template/index.html <footer> (lines 1760–1809)
+     Rules: §3.1 eyebrow, §3.2 buttons, §5.7 RTL logical props,
+            §4 scroll reveal (.reveal class on each column)
+     ============================================================ -->
+<!-- Newsletter sits immediately above the footer — matches template order (line 1743 before 1760) -->
+<app-newsletter></app-newsletter>
+
+<footer class="site-footer">
+
+  <!-- ── Top grid: 2fr 1fr 1fr 1fr ─────────────────────── -->
+  <div class="footer-top">
+
+    <!-- Column 1: Brand ──────────────────────────────────── -->
+    <div class="footer-brand reveal">
+      <!-- Logo: font-display, 28px, letter-spacing 4px (reference line 950) -->
+      <div class="footer-logo" aria-label="LUXE Estates">
+        LUXE<span class="footer-logo-dot">·</span>ESTATES
+      </div>
+
+      <!-- Description (reference line 958) -->
+      <p class="footer-desc">
+        The world's premier luxury real estate platform. Connecting
+        extraordinary properties with extraordinary people across
+        45 global cities.
+      </p>
+
+      <!-- Social icons row (reference lines 1765–1770) -->
+      <div class="footer-social" role="list" aria-label="Social media links">
+        <a
+          *ngFor="let social of socialLinks"
+          [href]="social.href"
+          class="footer-social-link"
+          role="listitem"
+          [attr.aria-label]="social.ariaLabel"
+          [attr.data-cursor-hover]="true"
+        >
+          {{ social.label }}
+        </a>
+      </div>
+    </div><!-- /footer-brand -->
+
+    <!-- Columns 2-4: Navigation links (data-driven) ────── -->
+    <div
+      *ngFor="let col of columns; let i = index"
+      class="footer-nav-col reveal"
+      [class]="'reveal-delay-' + (i + 1)"
+    >
+      <!-- Column header: font-mono, 10px, letter-spacing 3px, gold, uppercase -->
+      <div class="footer-col-title">{{ col.title }}</div>
+
+      <ul class="footer-links" role="list">
+        <li *ngFor="let link of col.links" role="listitem">
+          <!-- External/hash links; swap for routerLink when pages exist -->
+          <a [href]="link.href" class="footer-link" [attr.data-cursor-hover]="true">
+            {{ link.label }}
+          </a>
+        </li>
+      </ul>
+    </div><!-- /footer-nav-col -->
+
+  </div><!-- /footer-top -->
+
+  <!-- ── Copyright bar ──────────────────────────────────── -->
+  <div class="footer-bottom">
+    <!-- Left: copyright text (reference line 1806) -->
+    <span class="footer-copy">
+      © {{ currentYear }} LUXE ESTATES GLOBAL. ALL RIGHTS RESERVED.
+    </span>
+
+    <!-- Right: powered-by tagline (reference line 1807) -->
+    <span class="footer-powered">
+      POWERED BY AI · SECURED BY TRUST
+    </span>
+  </div><!-- /footer-bottom -->
+
+</footer>
