@@ -40,7 +40,7 @@ export function passwordsMatchValidator(): ValidatorFn {
 // ─── Component Setup ──────────────────────────────────────────────────
 
 // تحديد التابات المتاحة في المودال عشان نمنع أي أخطاء إملائية في الكود
-type AuthTab = 'login' | 'register' | 'forgot' | 'otp' | 'reset';
+type AuthTab = 'login' | 'register' | 'forgot' | 'verify-otp';
 
 @Component({
   selector: 'app-auth-modal',
@@ -66,12 +66,10 @@ export class AuthModalComponent implements OnInit, OnDestroy {
   loginForm!: FormGroup;
   registerForm!: FormGroup;
   forgotForm!: FormGroup;
-  otpForm!: FormGroup;
-  resetForm!: FormGroup;
+  verifyOtpForm!: FormGroup;
 
-  // ─── OTP State (حفظ بيانات تغيير الباسورد مؤقتاً) ───
-  resetEmail: string = '';     // الإيميل اللي اليوزر عايز يغير الباسورد بتاعه
-  expectedOtp: string = '';    // كود الـ OTP اللي المفروض اليوزر يكتبه
+  // ─── Verification State ───
+  registeredEmail: string = ''; // الايميل الخاص بالـ user المسجل عشان نفعله
 
   // Subject لإنهاء الاشتراكات (Subscriptions) لما الكومبوننت يتقفل عشان نمنع تسريب الميموري
   private destroy$ = new Subject<void>();
@@ -121,14 +119,9 @@ export class AuthModalComponent implements OnInit, OnDestroy {
       email: ['', [Validators.required, Validators.pattern(emailRegex)]]
     });
 
-    this.otpForm = this.fb.group({
-      otp: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(4)]] // لازم 4 أرقام بالظبط
+    this.verifyOtpForm = this.fb.group({
+      otp: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]] // رمز التأكيد بيكون 6 أرقام من الباك إند
     });
-
-    this.resetForm = this.fb.group({
-      password: ['', [Validators.required, strongPasswordValidator()]],
-      confirmPassword: ['', Validators.required]
-    }, { validators: passwordsMatchValidator() });
   }
 
   // دالة للتنقل بين التابات (Login, Register, OTP...)
@@ -137,60 +130,34 @@ export class AuthModalComponent implements OnInit, OnDestroy {
     this.errorMsg = ''; // بنمسح أي إيرور قديم لما اليوزر يغير التاب
   }
 
-  // ─── OTP Flow Logic (دورة حياة نسيان الباسورد) ─────────────────────
+  // ─── Forgot Password Flow ──────────────────────────────────────────
 
   // 1. الانتقال لشاشة نسيان الباسورد
   goForgot(): void {
     this.switchTab('forgot');
   }
 
-  // 2. إرسال الإيميل لطلب الـ OTP
+  // 2. إرسال الإيميل لطلب رابط التغيير
   onForgotSubmit(): void {
-    if (this.forgotForm.invalid) { this.forgotForm.markAllAsTouched(); return; } // لو الفورم ناقصة بنظهر الأخطاء
+    if (this.forgotForm.invalid) { this.forgotForm.markAllAsTouched(); return; } 
+    this.isLoading = true;
+    this.errorMsg = '';
     
     const email = this.forgotForm.value.email;
     
-    if (this.auth.checkEmailExists(email)) { // بنتأكد إن الإيميل ده مسجل عندنا أصلاً
-      this.resetEmail = email;
-      this.expectedOtp = '1234'; // 💡 كود ثابت مؤقتاً للتجربة (في البيئة الحقيقية الباك إند هو اللي بيبعته)
-      
-      this.showNotification(`OTP sent successfully to ${email}`, 'info'); // إشعار للمستخدم
-      this.switchTab('otp'); // نقله لشاشة إدخال الكود
-    } else {
-      this.errorMsg = 'No account found with that email address.';
-    }
-  }
-
-  // 3. التحقق من كود الـ OTP
-  onOtpSubmit(): void {
-    if (this.otpForm.invalid) { this.otpForm.markAllAsTouched(); return; }
-    
-    if (this.otpForm.value.otp === this.expectedOtp) { // لو الكود صح
-      this.switchTab('reset'); // وديه لشاشة الباسورد الجديد
-      this.showNotification('OTP Verified Successfully', 'success');
-    } else {
-      this.errorMsg = 'Invalid OTP code. Please try again.';
-    }
-  }
-
-  // 4. حفظ الباسورد الجديد
-  onResetSubmit(): void {
-    if (this.resetForm.invalid) { this.resetForm.markAllAsTouched(); return; }
-    
-    // بنبعت الإيميل والباسورد الجديد لخدمة الـ Auth عشان تحفظهم
-    this.auth.updatePassword(this.resetEmail, this.resetForm.value.password);
-    this.showNotification('Password updated successfully!', 'success');
-    
-    // بنحط الإيميل في شاشة اللوجين عشان اليوزر ميكتبوش تاني (UX ممتاز)
-    this.loginForm.patchValue({ email: this.resetEmail });
-    
-    // تنظيف البيانات المؤقتة والرجوع لشاشة اللوجين
-    this.resetEmail = '';
-    this.expectedOtp = '';
-    this.forgotForm.reset();
-    this.otpForm.reset();
-    this.resetForm.reset();
-    this.switchTab('login');
+    this.auth.forgotPassword(email).pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.showNotification(`If registered, a reset link was sent to ${email}`, 'info');
+        this.switchTab('login');
+      },
+      error: () => {
+        this.isLoading = false;
+        // لدواعي أمنية بنظهر نفس الرسالة حتى لو الايميل مش موجود
+        this.showNotification(`If registered, a reset link was sent to ${email}`, 'info');
+        this.switchTab('login');
+      }
+    });
   }
 
   // ─── Auth Logic (تسجيل الدخول وإنشاء حساب) ─────────────────────
@@ -207,9 +174,9 @@ export class AuthModalComponent implements OnInit, OnDestroy {
         this.showNotification(`Welcome back, ${user.name}!`, 'success');
         this.close(); // لو النجاح، بنقفل المودال خالص
       },
-      error: () => {
+      error: (err: any) => {
         this.isLoading = false;
-        this.errorMsg = 'Invalid email or password. Please try again.';
+        this.errorMsg = err.error?.message || 'Invalid email or password. Please try again.';
       }
     });
   }
@@ -221,18 +188,43 @@ export class AuthModalComponent implements OnInit, OnDestroy {
     
     const { name, email, password } = this.registerForm.value;
 
-    // 💡 بنبعت 'Buyer' كـ Hardcoded Role عشان اليوزر ميتعطلش، ولما يعوز يبيع عقار بنرقيه بعدين
-    this.auth.register(name, email, password, 'Buyer').pipe(takeUntil(this.destroy$)).subscribe({
+    // 🔒 SECURITY FIX: The 'role' is strictly managed by the backend to prevent privilege escalation.
+    // The frontend only sends user credentials; the backend securely assigns the default 'buyer' role.
+    this.auth.register(name, email, password).pipe(takeUntil(this.destroy$)).subscribe({
       next: (user: any) => {
         this.isLoading = false;
-        this.showNotification(`Account created successfully! Welcome ${user.name}`, 'success');
+        this.showNotification(`Account created! Please check your email to verify your account.`, 'info');
+        this.registeredEmail = email; // نحفظ الإيميل للتفعيل
         this.registerForm.reset(); 
-        this.loginForm.patchValue({ email: email }); // تجهيز الإيميل للوجين
-        this.switchTab('login'); // بعد ما يسجل بنوديه للوجين عشان يدخل
+        this.switchTab('verify-otp'); // بننقله لتأكيد الحساب بدلاً من تسجيل الدخول مباشرة
       },
-      error: () => {
+      error: (err: any) => {
         this.isLoading = false;
-        this.errorMsg = 'Registration failed. Email already exists.';
+        this.errorMsg = err.error?.message || 'Registration failed. Please try again.';
+      }
+    });
+  }
+
+  // التحقق من الإيميل باستخدام كود التفعيل
+  onVerifyOtpSubmit(): void {
+    if (this.verifyOtpForm.invalid) { this.verifyOtpForm.markAllAsTouched(); return; }
+    this.isLoading = true;
+    this.errorMsg = '';
+    
+    const otp = this.verifyOtpForm.value.otp;
+    
+    this.auth.verifyAccount(this.registeredEmail, otp).pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.showNotification('Email verified successfully! You can now login.', 'success');
+        this.loginForm.patchValue({ email: this.registeredEmail }); // تجهيز الإيميل للوجين
+        this.registeredEmail = '';
+        this.verifyOtpForm.reset();
+        this.switchTab('login'); // بعد التفعيل بنوديه للوجين عشان يدخل
+      },
+      error: (err: any) => {
+        this.isLoading = false;
+        this.errorMsg = err.error?.message || 'Invalid or expired OTP.';
       }
     });
   }

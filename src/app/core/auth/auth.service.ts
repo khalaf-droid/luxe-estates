@@ -3,9 +3,10 @@
 // Includes: Real LocalStorage DB, OTP Flow, and Team Interface Compatibility
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 export interface User {
   _id: string;
@@ -14,6 +15,9 @@ export interface User {
   role: string;
   token?: string;
   password?: string; 
+  isVerified?: boolean;
+  otp?: string;
+  resetToken?: string;
 }
 
 export interface AuthModalRequest {
@@ -93,59 +97,50 @@ export class AuthService {
 
   isDemoMode(): boolean { return false; } // Disabled demo mode for real DB logic
 
-  // ── Islam's Advanced Logic (Login / Register / OTP) ──────────────────────
+  // ── Real Backend Integration (HttpClient) ────────────────────────────────
+  private apiUrl = 'http://localhost:3000/api/v1/auth';
+  private http = inject(HttpClient);
   
-  login(email: string, password: string): Observable<User> {
-    const users = JSON.parse(localStorage.getItem(this.DB_KEY) || '[]');
-    const user = users.find((u: any) => u.email === email && u.password === password);
-
-    if (user) {
-      const token = 'real-local-token-' + Math.random().toString(36).substr(2);
-      return of(this.handleAuthSuccess(token, user)).pipe(delay(500));
-    } else {
-      return throwError(() => new Error('Invalid email or password'));
-    }
+  login(email: string, password: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/login`, { email, password }).pipe(
+      tap((res) => {
+        if (res.status === 'success' && res.token && res.data?.user) {
+          this.handleAuthSuccess(res.token, res.data.user);
+        }
+      })
+    );
   }
 
-  register(name: string, email: string, password: string, role: string): Observable<User> {
-    const users = JSON.parse(localStorage.getItem(this.DB_KEY) || '[]');
-
-    if (users.find((u: any) => u.email === email)) {
-      return throwError(() => new Error('Email already exists'));
-    }
-
-    const newUser: User = { 
-      _id: Math.random().toString(36).substr(2), 
-      name, 
-      email, 
-      password, 
-      role 
-    };
-    
-    users.push(newUser);
-    localStorage.setItem(this.DB_KEY, JSON.stringify(users));
-
-    return of(newUser).pipe(delay(500));
+  register(name: string, email: string, password: string): Observable<any> {
+    // The backend handles the default role assignment securely
+    return this.http.post<any>(`${this.apiUrl}/register`, { name, email, password });
   }
 
-  checkEmailExists(email: string): boolean {
-    const users = JSON.parse(localStorage.getItem(this.DB_KEY) || '[]');
-    return !!users.find((u: any) => u.email === email);
+  verifyAccount(email: string, otp: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/verify-otp`, { email, otp });
   }
 
-  updatePassword(email: string, newPassword: string): void {
-    const users = JSON.parse(localStorage.getItem(this.DB_KEY) || '[]');
-    const userIndex = users.findIndex((u: any) => u.email === email);
-    if (userIndex !== -1) {
-      users[userIndex].password = newPassword;
-      localStorage.setItem(this.DB_KEY, JSON.stringify(users));
-    }
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/reset-password/${token}`, { password: newPassword });
   }
 
   logout(): void {
-    this.clearStorage();
-    this.currentUser$.next(null);
-    this._isAuthenticated$.next(false);
+    // Call the backend to clear the httpOnly cookie and invalidate tokens
+    this.http.post(`${this.apiUrl}/logout`, {}).subscribe({
+      next: () => {
+        this.clearStorage();
+        this.currentUser$.next(null);
+      },
+      error: () => {
+        // Even if the backend fails, clear the local state to ensure security
+        this.clearStorage();
+        this.currentUser$.next(null);
+      }
+    });
   }
 
   // ── Private Helpers ──────────────────────────────────────────────────────

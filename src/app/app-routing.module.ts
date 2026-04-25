@@ -36,6 +36,12 @@ const routes: Routes = [
     component: BecomeAgentComponent,
   },
 
+  // مسار إعادة تعيين كلمة المرور
+  {
+    path: 'reset-password/:token',
+    loadComponent: () => import('./core/auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent)
+  },
+
   // مسار الـ Wildcard لاصطياد أي روابط خاطئة (يجب أن يظل في النهاية دائمًا)
   {
     path: '**',
