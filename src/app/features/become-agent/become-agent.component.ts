@@ -81,13 +81,14 @@ export class BecomeAgentComponent implements OnInit {
     // 💡 هنا هنحاكي إرسال البيانات للباك إند (مؤقتاً لحد ما نربط الـ API)
     setTimeout(() => {
       this.isLoading = false;
-      this.showNotification('Welcome to the Elite! Your account is now upgraded to Seller.', 'success');
+      this.showNotification('Welcome to the Elite! Your account is now upgraded to agent.', 'success');
       
       // ✅ تحديث الجلسة في الـ LocalStorage برمجياً (السحر اللي اتكلمنا عليه)
+      // TODO: Task 3.3 — wire real HTTP call to PATCH /api/v1/users/upgrade-role
       const userData = localStorage.getItem('luxe_user');
       if (userData) {
         const parsedUser = JSON.parse(userData);
-        parsedUser.role = 'Seller'; // ترقية الدور
+        parsedUser.role = 'agent'; // ترقية الدور
         localStorage.setItem('luxe_user', JSON.stringify(parsedUser));
       }
 

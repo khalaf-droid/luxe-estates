@@ -10,7 +10,7 @@
 <div
   class="property-card"
   [class.property-card--first]="isFirst"
-  (click)="onViewDetails($event)"
+  [routerLink]="['/properties', property._id]"
   data-cursor-hover>
 
   <!-- ── Image / Placeholder ─────────────────────────────────────────────── -->

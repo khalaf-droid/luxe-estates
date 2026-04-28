@@ -7,12 +7,15 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
+
+export type UserRole = 'buyer' | 'owner' | 'agent' | 'admin';
 
 export interface User {
   _id: string;
   name: string;
   email: string;
-  role: string;
+  role: UserRole;
   token?: string;
   password?: string; 
   isVerified?: boolean;
@@ -98,7 +101,7 @@ export class AuthService {
   isDemoMode(): boolean { return false; } // Disabled demo mode for real DB logic
 
   // ── Real Backend Integration (HttpClient) ────────────────────────────────
-  private apiUrl = 'http://localhost:3000/api/v1/auth';
+  private apiUrl = `${environment.apiUrl}/auth`;
   private http = inject(HttpClient);
   
   login(email: string, password: string): Observable<any> {

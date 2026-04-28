@@ -1,0 +1,360 @@
+// LUXE ESTATES — Property Detail Styles
+// Theme: Obsidian (#0A0A0F) & Gold (#C9A96E)
+
+$gold:       #C9A96E;
+$gold-light: #E8D5B0;
+$obsidian:   #0A0A0F;
+$obsidian-2: #111118;
+$obsidian-3: #1A1A24;
+$mist:       #8A8AA0;
+$white:      #FAFAF8;
+$red:        #C0392B;
+
+.detail-container {
+  background: $obsidian;
+  min-height: 100vh;
+  padding: 120px 24px 80px;
+  font-family: 'DM Sans', sans-serif;
+  color: $white;
+
+  @media (max-width: 768px) {
+    padding: 100px 16px 60px;
+  }
+}
+
+.content-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 48px;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+
+// ── Left Column: Main Content ──
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.gallery-section {
+  .main-image-wrap {
+    position: relative;
+    aspect-ratio: 16/9;
+    border-radius: 4px;
+    overflow: hidden;
+    background: $obsidian-2;
+    margin-bottom: 16px;
+
+    .main-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    &:hover .main-image { transform: scale(1.03); }
+
+    .fav-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba($obsidian, 0.6);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      z-index: 10;
+
+      &::before {
+        content: '❤';
+        font-size: 20px;
+        color: $white;
+        transition: color 0.3s;
+      }
+
+      &.active {
+        background: $gold;
+        border-color: $gold;
+        &::before { color: $obsidian; }
+      }
+
+      &:hover { transform: scale(1.1); }
+    }
+
+    .property-badge {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: $gold;
+      color: $obsidian;
+      padding: 6px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border-radius: 2px;
+    }
+  }
+
+  .thumbnail-strip {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+
+    .thumb-wrap {
+      flex: 0 0 120px;
+      aspect-ratio: 4/3;
+      border-radius: 2px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color 0.3s;
+
+      img { width: 100%; height: 100%; object-fit: cover; opacity: 0.6; transition: opacity 0.3s; }
+
+      &:hover img { opacity: 0.8; }
+      &.active { border-color: $gold; img { opacity: 1; } }
+    }
+  }
+}
+
+.info-section {
+  .info-header {
+    margin-bottom: 32px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 24px;
+
+    .property-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 48px;
+      font-weight: 300;
+      line-height: 1.1;
+      margin-bottom: 8px;
+
+      @media (max-width: 480px) { font-size: 36px; }
+    }
+
+    .property-location {
+      color: $mist;
+      font-size: 15px;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+
+    .property-price {
+      font-size: 32px;
+      font-weight: 500;
+      color: $gold;
+    }
+  }
+}
+
+.stats-row {
+  display: flex;
+  gap: 40px;
+  margin-bottom: 40px;
+
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .stat-icon { font-size: 24px; margin-bottom: 4px; }
+    .stat-value { font-size: 18px; font-weight: 700; }
+    .stat-label { font-size: 11px; color: $mist; text-transform: uppercase; letter-spacing: 1px; }
+  }
+}
+
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px;
+  letter-spacing: 1px;
+  color: $gold;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+
+.description-box {
+  margin-bottom: 40px;
+  .description-text { color: $mist; line-height: 1.8; font-size: 15px; }
+}
+
+.features-box {
+  margin-bottom: 48px;
+  .features-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+  .feature-chip {
+    background: $obsidian-3;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    color: $white;
+  }
+}
+
+.reviews-section {
+  .empty-state { color: $mist; font-style: italic; }
+  .reviews-list { display: flex; flex-direction: column; gap: 24px; }
+  .review-card {
+    background: $obsidian-2;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 24px;
+    border-radius: 4px;
+
+    .review-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      .reviewer-name { font-weight: 600; }
+      .review-rating { color: $gold; }
+    }
+
+    .review-comment { color: $mist; line-height: 1.6; font-size: 14px; margin-bottom: 12px; }
+    .review-date { font-size: 11px; color: rgba($mist, 0.6); }
+  }
+}
+
+// ── Right Column: Sidebar ──
+.sidebar {
+  .sticky-sidebar { position: sticky; top: 120px; display: flex; flex-direction: column; gap: 24px; }
+}
+
+.action-card {
+  background: $obsidian-2;
+  border: 1px solid rgba($gold, 0.2);
+  padding: 32px;
+  border-radius: 2px;
+
+  .card-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    text-align: center;
+    color: $white;
+  }
+}
+
+.form-group {
+  margin-bottom: 20px;
+  label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: $mist; margin-bottom: 8px; }
+}
+
+.luxury-input, .luxury-textarea {
+  width: 100%;
+  background: $obsidian-3;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: $white;
+  padding: 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  border-radius: 2px;
+  outline: none;
+  transition: border-color 0.3s;
+
+  &:focus { border-color: $gold; }
+}
+
+.luxury-textarea { min-height: 120px; resize: none; }
+
+.btn-primary, .btn-gold {
+  width: 100%;
+  padding: 16px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.btn-primary { background: $white; color: $obsidian; &:hover:not(:disabled) { background: $gold; } }
+.btn-gold { background: $gold; color: $obsidian; &:hover:not(:disabled) { background: $gold-light; } }
+
+.error-text { color: $red; font-size: 11px; margin-top: 6px; }
+
+.agent-compact-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: rgba($gold, 0.05);
+  border: 1px solid rgba($gold, 0.1);
+  border-radius: 4px;
+
+  .agent-avatar {
+    width: 48px;
+    height: 48px;
+    background: $gold;
+    color: $obsidian;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+  }
+
+  .agent-name { font-size: 14px; font-weight: 600; }
+  .agent-status { font-size: 12px; color: $gold; }
+}
+
+// ── Global Helpers ──
+.loading-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 0;
+  gap: 20px;
+  color: $mist;
+}
+
+.luxury-spinner {
+  width: 40px;
+  height: 40px;
+  border: 2px solid rgba($gold, 0.1);
+  border-top-color: $gold;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba($obsidian, 0.2);
+  border-top-color: $obsidian;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  &.dark { border-top-color: $white; }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.reveal {
+  animation: reveal 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes reveal {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}

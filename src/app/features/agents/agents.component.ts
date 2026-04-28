@@ -66,7 +66,7 @@ export class AgentsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // ── Load Agents ───────────────────────────────────────────────────────────
   loadAgents(): void {
-    this.http.get<Agent[]>(`${environment.apiUrl}/agents`).subscribe({
+    this.http.get<Agent[]>(`${environment.apiUrl}/users?role=agent`).subscribe({
       next: (data) => {
         this.agents = data;
         // Scroll reveal will automatically trigger via ViewChildren.changes

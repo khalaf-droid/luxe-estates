@@ -12,6 +12,7 @@ import {
   OnInit,
   OnDestroy,
   HostListener,
+  inject,
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subject } from 'rxjs';
@@ -19,6 +20,7 @@ import { takeUntil } from 'rxjs/operators';
 
 import { Property } from '../../models/property.model';
 import { PropertiesService } from '../../services/properties.service';
+import { PropertyActionsService } from '../../services/property-actions.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { AuthService } from '../../../../core/auth/auth.service';
 
@@ -31,6 +33,11 @@ type ActiveForm = 'none' | 'viewing' | 'inquiry';
   styleUrls: ['./property-modal.component.scss'],
 })
 export class PropertyModalComponent implements OnInit, OnDestroy {
+  private fb = inject(FormBuilder);
+  private propertiesService = inject(PropertiesService);
+  private propertyActionsService = inject(PropertyActionsService);
+  private notificationService = inject(NotificationService);
+  private authService = inject(AuthService);
 
   // ── Inputs / Outputs ──────────────────────────────────────────────────────
   @Input() property!: Property;
@@ -47,13 +54,6 @@ export class PropertyModalComponent implements OnInit, OnDestroy {
   inquiryForm!: FormGroup;
 
   private destroy$ = new Subject<void>();
-
-  constructor(
-    private fb: FormBuilder,
-    private propertiesService: PropertiesService,
-    private notificationService: NotificationService,
-    private authService: AuthService,
-  ) {}
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
   ngOnInit(): void {
@@ -79,11 +79,9 @@ export class PropertyModalComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // ── ESC key closes modal — Template lines 2388–2394 ──────────────────────
   @HostListener('document:keydown.escape')
   onEscKey(): void { this.close(); }
 
-  // ── Close ─────────────────────────────────────────────────────────────────
   close(): void {
     this.isActive = false;
     setTimeout(() => this.closed.emit(), 400);
@@ -95,7 +93,6 @@ export class PropertyModalComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ── Price ─────────────────────────────────────────────────────────────────
   get formattedPrice(): string {
     return this.propertiesService.formatPrice(
       this.property.price,
@@ -104,99 +101,91 @@ export class PropertyModalComponent implements OnInit, OnDestroy {
     );
   }
 
-  // ── Images ────────────────────────────────────────────────────────────────
   get mainImage():  string | null { return this.property.images?.[0] ?? null; }
   get sideImage1(): string | null { return this.property.images?.[1] ?? null; }
   get sideImage2(): string | null { return this.property.images?.[2] ?? null; }
 
-  // ── Min date for date picker (today) ─────────────────────────────────────
   get minDate(): string {
     return new Date().toISOString().split('T')[0];
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // TASK 06 — Auth-gated action buttons
-  // Same guard pattern as Task 05 onFavoriteToggled()
-  // ─────────────────────────────────────────────────────────────────────────
-
-  // ── SCHEDULE VIEWING button ───────────────────────────────────────────────
   onScheduleViewingClick(): void {
-    // Auth guard — exact pattern from task requirement
     if (!this.authService.isAuthenticated()) {
       this.authService.openModal('login');
       this.notificationService.show('Sign in to schedule a viewing', 'info');
       return;
     }
-
-    // Toggle: show form or hide if already open
     this.activeForm = this.activeForm === 'viewing' ? 'none' : 'viewing';
   }
 
-  // ── Submit viewing form ───────────────────────────────────────────────────
   submitViewing(): void {
     if (this.viewingForm.invalid || this.isSubmitting) return;
 
     this.isSubmitting = true;
     const date = this.viewingForm.get('date')!.value as string;
 
-    // POST /api/viewings — method already in PropertiesService (Task 01)
-    this.propertiesService
+    this.propertyActionsService
       .scheduleViewing(this.property._id, date)
       .pipe(takeUntil(this.destroy$))
-      .subscribe((success) => {
-        this.isSubmitting = false;
-        if (success) {
-          this.notificationService.show(
-            'Viewing scheduled! Our agent will confirm shortly.',
-            'success'
-          );
-          this.activeForm = 'none';
-          this.viewingForm.reset();
-        } else {
-          this.notificationService.show('Failed to schedule. Try again.', 'error');
+      .subscribe({
+        next: (success) => {
+          this.isSubmitting = false;
+          if (success) {
+            this.notificationService.show(
+              'Viewing scheduled! Our agent will confirm shortly.',
+              'success'
+            );
+            this.activeForm = 'none';
+            this.viewingForm.reset();
+          } else {
+            this.notificationService.show('Failed to schedule. Try again.', 'error');
+          }
+        },
+        error: (err) => {
+          this.isSubmitting = false;
+          this.notificationService.show(err.error?.message || 'An error occurred. Please try again.', 'error');
         }
       });
   }
 
-  // ── MAKE INQUIRY button ───────────────────────────────────────────────────
   onMakeInquiryClick(): void {
-    // Auth guard — same pattern
     if (!this.authService.isAuthenticated()) {
       this.authService.openModal('login');
       this.notificationService.show('Sign in to send an inquiry', 'info');
       return;
     }
-
-    // Toggle: show form or hide if already open
     this.activeForm = this.activeForm === 'inquiry' ? 'none' : 'inquiry';
   }
 
-  // ── Submit inquiry form ───────────────────────────────────────────────────
   submitInquiry(): void {
     if (this.inquiryForm.invalid || this.isSubmitting) return;
 
     this.isSubmitting = true;
     const message = (this.inquiryForm.get('message')!.value as string).trim();
 
-    // Validate message is not empty (redundant safety check after Validators.required)
     if (!message) {
       this.notificationService.show('Message cannot be empty', 'error');
       this.isSubmitting = false;
       return;
     }
 
-    // POST /api/inquiries — method already in PropertiesService (Task 01)
-    this.propertiesService
+    this.propertyActionsService
       .makeInquiry(this.property._id, message)
       .pipe(takeUntil(this.destroy$))
-      .subscribe((success) => {
-        this.isSubmitting = false;
-        if (success) {
-          this.notificationService.show('Inquiry sent!', 'success');
-          this.activeForm = 'none';
-          this.inquiryForm.reset();
-        } else {
-          this.notificationService.show('Failed to send. Try again.', 'error');
+      .subscribe({
+        next: (success) => {
+          this.isSubmitting = false;
+          if (success) {
+            this.notificationService.show('Inquiry sent!', 'success');
+            this.activeForm = 'none';
+            this.inquiryForm.reset();
+          } else {
+            this.notificationService.show('Failed to send. Try again.', 'error');
+          }
+        },
+        error: (err) => {
+          this.isSubmitting = false;
+          this.notificationService.show(err.error?.message || 'An error occurred. Please try again.', 'error');
         }
       });
   }

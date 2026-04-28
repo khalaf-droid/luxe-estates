@@ -3,6 +3,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractContro
 import { CommonModule } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
 import { AuthService } from '../auth.service';
+import { Router } from '@angular/router';
 import { ModalEscapeService } from '../../services/modal-escape.service';
 
 // ─── Custom Validators (متحققات مخصصة) ──────────────────────────────────
@@ -54,6 +55,7 @@ export class AuthModalComponent implements OnInit, OnDestroy {
   // حقن الخدمات (Dependency Injection) بالطريقة الحديثة في Angular
   private auth          = inject(AuthService);
   private fb            = inject(FormBuilder);
+  private router        = inject(Router);
   private modalEscape   = inject(ModalEscapeService); // ESC global bus
 
   // ─── State Variables (متغيرات الحالة) ───
@@ -196,7 +198,10 @@ export class AuthModalComponent implements OnInit, OnDestroy {
         this.showNotification(`Account created! Please check your email to verify your account.`, 'info');
         this.registeredEmail = email; // نحفظ الإيميل للتفعيل
         this.registerForm.reset(); 
-        this.switchTab('verify-otp'); // بننقله لتأكيد الحساب بدلاً من تسجيل الدخول مباشرة
+        
+        // Navigate to OTP verification page
+        this.close();
+        this.router.navigate(['/verify-otp'], { queryParams: { email } });
       },
       error: (err: any) => {
         this.isLoading = false;
