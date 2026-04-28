@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Observable, Subject, combineLatest, of } from 'rxjs';
 import { takeUntil, map, catchError, shareReplay, tap } from 'rxjs/operators';
 
@@ -19,6 +20,7 @@ export class ProfileComponent implements OnInit {
   private propertiesService = inject(PropertiesService);
   private favoritesService = inject(FavoritesService);
   private notificationService = inject(NotificationService);
+  private router = inject(Router);
 
   // ── Reactive State ────────────────────────────────────────────────────────
   user$: Observable<any> = this.profileService.getMe().pipe(
@@ -124,5 +126,9 @@ export class ProfileComponent implements OnInit {
       case 'admin': return 'badge-admin';
       default: return 'badge-default';
     }
+  }
+
+  goToKyc(): void {
+    this.router.navigate(['/kyc']);
   }
 }

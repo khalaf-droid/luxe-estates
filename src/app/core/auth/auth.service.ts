@@ -116,6 +116,16 @@ export class AuthService {
     );
   }
 
+  loginWithGoogle(idToken: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/google`, { idToken }).pipe(
+      tap((res) => {
+        if (res.status === 'success' && res.data?.accessToken && res.data?.user) {
+          this.handleAuthSuccess(res.data.accessToken, res.data.user);
+        }
+      })
+    );
+  }
+
   register(name: string, email: string, password: string): Observable<any> {
     // The backend handles the default role assignment securely
     return this.http.post<any>(`${this.apiUrl}/register`, { name, email, password });

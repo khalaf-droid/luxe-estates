@@ -55,6 +55,13 @@ const routes: Routes = [
     loadComponent: () => import('./core/auth/otp-verify/otp-verify.component').then(m => m.OtpVerifyComponent)
   },
 
+  // مسار الـ KYC
+  {
+    path: 'kyc',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/kyc/kyc.component').then(m => m.KycComponent)
+  },
+
   // مسار الـ Wildcard لاصطياد أي روابط خاطئة (يجب أن يظل في النهاية دائمًا)
   {
     path: '**',
