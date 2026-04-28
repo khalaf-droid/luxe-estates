@@ -1,6 +1,21 @@
 <section class="profile-section">
   <div class="container" *ngIf="user$ | async as user; else loading">
     
+    <!-- KYC Status Banner -->
+    <div class="kyc-banner" *ngIf="user.kycStatus !== 'approved'" [routerLink]="['/kyc']">
+      <div class="banner-content">
+        <span class="banner-icon">!</span>
+        <div class="banner-text">
+          <h3>Identity Verification Required</h3>
+          <p *ngIf="user.kycStatus === 'not_submitted'">Complete your KYC to unlock property bookings and payments.</p>
+          <p *ngIf="user.kycStatus === 'pending'">Your verification is under review. We'll notify you once approved.</p>
+          <p *ngIf="user.kycStatus === 'rejected'">Your verification was rejected. Click here to resubmit.</p>
+        </div>
+      </div>
+      <button class="btn-verify" *ngIf="user.kycStatus !== 'pending'" (click)="goToKyc()">Verify Now</button>
+      <span class="status-tag pending" *ngIf="user.kycStatus === 'pending'">Under Review</span>
+    </div>
+
     <!-- Profile Header -->
     <div class="profile-header">
       <div class="user-avatar">

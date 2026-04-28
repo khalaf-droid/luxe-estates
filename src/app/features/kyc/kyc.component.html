@@ -1,0 +1,99 @@
+<div class="kyc-container">
+  <div class="kyc-card">
+    <div class="kyc-header">
+      <span class="eyebrow">Verification</span>
+      <h1>KYC Verification</h1>
+      <p class="description">
+        To ensure the security of our platform and comply with regulations, we require identity verification before you can book properties or make payments.
+      </p>
+    </div>
+
+    <!-- Status Overview -->
+    <div class="status-banner" [ngClass]="status.status" *ngIf="status">
+      <div class="status-content">
+        <span class="status-icon" [ngSwitch]="status.status">
+          <i *ngSwitchCase="'approved'">✓</i>
+          <i *ngSwitchCase="'pending'">⌛</i>
+          <i *ngSwitchCase="'rejected'">✕</i>
+          <i *ngSwitchCase="'not_submitted'">!</i>
+        </span>
+        <div class="status-text">
+          <h3>{{ getStatusTitle() }}</h3>
+          <p>{{ getStatusDescription() }}</p>
+        </div>
+      </div>
+      <div class="status-badge" [ngClass]="status.status">{{ status.status | titlecase }}</div>
+    </div>
+
+    <!-- KYC Form -->
+    <div class="kyc-form-wrapper" *ngIf="status?.status === 'not_submitted' || status?.status === 'rejected'">
+      <form [formGroup]="kycForm" (ngSubmit)="onSubmit()">
+        <!-- Document Type -->
+        <div class="form-section">
+          <label class="section-label">Select Document Type</label>
+          <div class="doc-type-grid">
+            <label class="doc-type-card" [class.active]="kycForm.get('documentType')?.value === 'national_id'">
+              <input type="radio" formControlName="documentType" value="national_id">
+              <span class="icon">🪪</span>
+              <span class="label">National ID</span>
+            </label>
+            <label class="doc-type-card" [class.active]="kycForm.get('documentType')?.value === 'passport'">
+              <input type="radio" formControlName="documentType" value="passport">
+              <span class="icon">🛂</span>
+              <span class="label">Passport</span>
+            </label>
+            <label class="doc-type-card" [class.active]="kycForm.get('documentType')?.value === 'driver_license'">
+              <input type="radio" formControlName="documentType" value="driver_license">
+              <span class="icon">🪪</span>
+              <span class="label">Driver's License</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Image Uploads -->
+        <div class="upload-section">
+          <!-- Front Image -->
+          <div class="upload-box">
+            <label class="section-label">{{ kycForm.get('documentType')?.value === 'passport' ? 'Passport Main Page' : 'Front Side' }}</label>
+            <div class="drop-zone" (click)="frontInput.click()" [class.has-preview]="frontPreview">
+              <input type="file" #frontInput hidden (change)="onFileSelected($event, 'front')" accept="image/*">
+              <img *ngIf="frontPreview" [src]="frontPreview" class="preview-img">
+              <div class="upload-placeholder" *ngIf="!frontPreview">
+                <span class="plus">+</span>
+                <span>Upload Image</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Back Image (Hidden for Passport) -->
+          <div class="upload-box" *ngIf="kycForm.get('documentType')?.value !== 'passport'">
+            <label class="section-label">Back Side</label>
+            <div class="drop-zone" (click)="backInput.click()" [class.has-preview]="backPreview">
+              <input type="file" #backInput hidden (change)="onFileSelected($event, 'back')" accept="image/*">
+              <img *ngIf="backPreview" [src]="backPreview" class="preview-img">
+              <div class="upload-placeholder" *ngIf="!backPreview">
+                <span class="plus">+</span>
+                <span>Upload Image</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-gold" [disabled]="kycForm.invalid || isUploading || isLoading">
+            <span *ngIf="!isLoading && !isUploading">Submit Verification</span>
+            <span *ngIf="isLoading || isUploading" class="spinner"></span>
+            <span *ngIf="isUploading">Uploading Images...</span>
+            <span *ngIf="isLoading && !isUploading">Submitting...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Approved State Message -->
+    <div class="approved-msg" *ngIf="status?.status === 'approved'">
+      <p>Congratulations! Your account is verified. You can now access all features, including property bookings and bidding.</p>
+      <button class="btn-outline" routerLink="/properties">Browse Properties</button>
+    </div>
+  </div>
+</div>
