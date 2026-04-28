@@ -1,10 +1,11 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { Router } from '@angular/router';
 
 export interface SearchPayload {
-  location: string;
-  type: string;
-  listingType: string;
+  location?: string;
+  type?: string;
+  listingType?: string;
   minPrice?: number;
   maxPrice?: number;
 }
@@ -15,7 +16,8 @@ export interface SearchPayload {
   styleUrls: ['./search-bar.component.scss'],
 })
 export class SearchBarComponent {
-  @Output() explore = new EventEmitter<SearchPayload>();
+  private fb = inject(FormBuilder);
+  private router = inject(Router);
 
   activeChip: string | null = null;
 
@@ -34,7 +36,7 @@ export class SearchBarComponent {
     '$10M+',
   ];
 
-  constructor(private fb: FormBuilder) {
+  constructor() {
     this.searchForm = this.fb.group({
       location: [''],
       propertyType: ['All Types'],
@@ -61,13 +63,23 @@ export class SearchBarComponent {
 
   onExplore(): void {
     const { location, propertyType, listingType, budget } = this.searchForm.value;
+    
     const payload: SearchPayload = {
-      location,
-      type: propertyType === 'All Types' ? '' : propertyType.toLowerCase(),
+      location: location || undefined,
+      type: propertyType === 'All Types' ? undefined : propertyType.toLowerCase(),
       listingType: listingType === 'For Sale' ? 'for-sale' : 'for-rent',
       ...this.budgetToRange(budget)
     };
-    this.explore.emit(payload);
+
+    // Clean query params
+    const queryParams = Object.fromEntries(
+      Object.entries(payload).filter(([_, v]) => v != null && v !== '')
+    );
+
+    this.router.navigate(['/properties'], {
+      queryParams,
+      queryParamsHandling: 'merge'
+    });
   }
 
   private budgetToRange(budget: string): { minPrice?: number; maxPrice?: number } {

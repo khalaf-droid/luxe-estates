@@ -32,4 +32,5 @@ export interface PropertyFilters {
   city?: string;
   maxPrice?: number;
   minPrice?: number;
+  page?: number;
 }

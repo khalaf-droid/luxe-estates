@@ -18,9 +18,11 @@ import {
 } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { interval, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 
 import { AuthService }          from '../../core/auth/auth.service';
+import { SocketService }        from '../../core/services/socket.service';
 import { NotificationService }  from '../../shared/services/notification.service';
 import { MockDataService, Auction } from '../../shared/services/mock-data.service';
 import { environment }          from '../../../environments/environment';
@@ -48,6 +50,7 @@ export class AuctionsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private authService:         AuthService,
+    private socketService:       SocketService,
     private notificationService: NotificationService,
     private mockDataService:     MockDataService,
     private http:                HttpClient,
@@ -73,11 +76,17 @@ export class AuctionsComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.timerSub) this.timerSub.unsubscribe();
     if (this.observer) this.observer.disconnect();
+
+    // Leave all auction rooms and disconnect
+    this.auctions.forEach(a => this.socketService.leaveAuction(a._id));
+    this.socketService.disconnect();
   }
 
   // ── Load Auctions ──────────────────────────────────────────────────────────
   loadAuctions(): void {
-    this.http.get<Auction[]>(`${environment.apiUrl}/auctions`).subscribe({
+    this.http.get<any>(`${environment.apiUrl}/auctions`).pipe(
+      map(res => Array.isArray(res) ? res : res.data)
+    ).subscribe({
       next:  (data) => this.processAuctions(data),
       error: ()     => this.processAuctions(this.mockDataService.getAuctions()),
     });
@@ -88,9 +97,31 @@ export class AuctionsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.featuredAuction = data[0] || null;
     this.otherAuctions   = data.slice(1);
 
+    // Initialize Socket Connection if authenticated
+    const token = this.authService.getToken();
+    if (token) {
+      this.socketService.connect(token);
+    }
+
     data.forEach((a) => {
       this.bidInputs[a._id]    = new FormControl('', [Validators.required, Validators.min(1)]);
       this.isPlacingBid[a._id] = false;
+
+      // Join room and listen for real-time updates
+      this.socketService.joinAuction(a._id);
+      
+      this.socketService.onNewBid(a._id).subscribe((payload: any) => {
+        const auction = this.auctions.find(item => item._id === a._id);
+        if (auction) {
+          auction.currentBid = payload.currentBid;
+          if (auction.bidders !== undefined) auction.bidders++;
+          this.cdr.detectChanges();
+        }
+      });
+
+      this.socketService.onAuctionClosed(a._id).subscribe((payload: any) => {
+        this.notificationService.show(`Auction ${a.title} has closed!`, 'info');
+      });
     });
 
     // Scroll reveal automatically triggers via ViewChildren.changes subscription

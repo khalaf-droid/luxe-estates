@@ -8,6 +8,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
+import { SocketService } from '../services/socket.service';
 
 export type UserRole = 'buyer' | 'owner' | 'agent' | 'admin';
 
@@ -103,6 +104,7 @@ export class AuthService {
   // ── Real Backend Integration (HttpClient) ────────────────────────────────
   private apiUrl = `${environment.apiUrl}/auth`;
   private http = inject(HttpClient);
+  private socketService = inject(SocketService);
   
   login(email: string, password: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/login`, { email, password }).pipe(
@@ -135,11 +137,13 @@ export class AuthService {
     // Call the backend to clear the httpOnly cookie and invalidate tokens
     this.http.post(`${this.apiUrl}/logout`, {}).subscribe({
       next: () => {
+        this.socketService.disconnect();
         this.clearStorage();
         this.currentUser$.next(null);
       },
       error: () => {
         // Even if the backend fails, clear the local state to ensure security
+        this.socketService.disconnect();
         this.clearStorage();
         this.currentUser$.next(null);
       }
