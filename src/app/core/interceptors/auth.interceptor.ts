@@ -15,15 +15,20 @@ export class AuthInterceptor implements HttpInterceptor {
   ): Observable<HttpEvent<unknown>> {
     const token = localStorage.getItem('luxe_token');
 
+    // ✅ Clone request to enable withCredentials for ALL requests
+    // This ensures cookies (like refreshToken) are sent securely to the backend
+    let authRequest = request.clone({
+      withCredentials: true
+    });
+
     if (token) {
-      const authRequest = request.clone({
+      authRequest = authRequest.clone({
         setHeaders: {
           Authorization: `Bearer ${token}`,
         },
       });
-      return next.handle(authRequest);
     }
 
-    return next.handle(request);
+    return next.handle(authRequest);
   }
 }

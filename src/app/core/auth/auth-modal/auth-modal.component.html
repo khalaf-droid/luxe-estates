@@ -82,37 +82,22 @@
       <button type="button" class="auth-switch-btn" style="margin-top: 15px;" (click)="switchTab('login')">← Back to Login</button>
     </form>
 
-    <form *ngIf="activeTab === 'otp'" [formGroup]="otpForm" (ngSubmit)="onOtpSubmit()" class="auth-form" novalidate>
-      <h3 style="color: #fff; text-align: center; margin-bottom: 10px; font-family: 'Cormorant Garamond', serif;">Enter OTP</h3>
-      <p style="color: #8A8AA0; font-size: 13px; text-align: center; margin-bottom: 20px;">We sent a 4-digit code to your email.</p>
+
+
+    <form *ngIf="activeTab === 'verify-otp'" [formGroup]="verifyOtpForm" (ngSubmit)="onVerifyOtpSubmit()" class="auth-form" novalidate>
+      <h3 style="color: #fff; text-align: center; margin-bottom: 10px; font-family: 'Cormorant Garamond', serif;">Verify Your Email</h3>
+      <p style="color: #8A8AA0; font-size: 13px; text-align: center; margin-bottom: 20px;">We sent a 6-digit code to your email.</p>
 
       <div class="auth-field">
-        <label class="auth-label">4-Digit OTP</label>
-        <input type="text" class="auth-input" [class.invalid]="isFieldInvalid(otpForm, 'otp')" formControlName="otp" placeholder="1234" maxlength="4" style="text-align: center; font-size: 20px; letter-spacing: 10px;" />
+        <label class="auth-label">6-Digit OTP</label>
+        <input type="text" class="auth-input" [class.invalid]="isFieldInvalid(verifyOtpForm, 'otp')" formControlName="otp" placeholder="123456" maxlength="6" style="text-align: center; font-size: 20px; letter-spacing: 10px;" />
       </div>
 
-      <button type="submit" class="auth-submit">VERIFY OTP</button>
+      <button type="submit" class="auth-submit" [disabled]="isLoading">
+        <span *ngIf="!isLoading">VERIFY EMAIL</span>
+        <span *ngIf="isLoading" class="auth-spinner"></span>
+      </button>
       <button type="button" class="auth-switch-btn" style="margin-top: 15px;" (click)="switchTab('login')">Cancel</button>
-    </form>
-
-    <form *ngIf="activeTab === 'reset'" [formGroup]="resetForm" (ngSubmit)="onResetSubmit()" class="auth-form" novalidate>
-      <h3 style="color: #fff; text-align: center; margin-bottom: 20px; font-family: 'Cormorant Garamond', serif;">Create New Password</h3>
-
-      <div class="auth-field">
-        <label class="auth-label">New Password</label>
-        <input type="password" class="auth-input" [class.invalid]="isFieldInvalid(resetForm, 'password')" formControlName="password" placeholder="••••••••" />
-        <span class="auth-validation" *ngIf="isFieldInvalid(resetForm, 'password')">
-          <ng-container *ngIf="resetForm.get('password')?.hasError('strongPassword')">Must be 8+ chars (uppercase, lowercase, number, special char)</ng-container>
-        </span>
-      </div>
-
-      <div class="auth-field">
-        <label class="auth-label">Confirm New Password</label>
-        <input type="password" class="auth-input" [class.invalid]="isFieldInvalid(resetForm, 'confirmPassword')" formControlName="confirmPassword" placeholder="••••••••" />
-        <span class="auth-validation" *ngIf="isFieldInvalid(resetForm, 'confirmPassword')">Passwords do not match</span>
-      </div>
-
-      <button type="submit" class="auth-submit">UPDATE PASSWORD</button>
     </form>
 
   </div>

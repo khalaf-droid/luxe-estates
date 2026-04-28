@@ -1,5 +1,14 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { Router } from '@angular/router';
+
+export interface SearchPayload {
+  location?: string;
+  type?: string;
+  listingType?: string;
+  minPrice?: number;
+  maxPrice?: number;
+}
 
 @Component({
   selector: 'app-search-bar',
@@ -7,7 +16,8 @@ import { FormBuilder, FormGroup } from '@angular/forms';
   styleUrls: ['./search-bar.component.scss'],
 })
 export class SearchBarComponent {
-  @Output() explore = new EventEmitter<void>();
+  private fb = inject(FormBuilder);
+  private router = inject(Router);
 
   activeChip: string | null = null;
 
@@ -26,7 +36,7 @@ export class SearchBarComponent {
     '$10M+',
   ];
 
-  constructor(private fb: FormBuilder) {
+  constructor() {
     this.searchForm = this.fb.group({
       location: [''],
       propertyType: ['All Types'],
@@ -52,6 +62,40 @@ export class SearchBarComponent {
   }
 
   onExplore(): void {
-    this.explore.emit();
+    const { location, propertyType, listingType, budget } = this.searchForm.value;
+    
+    const payload: SearchPayload = {
+      location: location || undefined,
+      type: propertyType === 'All Types' ? undefined : propertyType.toLowerCase(),
+      listingType: listingType === 'For Sale' ? 'for-sale' : 'for-rent',
+      ...this.budgetToRange(budget)
+    };
+
+    // Clean query params
+    const queryParams = Object.fromEntries(
+      Object.entries(payload).filter(([_, v]) => v != null && v !== '')
+    );
+
+    this.router.navigate(['/properties'], {
+      queryParams,
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  private budgetToRange(budget: string): { minPrice?: number; maxPrice?: number } {
+    switch (budget) {
+      case 'Up to $500K':
+        return { maxPrice: 500000 };
+      case '$500K – $1M':
+        return { minPrice: 500000, maxPrice: 1000000 };
+      case '$1M – $3M':
+        return { minPrice: 1000000, maxPrice: 3000000 };
+      case '$3M – $10M':
+        return { minPrice: 3000000, maxPrice: 10000000 };
+      case '$10M+':
+        return { minPrice: 10000000 };
+      default:
+        return {};
+    }
   }
 }

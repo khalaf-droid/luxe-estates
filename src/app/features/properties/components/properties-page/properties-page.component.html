@@ -29,35 +29,36 @@
     <button
       *ngFor="let tab of filterTabs"
       class="prop-tab"
-      [class.active]="activeFilter === tab.key"
-      (click)="onFilterClick(tab.key)"
+      [class.active]="(activeFilter$ | async) === tab.key"
+      (click)="onFilterChange(tab.key)"
       data-cursor-hover>
       {{ tab.label }}
     </button>
   </div>
 
   <!-- ── Loading state ──────────────────────────────────────────────────── -->
-  <div *ngIf="isLoading" class="properties-loading">
+  <div *ngIf="isLoading$ | async" class="properties-loading">
     <div class="loading-bar"></div>
   </div>
 
   <!-- ── Properties grid — Template lines 1546–1548 ────────────────────── -->
   <!-- repeat(3, 1fr), gap: 2px, first card spans 2 cols at 16:9 -->
-  <div *ngIf="!isLoading" class="properties-grid">
+  <div *ngIf="(isLoading$ | async) === false" class="properties-grid">
     <app-property-card
-      *ngFor="let prop of properties; let i = index; trackBy: trackById"
+      *ngFor="let prop of properties$ | async; let i = index; trackBy: trackById"
       [property]="prop"
       [isFirst]="i === 0"
       (viewDetails)="onViewDetails($event)"
-      (scheduleViewing)="onScheduleViewing($event)"
       (favoriteToggled)="onFavoriteToggled($event)">
     </app-property-card>
   </div>
 
   <!-- Empty state — OUTSIDE the grid so it's not a grid item ──────────── -->
-  <div *ngIf="!isLoading && properties.length === 0" class="properties-empty reveal">
-    <p class="properties-empty-text">No properties match this filter.</p>
-  </div>
+  <ng-container *ngIf="properties$ | async as props">
+    <div *ngIf="(isLoading$ | async) === false && props.length === 0" class="properties-empty reveal">
+      <p class="properties-empty-text">No properties match this filter.</p>
+    </div>
+  </ng-container>
 
   <!-- ── View All button — Template line 1550–1552 ──────────────────────── -->
   <div class="properties-footer reveal">

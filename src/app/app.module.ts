@@ -11,6 +11,7 @@ import { NavComponent } from './core/nav/nav.component';
 import { CursorComponent } from './shared/cursor/cursor.component';
 import { NotificationComponent } from './shared/notification/notification.component';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
+import { TokenRefreshInterceptor } from './core/interceptors/token-refresh.interceptor';
 
 // ✅ FIX: import standalone component
 import { AuthModalComponent } from './core/auth/auth-modal/auth-modal.component';
@@ -41,6 +42,11 @@ import { AuthModalComponent } from './core/auth/auth-modal/auth-modal.component'
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
+      multi: true,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: TokenRefreshInterceptor,
       multi: true,
     },
   ],

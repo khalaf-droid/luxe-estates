@@ -38,10 +38,10 @@ export class NavComponent {
     if (!currentUser) {
       // لو مفيش يوزر مسجل دخول، افتح مودال اللوجين
       this.auth.openModal();
-    } else if (currentUser.role === 'Buyer') {
+    } else if (currentUser.role === 'buyer') {
       // لو مشتري عادي، وجهه لصفحة الترقية
       this.router.navigate(['/become-agent']);
-    } else if (currentUser.role === 'Seller' || currentUser.role === 'Agent') {
+    } else if (currentUser.role === 'owner' || currentUser.role === 'agent') {
       // لو بائع، وجهه لصفحة إضافة العقار
       this.router.navigate(['/add-property']);
     }

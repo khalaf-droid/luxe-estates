@@ -1,0 +1,1357 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); font-size: 14px; color: var(--color-text-primary); line-height: 1.6; }
+  .report { max-width: 680px; }
+
+  /* ── Header ── */
+  .report-header { padding: 1.5rem 0 1rem; border-bottom: 0.5px solid var(--color-border-tertiary); margin-bottom: 1.5rem; }
+  .report-header h1 { font-size: 20px; font-weight: 500; margin-bottom: 4px; }
+  .report-header .sub { font-size: 12px; color: var(--color-text-secondary); display: flex; gap: 16px; flex-wrap: wrap; }
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 500; }
+  .badge-danger { background: #FCEBEB; color: #A32D2D; }
+  .badge-warn { background: #FAEEDA; color: #854F0B; }
+  .badge-ok { background: #EAF3DE; color: #3B6D11; }
+  .badge-info { background: #E6F1FB; color: #185FA5; }
+  .badge-purple { background: #EEEDFE; color: #3C3489; }
+
+  /* ── Score bar ── */
+  .score-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+  .score-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px; }
+  .score-card .label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 4px; }
+  .score-card .value { font-size: 22px; font-weight: 500; }
+  .score-card .bar-track { height: 3px; background: var(--color-border-tertiary); border-radius: 2px; margin-top: 6px; }
+  .score-card .bar-fill { height: 3px; border-radius: 2px; }
+
+  /* ── Section ── */
+  .section { margin-bottom: 2rem; }
+  .section-title { font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-secondary); margin-bottom: 0.75rem; padding-bottom: 6px; border-bottom: 0.5px solid var(--color-border-tertiary); display: flex; align-items: center; gap: 8px; }
+  .section-title .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .dot-red { background: #E24B4A; }
+  .dot-amber { background: #EF9F27; }
+  .dot-green { background: #639922; }
+  .dot-blue { background: #378ADD; }
+  .dot-purple { background: #7F77DD; }
+
+  /* ── Issue rows ── */
+  .issue-list { display: flex; flex-direction: column; gap: 8px; }
+  .issue-row { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-primary); }
+  .issue-row .sev { flex-shrink: 0; margin-top: 1px; }
+  .issue-row .content .title { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+  .issue-row .content .detail { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+  .issue-row .content code { font-family: var(--font-mono); font-size: 11px; background: var(--color-background-secondary); padding: 1px 5px; border-radius: 3px; color: var(--color-text-primary); }
+
+  /* ── Compat table ── */
+  .compat-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .compat-table th { text-align: left; font-weight: 500; color: var(--color-text-secondary); padding: 6px 8px; border-bottom: 0.5px solid var(--color-border-secondary); font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .compat-table td { padding: 7px 8px; border-bottom: 0.5px solid var(--color-border-tertiary); vertical-align: top; }
+  .compat-table td code { font-family: var(--font-mono); font-size: 11px; background: var(--color-background-secondary); padding: 1px 4px; border-radius: 3px; }
+  .compat-table tr:last-child td { border-bottom: none; }
+
+  /* ── Task cards ── */
+  .task-card { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 14px 16px; margin-bottom: 12px; background: var(--color-background-primary); }
+  .task-card .task-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .task-card .task-num { font-family: var(--font-mono); font-size: 11px; color: var(--color-text-secondary); background: var(--color-background-secondary); padding: 2px 8px; border-radius: 4px; flex-shrink: 0; }
+  .task-card .task-title { font-size: 14px; font-weight: 500; }
+  .task-card .task-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .task-card .task-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 10px; }
+  .task-card ul { font-size: 12px; color: var(--color-text-secondary); padding-left: 16px; margin-bottom: 10px; line-height: 1.7; }
+  .task-card ul li code { font-family: var(--font-mono); font-size: 11px; background: var(--color-background-secondary); padding: 0px 4px; border-radius: 3px; color: var(--color-text-primary); }
+  .prompt-block { background: var(--color-background-tertiary); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 10px 12px; font-size: 11.5px; font-family: var(--font-mono); color: var(--color-text-primary); white-space: pre-wrap; line-height: 1.6; max-height: 220px; overflow-y: auto; }
+  .prompt-label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 4px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; }
+  .phase-header { font-size: 15px; font-weight: 500; margin: 1.5rem 0 0.75rem; padding: 10px 14px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); display: flex; align-items: center; gap: 10px; }
+  .phase-header .phase-icon { font-size: 16px; }
+
+  /* ── Missing features grid ── */
+  .missing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; }
+  .missing-card { padding: 10px 12px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-primary); }
+  .missing-card .mc-title { font-size: 12px; font-weight: 500; margin-bottom: 3px; }
+  .missing-card .mc-sub { font-size: 11px; color: var(--color-text-secondary); }
+
+  /* ── Divider ── */
+  .divider { border: none; border-top: 0.5px solid var(--color-border-tertiary); margin: 1.5rem 0; }
+</style>
+
+<div class="report">
+
+  <!-- HEADER -->
+  <div class="report-header">
+    <h1>Luxe Estates — Full-Stack Integration Audit & Production Task Plan</h1>
+    <div class="sub">
+      <span>Angular 17 (MEAN stack)</span>
+      <span>·</span>
+      <span>Backend: Express 5 + MongoDB v4.0.0</span>
+      <span>·</span>
+      <span>Senior Full-Stack Review · April 2026</span>
+    </div>
+  </div>
+
+  <!-- COMPATIBILITY SCORES -->
+  <div class="score-grid">
+    <div class="score-card">
+      <div class="label">Overall Compat.</div>
+      <div class="value" style="color:#E24B4A;">22%</div>
+      <div class="bar-track"><div class="bar-fill" style="width:22%;background:#E24B4A;"></div></div>
+    </div>
+    <div class="score-card">
+      <div class="label">Auth Endpoints</div>
+      <div class="value" style="color:#EF9F27;">65%</div>
+      <div class="bar-track"><div class="bar-fill" style="width:65%;background:#EF9F27;"></div></div>
+    </div>
+    <div class="score-card">
+      <div class="label">Properties API</div>
+      <div class="value" style="color:#E24B4A;">15%</div>
+      <div class="bar-track"><div class="bar-fill" style="width:15%;background:#E24B4A;"></div></div>
+    </div>
+    <div class="score-card">
+      <div class="label">Auctions/Bids</div>
+      <div class="value" style="color:#E24B4A;">10%</div>
+      <div class="bar-track"><div class="bar-fill" style="width:10%;background:#E24B4A;"></div></div>
+    </div>
+    <div class="score-card">
+      <div class="label">After Fixes</div>
+      <div class="value" style="color:#639922;">96%</div>
+      <div class="bar-track"><div class="bar-fill" style="width:96%;background:#639922;"></div></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       PART 1 — CRITICAL COMPATIBILITY BUGS
+  ═══════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title"><span class="dot dot-red"></span> Part 1 — Critical Compatibility Bugs (Break Everything Silently)</div>
+    <div class="issue-list">
+
+      <div class="issue-row">
+        <div class="sev"><span class="badge badge-danger">FATAL</span></div>
+        <div class="content">
+          <div class="title">API base URL — wrong port AND missing /v1/ prefix</div>
+          <div class="detail"><code>environment.ts</code> → <code>http://localhost:5000/api</code> · Backend runs on port <code>3000</code> with prefix <code>/api/v1</code>. Every single HTTP call in PropertiesService, AuctionsComponent, and AgentsComponent hits the wrong address and silently falls back to mock data. Meanwhile <code>AuthService</code> hardcodes <code>localhost:3000/api/v1/auth</code> correctly but ignores the environment file entirely — two different sources of truth.</div>
+        </div>
+      </div>
+
+      <div class="issue-row">
+        <div class="sev"><span class="badge badge-danger">FATAL</span></div>
+        <div class="content">
+          <div class="title">Property model — status field semantics are completely wrong</div>
+          <div class="detail">Frontend <code>Property.status</code> uses <code>'for-sale' | 'for-rent'</code> and filters on it. Backend has two separate fields: <code>listingType: 'sale' | 'rent'</code> (the sale/rent distinction) and <code>status: 'available' | 'reserved' | 'sold'</code> (availability state). The filter tabs "For Sale" and "For Rent" will never match any real backend data. Frontend model, filter service, property cards, and mock data all need to be updated.</div>
+        </div>
+      </div>
+
+      <div class="issue-row">
+        <div class="sev"><span class="badge badge-danger">FATAL</span></div>
+        <div class="content">
+          <div class="title">Role names — frontend uses entirely different role vocabulary</div>
+          <div class="detail">NavComponent checks <code>role === 'Buyer'</code>, <code>role === 'Seller'</code>, <code>role === 'Agent'</code> (Title Case). Backend enum is <code>buyer | owner | agent | admin</code> (lowercase). <code>'Seller'</code> does not exist in the backend at all. BecomeAgentComponent writes <code>role = 'Seller'</code> to localStorage. The correct upgrade role is <code>'owner'</code> or <code>'agent'</code>. Every role-based check in the nav and routing logic silently fails.</div>
+        </div>
+      </div>
+
+      <div class="issue-row">
+        <div class="sev"><span class="badge badge-danger">FATAL</span></div>
+        <div class="content">
+          <div class="title">Auction response shape mismatch — always falls to mock</div>
+          <div class="detail">AuctionsComponent calls <code>this.http.get&lt;Auction[]&gt;('.../auctions')</code> expecting a raw array. Backend returns <code>{ success: true, data: [...], pagination: {...} }</code>. The response unwrapping is missing — result is always treated as an error → always falls back to mock data. Also: AuctionsComponent sends bids to <code>/bids</code> but backend expects <code>/api/v1/bids</code> (after the URL fix), and the Auction interface is missing <code>startingPrice</code>, <code>bidIncrement</code>, <code>isApproved</code>, <code>status</code> fields from the backend model.</div>
+        </div>
+      </div>
+
+      <div class="issue-row">
+        <div class="sev"><span class="badge badge-danger">FATAL</span></div>
+        <div class="content">
+          <div class="title">Favorites — wrong HTTP method signature for removal</div>
+          <div class="detail">Frontend sends <code>POST /favorites/:propertyId</code> and expects a boolean <code>favorited</code> toggle in one call. Backend uses separate endpoints: <code>POST /favorites/:propertyId</code> (add) and <code>DELETE /favorites/:propertyId</code> (remove). Frontend must check current state and choose method accordingly. Response shape is also different: backend returns <code>{ success, message }</code> without a <code>favorited</code> field — so the toggle boolean will always be undefined.</div>
+        </div>
+      </div>
+
+      <div class="issue-row">
+        <div class="sev"><span class="badge badge-danger">FATAL</span></div>
+        <div class="content">
+          <div class="title">Viewing & Inquiry endpoints — wrong paths and field names</div>
+          <div class="detail">PropertiesService sends viewings to <code>/viewings</code> — backend path is <code>/viewing-requests</code>. Body sends <code>{ propertyId, date }</code> — backend expects <code>{ property, preferredDate, preferredTime, message }</code>. For inquiries, frontend sends <code>{ propertyId, message }</code> — backend expects <code>{ property, content }</code> (both field names differ). Both calls silently fail and return <code>of(false)</code>.</div>
+        </div>
+      </div>
+
+      <div class="issue-row">
+        <div class="sev"><span class="badge badge-danger">FATAL</span></div>
+        <div class="content">
+          <div class="title">Agents endpoint — does not exist in the backend</div>
+          <div class="detail">AgentsComponent calls <code>GET /api/v1/agents</code>. This route does not exist in the backend (18 route files documented — no agents route). The component always falls back to hardcoded mock data. An agents endpoint must be added to the backend, or the frontend must query <code>GET /users?role=agent,owner</code>.</div>
+        </div>
+      </div>
+
+      <div class="issue-row">
+        <div class="sev"><span class="badge badge-warn">HIGH</span></div>
+        <div class="content">
+          <div class="title">No token refresh interceptor — sessions expire silently</div>
+          <div class="detail">Access tokens expire after 15 minutes. When a 401 is received, no interceptor calls <code>POST /auth/refreshToken</code>. The backend issues a refresh token in the httpOnly cookie and also in the JSON body. Frontend never uses either. Users are silently stuck with stale auth until they manually log out and back in.</div>
+        </div>
+      </div>
+
+      <div class="issue-row">
+        <div class="sev"><span class="badge badge-warn">HIGH</span></div>
+        <div class="content">
+          <div class="title">Property type enum — frontend is a subset of backend</div>
+          <div class="detail">Frontend type union: <code>'apartment' | 'villa' | 'penthouse' | 'estate'</code>. Backend enum: <code>apartment | villa | house | studio | office | shop | land | commercial</code>. Penthouse and estate don't exist on the backend. Properties of types house/studio/office/shop/land/commercial will not render correctly in property cards (type badge will be blank or throw).</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       PART 2 — COMPAT TABLE
+  ═══════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title"><span class="dot dot-amber"></span> Part 2 — Endpoint Compatibility Matrix</div>
+    <table class="compat-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Frontend Sends</th>
+          <th>Backend Expects</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Login</td><td><code>POST localhost:3000/api/v1/auth/login</code></td><td><code>POST /api/v1/auth/login</code></td><td><span class="badge badge-warn">Port OK, hardcoded</span></td></tr>
+        <tr><td>Register</td><td><code>POST localhost:3000/api/v1/auth/register</code></td><td><code>POST /api/v1/auth/register</code></td><td><span class="badge badge-warn">Port OK, hardcoded</span></td></tr>
+        <tr><td>OTP Verify</td><td><code>POST /auth/verify-otp</code> — modal has tab ✓</td><td><code>POST /api/v1/auth/verifyOTP</code> — note: camelCase path</td><td><span class="badge badge-warn">Path case diff</span></td></tr>
+        <tr><td>Properties list</td><td><code>GET localhost:5000/api/properties</code></td><td><code>GET localhost:3000/api/v1/properties</code></td><td><span class="badge badge-danger">Wrong port + /v1/</span></td></tr>
+        <tr><td>Property filters</td><td>Sends <code>status=for-sale</code></td><td>Expects <code>listingType=sale</code></td><td><span class="badge badge-danger">Wrong field name</span></td></tr>
+        <tr><td>Favorite add</td><td><code>POST /favorites/:id</code> as toggle</td><td><code>POST /favorites/:propertyId</code> (add only)</td><td><span class="badge badge-danger">Missing DELETE</span></td></tr>
+        <tr><td>Viewing request</td><td><code>POST /viewings</code> <code>{propertyId, date}</code></td><td><code>POST /viewing-requests</code> <code>{property, preferredDate}</code></td><td><span class="badge badge-danger">Wrong path + body</span></td></tr>
+        <tr><td>Inquiry</td><td><code>POST /inquiries</code> <code>{propertyId, message}</code></td><td><code>POST /inquiries</code> <code>{property, content}</code></td><td><span class="badge badge-danger">Wrong field names</span></td></tr>
+        <tr><td>Auctions list</td><td><code>GET /auctions</code> expects <code>Auction[]</code></td><td>Returns <code>{success, data, pagination}</code></td><td><span class="badge badge-danger">Shape mismatch</span></td></tr>
+        <tr><td>Place bid</td><td><code>POST /bids</code> <code>{auctionId, amount}</code></td><td><code>POST /bids</code> <code>{auctionId, amount}</code> after URL fix</td><td><span class="badge badge-warn">URL fix needed</span></td></tr>
+        <tr><td>Agents</td><td><code>GET /agents</code></td><td>Route does not exist</td><td><span class="badge badge-danger">No backend route</span></td></tr>
+        <tr><td>Reset password</td><td><code>PATCH /auth/reset-password/:token</code></td><td><code>PATCH /auth/resetPassword/:token</code> (camelCase)</td><td><span class="badge badge-warn">Path case diff</span></td></tr>
+        <tr><td>Token refresh</td><td>Not implemented</td><td><code>POST /auth/refreshToken</code> cookie-based</td><td><span class="badge badge-danger">Missing entirely</span></td></tr>
+        <tr><td>Socket.IO</td><td>Not implemented</td><td>Full Socket.IO server running</td><td><span class="badge badge-danger">Missing entirely</span></td></tr>
+        <tr><td>Notifications</td><td>Not implemented</td><td><code>GET /notifications</code>, <code>unread-count</code></td><td><span class="badge badge-danger">Missing entirely</span></td></tr>
+        <tr><td>KYC</td><td>Not implemented</td><td><code>POST /kyc</code>, blocks booking/payment</td><td><span class="badge badge-danger">Blocks users</span></td></tr>
+        <tr><td>Payments</td><td>Not implemented</td><td>Full Paymob/PayPal/Cash/Bank system</td><td><span class="badge badge-danger">Missing entirely</span></td></tr>
+        <tr><td>Bookings</td><td>Not implemented</td><td>Full CRUD + approve/reject flow</td><td><span class="badge badge-danger">Missing entirely</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       PART 3 — MISSING FEATURES
+  ═══════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title"><span class="dot dot-purple"></span> Part 3 — Missing Frontend Features</div>
+    <div class="missing-grid">
+      <div class="missing-card"><div class="mc-title">Token Refresh Flow</div><div class="mc-sub">401 interceptor + refresh cookie</div></div>
+      <div class="missing-card"><div class="mc-title">Socket.IO Client</div><div class="mc-sub">Real-time bids + notifications</div></div>
+      <div class="missing-card"><div class="mc-title">User Profile / Dashboard</div><div class="mc-sub">No /profile route at all</div></div>
+      <div class="missing-card"><div class="mc-title">Property Detail Page</div><div class="mc-sub">No /properties/:id route</div></div>
+      <div class="missing-card"><div class="mc-title">Property Creation Page</div><div class="mc-sub">/add-property referenced but missing</div></div>
+      <div class="missing-card"><div class="mc-title">KYC Flow</div><div class="mc-sub">Required to book or pay</div></div>
+      <div class="missing-card"><div class="mc-title">Payment / Checkout Flow</div><div class="mc-sub">Paymob, PayPal, Bank, Cash</div></div>
+      <div class="missing-card"><div class="mc-title">Booking Management</div><div class="mc-sub">Create, approve, cancel, view</div></div>
+      <div class="missing-card"><div class="mc-title">Notifications Center</div><div class="mc-sub">Bell icon + dropdown + Socket push</div></div>
+      <div class="missing-card"><div class="mc-title">Favorites Page</div><div class="mc-sub">GET /favorites listing</div></div>
+      <div class="missing-card"><div class="mc-title">Reviews System</div><div class="mc-sub">POST + display on property</div></div>
+      <div class="missing-card"><div class="mc-title">Search → Navigate</div><div class="mc-sub">Hero emits void, not wired</div></div>
+      <div class="missing-card"><div class="mc-title">Saved Searches UI</div><div class="mc-sub">Full backend already built</div></div>
+      <div class="missing-card"><div class="mc-title">Admin Dashboard</div><div class="mc-sub">Stats, users, KYC approval</div></div>
+      <div class="missing-card"><div class="mc-title">Agents Backend Route</div><div class="mc-sub">GET /api/v1/agents missing</div></div>
+      <div class="missing-card"><div class="mc-title">BecomeAgent → Real API</div><div class="mc-sub">Uses setTimeout mock</div></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       PART 4 — BACKEND BUGS TO FIX
+  ═══════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title"><span class="dot dot-red"></span> Part 4 — Backend Bugs (From Architecture Report)</div>
+    <div class="issue-list">
+      <div class="issue-row">
+        <div class="sev"><span class="badge badge-danger">C-01</span></div>
+        <div class="content">
+          <div class="title">Real credentials committed to .env in git</div>
+          <div class="detail">Gmail app password, MongoDB Atlas URI with credentials, JWT_SECRET, ENCRYPTION_KEY all committed. Must rotate all secrets immediately, add <code>.env</code> to <code>.gitignore</code>, purge from git history (BFG or git filter-repo), use GitHub Secrets in CI.</div>
+        </div>
+      </div>
+      <div class="issue-row">
+        <div class="sev"><span class="badge badge-danger">C-02</span></div>
+        <div class="content">
+          <div class="title">changeUserRole — .lean() + .save() runtime crash</div>
+          <div class="detail"><code>dashboard.controller.js</code> calls <code>.lean()</code> (returns plain JS object) then <code>.save()</code> — will throw "save is not a function". Fix: remove <code>.lean()</code> or use <code>findByIdAndUpdate()</code>.</div>
+        </div>
+      </div>
+      <div class="issue-row">
+        <div class="sev"><span class="badge badge-danger">C-03</span></div>
+        <div class="content">
+          <div class="title">adminStats revenue — wrong status filter, always returns $0</div>
+          <div class="detail">Revenue aggregation matches <code>status: "paid"</code> — but Payment schema enum values are <code>pending | completed | failed | refunded | expired</code>. "paid" is not valid. Revenue will always be $0. Fix: change to <code>status: "completed"</code>.</div>
+        </div>
+      </div>
+      <div class="issue-row">
+        <div class="sev"><span class="badge badge-warn">H-01</span></div>
+        <div class="content">
+          <div class="title">Rate limiter is in-memory only — fails in multi-instance deployments</div>
+          <div class="detail">Each Railway/Docker instance has its own counter. An attacker gets 20×N auth attempts across N instances. Fix: install <code>rate-limit-redis</code> and connect to the existing Redis client.</div>
+        </div>
+      </div>
+      <div class="issue-row">
+        <div class="sev"><span class="badge badge-warn">H-02</span></div>
+        <div class="content">
+          <div class="title">Refresh token exposed in JSON response body</div>
+          <div class="detail">Login returns the refresh token both in the httpOnly cookie AND in the JSON body. Frontend must not store it in localStorage. Web clients should use only the cookie. Fix: remove refresh token from JSON body for web responses.</div>
+        </div>
+      </div>
+      <div class="issue-row">
+        <div class="sev"><span class="badge badge-warn">H-03</span></div>
+        <div class="content">
+          <div class="title">Dashboard recentPayments — wrong populate field names</div>
+          <div class="detail">Populates <code>user_id</code> and <code>booking_id</code> but Payment model defines <code>user</code> and <code>booking</code> (no underscore). These fields will be null in the response. Fix: update to <code>populate('user')</code> and <code>populate('booking')</code>.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ═══════════════════════════════════════
+       PART 5 — TASK PLAN
+  ═══════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title"><span class="dot dot-blue"></span> Part 5 — Task Plan to Production</div>
+
+    <!-- PHASE 1 -->
+    <div class="phase-header">
+      <span class="phase-icon">🔴</span>
+      <div>
+        <div style="font-size:13px;font-weight:500;">Phase 1 — Foundation Fixes</div>
+        <div style="font-size:11px;color:var(--color-text-secondary);font-weight:400;">Days 1–3 · Nothing works without these</div>
+      </div>
+    </div>
+
+    <!-- Task 1.1 -->
+    <div class="task-card">
+      <div class="task-header">
+        <span class="task-num">TASK 1.1</span>
+        <span class="task-title">Unify API Base URL & Fix All Endpoint Paths</span>
+      </div>
+      <div class="task-meta">
+        <span class="badge badge-danger">BLOCKER</span>
+        <span class="badge badge-info">Backend: 3 files · Frontend: 4 files</span>
+        <span class="badge badge-purple">Effort: 2 hrs</span>
+      </div>
+      <div class="task-desc">Every API call in the frontend hits the wrong address. This single fix unlocks all real data connections. Must be done before anything else.</div>
+      <ul>
+        <li>Set <code>environment.ts</code> → <code>apiUrl: 'http://localhost:3000/api/v1'</code></li>
+        <li>Set <code>environment.prod.ts</code> → <code>apiUrl: 'https://your-railway-domain.railway.app/api/v1'</code></li>
+        <li>Remove hardcoded URL from <code>AuthService</code> → use <code>environment.apiUrl + '/auth'</code></li>
+        <li>Fix AuctionsComponent: add <code>.pipe(map(res => res.data))</code> to unwrap <code>{ success, data }</code></li>
+        <li>Fix favorites: check <code>isFavorited()</code> to choose POST vs DELETE, remove <code>favorited</code> bool from response</li>
+        <li>Fix viewing path: <code>/viewings</code> → <code>/viewing-requests</code>, body: <code>{ property, preferredDate, preferredTime, message }</code></li>
+        <li>Fix inquiry body: <code>{ propertyId, message }</code> → <code>{ property, content }</code></li>
+        <li>Fix reset-password path: <code>reset-password</code> → <code>resetPassword</code> (camelCase)</li>
+        <li>Fix verify-otp path: <code>verify-otp</code> → <code>verifyOTP</code></li>
+        <li>Add <code>proxy.conf.json</code> and configure <code>angular.json</code> for dev proxy</li>
+      </ul>
+      <div class="prompt-label">AI Coding Prompt</div>
+      <div class="prompt-block">You are a senior Angular 17 developer working on "Luxe Estates" (MEAN stack).
+
+FIX ALL API URL AND PATH ISSUES across the project:
+
+1. src/environments/environment.ts:
+   Change apiUrl to: 'http://localhost:3000/api/v1'
+
+2. src/environments/environment.prod.ts:
+   Change apiUrl to: 'https://your-railway-domain.railway.app/api/v1'
+
+3. src/app/core/auth/auth.service.ts:
+   Remove the hardcoded private apiUrl line.
+   Import environment from environments/environment.
+   Use: private apiUrl = environment.apiUrl + '/auth';
+   Fix verifyAccount path: 'verify-otp' → 'verifyOTP'
+   Fix resetPassword path: 'reset-password' → 'resetPassword'
+
+4. src/app/features/properties/services/properties.service.ts:
+   toggleFavorite(propertyId) must:
+     - Check this.isFavorited(propertyId) FIRST
+     - If favorited: use DELETE to ${base}/favorites/${propertyId}
+     - If not favorited: use POST to ${base}/favorites/${propertyId} with empty body
+     - Map response to boolean: POST success = true, DELETE success = false
+   scheduleViewing: change path from /viewings to /viewing-requests
+     Body change: { propertyId, date } → { property: propertyId, preferredDate: date, preferredTime: '10:00', message: 'Viewing request' }
+   makeInquiry: change body: { propertyId, message } → { property: propertyId, content: message }
+
+5. src/app/features/auctions/auctions.component.ts:
+   loadAuctions(): add .pipe(map((res: any) => res.data || res)) before .subscribe()
+   Also update the Auction interface import to add: status, startingPrice, bidIncrement, isApproved
+
+6. Create proxy.conf.json at project root:
+   { "/api": { "target": "http://localhost:3000", "secure": false, "changeOrigin": true } }
+   Update angular.json under "serve" → "options": add "proxyConfig": "proxy.conf.json"
+   Update environment.ts apiUrl to '/api/v1' (relative path, goes through proxy)
+
+Show every complete updated file. Do not show partial diffs.</div>
+    </div>
+
+    <!-- Task 1.2 -->
+    <div class="task-card">
+      <div class="task-header">
+        <span class="task-num">TASK 1.2</span>
+        <span class="task-title">Fix Role System — Frontend Uses Wrong Role Vocabulary</span>
+      </div>
+      <div class="task-meta">
+        <span class="badge badge-danger">BLOCKER</span>
+        <span class="badge badge-info">3 files</span>
+        <span class="badge badge-purple">Effort: 1 hr</span>
+      </div>
+      <div class="task-desc">The nav checks 'Buyer'/'Seller'/'Agent' but backend uses 'buyer'/'owner'/'agent'/'admin'. BecomeAgentComponent sets role to 'Seller' which is not a valid role.</div>
+      <ul>
+        <li>Add <code>export type UserRole = 'buyer' | 'owner' | 'agent' | 'admin'</code> to <code>auth.service.ts</code></li>
+        <li>Update <code>User.role</code> interface field to <code>UserRole</code></li>
+        <li>Fix <code>nav.component.ts</code>: <code>'Buyer' → 'buyer'</code>, <code>'Seller' → 'owner'</code>, <code>'Agent' → 'agent'</code></li>
+        <li>Fix <code>onListPropertyClick()</code>: buyers go to <code>/become-agent</code>, owners/agents go to <code>/add-property</code></li>
+        <li>Fix <code>become-agent.component.ts</code>: remove <code>role = 'Seller'</code> hack — role upgrade must come from backend response</li>
+      </ul>
+      <div class="prompt-label">AI Coding Prompt</div>
+      <div class="prompt-block">In Luxe Estates Angular 17, fix the role type system to match the backend exactly.
+
+Backend roles: buyer | owner | agent | admin (all lowercase)
+
+1. src/app/core/auth/auth.service.ts:
+   Add: export type UserRole = 'buyer' | 'owner' | 'agent' | 'admin';
+   Change User interface: role: UserRole;
+   Remove the DB_KEY constant and related localStorage 'luxe_all_users' logic (unused)
+
+2. src/app/core/nav/nav.component.ts:
+   Fix onListPropertyClick():
+     if (!currentUser) → auth.openModal()
+     if (currentUser.role === 'buyer') → router.navigate(['/become-agent'])
+     if (['owner', 'agent', 'admin'].includes(currentUser.role)) → router.navigate(['/add-property'])
+
+3. src/app/features/become-agent/become-agent.component.ts:
+   Remove the setTimeout mock entirely.
+   In onSubmit():
+     Inject HttpClient and environment
+     Send: this.http.post(`${environment.apiUrl}/users/upgrade-request`, formData)
+     On success: notificationService equivalent, router.navigate(['/profile'])
+     On error: show error message
+     Do NOT write role to localStorage directly — role is returned by backend after approval
+   Also inject NotificationService and use it instead of the custom showNotification DOM method
+
+Show complete updated files.</div>
+    </div>
+
+    <!-- Task 1.3 -->
+    <div class="task-card">
+      <div class="task-header">
+        <span class="task-num">TASK 1.3</span>
+        <span class="task-title">Fix Property Model — Align Types with Backend Schema</span>
+      </div>
+      <div class="task-meta">
+        <span class="badge badge-danger">BLOCKER</span>
+        <span class="badge badge-info">4 files</span>
+        <span class="badge badge-purple">Effort: 2 hrs</span>
+      </div>
+      <div class="task-desc">Frontend Property model uses 'for-sale'/'for-rent' as status. Backend separates this into listingType (sale|rent) and status (available|reserved|sold). All filters, cards, and mock data need updating.</div>
+      <ul>
+        <li>Update <code>property.model.ts</code>: add <code>listingType: 'sale' | 'rent'</code>, fix <code>status</code> to <code>'available' | 'reserved' | 'sold'</code>, expand <code>type</code> enum to include all 8 backend types</li>
+        <li>Add backend fields: <code>location: { city, district, street }</code>, <code>isApproved</code>, <code>avgRating</code>, <code>reviewCount</code></li>
+        <li>Update <code>PropertiesService</code>: filter by <code>listingType</code> (not <code>status</code>), update <code>filteredProperties$</code> switchMap</li>
+        <li>Update filter tabs in <code>PropertiesPageComponent</code>: "For Sale" → <code>listingType=sale</code>, "For Rent" → <code>listingType=rent</code></li>
+        <li>Update <code>mock-properties.ts</code> to use new schema</li>
+      </ul>
+      <div class="prompt-label">AI Coding Prompt</div>
+      <div class="prompt-block">Update the Luxe Estates Angular 17 Property model and related service to match the backend MongoDB schema exactly.
+
+Backend Property schema fields:
+- type: 'apartment' | 'villa' | 'house' | 'studio' | 'office' | 'shop' | 'land' | 'commercial'
+- listingType: 'sale' | 'rent'  (was called 'status' in the frontend — this is the sale/rent distinction)
+- status: 'available' | 'reserved' | 'sold'  (availability, NOT sale/rent)
+- location: { city: string; district: string; street?: string }  (nested object, not flat)
+- price, area, bedrooms, bathrooms, images[], owner, avgRating, reviewCount, isApproved
+
+1. Completely rewrite src/app/features/properties/models/property.model.ts:
+   interface Property must exactly mirror the backend schema above.
+   Keep backward-compatible helpers: get statusLabel() { return this.listingType === 'sale' ? 'For Sale' : 'For Rent'; }
+   Update PropertyFilters: add listingType?: 'sale' | 'rent'; remove the old status field
+
+2. Update PropertiesService:
+   - filteredProperties$ switchMap: 'for-sale' tab → listingType: 'sale', 'for-rent' tab → listingType: 'rent'
+   - applyTabFilter: match on listingType not status
+   - getProperties: send 'listingType' param not 'status' param
+   - formatPrice: update to use property.listingType instead of property.status
+
+3. Update mock-properties.ts: migrate all mock data to use listingType instead of status, use location: { city, district } object
+
+4. Update property-card.component.ts + .html to bind correctly to the new model:
+   Show badge from property.listingType ('sale' → 'For Sale', 'rent' → 'For Rent')
+   Show location as property.location.city + ', ' + property.location.district
+
+Show all complete updated files.</div>
+    </div>
+
+    <!-- PHASE 2 -->
+    <div class="phase-header">
+      <span class="phase-icon">🟠</span>
+      <div>
+        <div style="font-size:13px;font-weight:500;">Phase 2 — Core User Flows</div>
+        <div style="font-size:11px;color:var(--color-text-secondary);font-weight:400;">Days 4–10 · The flows users actually need</div>
+      </div>
+    </div>
+
+    <!-- Task 2.1 -->
+    <div class="task-card">
+      <div class="task-header">
+        <span class="task-num">TASK 2.1</span>
+        <span class="task-title">Token Refresh Interceptor + 401 Global Handler</span>
+      </div>
+      <div class="task-meta">
+        <span class="badge badge-warn">HIGH</span>
+        <span class="badge badge-info">2 new files</span>
+        <span class="badge badge-purple">Effort: 3 hrs</span>
+      </div>
+      <div class="task-desc">Without this, every user session silently dies after 15 minutes. The backend issues a refresh token as both httpOnly cookie and JSON body. The interceptor must call POST /auth/refreshToken on any 401, retry the original request, and log the user out only if refresh also fails.</div>
+      <div class="prompt-label">AI Coding Prompt</div>
+      <div class="prompt-block">Create a Token Refresh Interceptor for Luxe Estates Angular 17.
+
+File: src/app/core/interceptors/token-refresh.interceptor.ts
+
+Requirements — implement the standard Angular queued-refresh pattern:
+1. Implements HttpInterceptor
+2. Uses a BehaviorSubject<boolean> isRefreshing = false and a Subject<string> tokenRefreshed$
+3. On receiving HttpErrorResponse with status 401:
+   - If the failing URL includes '/auth/refreshToken' → call authService.logout() + router.navigate(['/']) — do NOT retry
+   - Otherwise: if NOT already refreshing, set isRefreshing = true, call:
+     POST environment.apiUrl + '/auth/refreshToken' with { withCredentials: true }
+     Backend returns: { status: 'success', token: '...' }
+     On success: store new token via localStorage.setItem('luxe_token', res.token)
+                 emit the new token on tokenRefreshed$, set isRefreshing = false
+                 retry the original request with the new Authorization header
+     On failure: authService.logout(), router.navigate(['/'])
+   - If already refreshing: wait for tokenRefreshed$ to emit, then retry with new token
+4. Use switchMap + take(1) for the retry pattern
+
+Also update src/app/app.module.ts:
+Add TokenRefreshInterceptor to providers AFTER AuthInterceptor:
+{ provide: HTTP_INTERCEPTORS, useClass: TokenRefreshInterceptor, multi: true }
+
+Show both complete files. Use proper RxJS operators: switchMap, catchError, throwError, BehaviorSubject, Subject, filter, take.</div>
+    </div>
+
+    <!-- Task 2.2 -->
+    <div class="task-card">
+      <div class="task-header">
+        <span class="task-num">TASK 2.2</span>
+        <span class="task-title">Wire Search Bar → Properties Navigation</span>
+      </div>
+      <div class="task-meta">
+        <span class="badge badge-warn">HIGH</span>
+        <span class="badge badge-info">3 files</span>
+        <span class="badge badge-purple">Effort: 2 hrs</span>
+      </div>
+      <div class="task-desc">SearchBarComponent emits void. HeroComponent does nothing with it. PropertiesPage ignores query params. The search form is completely disconnected from the properties listing page.</div>
+      <div class="prompt-label">AI Coding Prompt</div>
+      <div class="prompt-block">Wire the search bar to the properties page in Luxe Estates Angular 17.
+
+Step 1 — SearchBarComponent (src/app/features/hero/search-bar/search-bar.component.ts):
+Change @Output() explore from EventEmitter<void> to EventEmitter<SearchPayload>:
+export interface SearchPayload {
+  location?: string;
+  type?: string;        // maps to backend 'type' param
+  listingType?: string; // 'sale' or 'rent'
+  minPrice?: number;
+  maxPrice?: number;
+}
+Add budgetToRange(budget: string): { minPrice?: number; maxPrice?: number } helper:
+  'Up to $500K' → { maxPrice: 500000 }
+  '$500K – $1M' → { minPrice: 500000, maxPrice: 1000000 }
+  '$1M – $3M'   → { minPrice: 1000000, maxPrice: 3000000 }
+  '$3M – $10M'  → { minPrice: 3000000, maxPrice: 10000000 }
+  '$10M+'        → { minPrice: 10000000 }
+typeMap for form values → backend enum: 'Villa' → 'villa', 'Apartment' → 'apartment', etc.
+listingTypeMap: 'For Sale' → 'sale', 'For Rent' → 'rent'
+onExplore() emits the full payload (strip undefined/null values before emit)
+
+Step 2 — HeroComponent (src/app/features/hero/hero.component.ts + .html):
+Inject Router
+onExplore(payload: SearchPayload): void → router.navigate(['/properties'], { queryParams: payload })
+Update template: (explore)="onExplore($event)"
+
+Step 3 — PropertiesPageComponent (src/app/features/properties/components/properties-page/):
+Inject ActivatedRoute
+In ngOnInit: subscribe to route.queryParams
+Map queryParams → PropertyFilters and call propertiesService.getProperties(filters)
+Display results reactively
+
+Show all three complete updated files.</div>
+    </div>
+
+    <!-- Task 2.3 -->
+    <div class="task-card">
+      <div class="task-header">
+        <span class="task-num">TASK 2.3</span>
+        <span class="task-title">User Profile & Dashboard Page</span>
+      </div>
+      <div class="task-meta">
+        <span class="badge badge-warn">HIGH</span>
+        <span class="badge badge-info">New feature module</span>
+        <span class="badge badge-purple">Effort: 6 hrs</span>
+      </div>
+      <div class="task-desc">No /profile route exists. Backend has GET /users/me with full role-based dashboard data. This is where KYC status, bookings history, favorites, and profile editing all live. Also update nav avatar to link here.</div>
+      <div class="prompt-label">AI Coding Prompt</div>
+      <div class="prompt-block">Create a Profile/Dashboard page for Luxe Estates Angular 17.
+
+Generate the complete feature module at src/app/features/profile/:
+
+profile.module.ts — lazy-loaded NgModule, imports ReactiveFormsModule, CommonModule, HttpClientModule
+profile.service.ts — wraps these API calls:
+  getMe(): Observable<any> — GET /api/v1/users/me
+  updateMe(data: { name?, phone?, bio? }): Observable<any> — PATCH /api/v1/users/me
+  changePassword(currentPassword, password): Observable<any> — PATCH /api/v1/users/me/password (body: { currentPassword, password })
+  getMyBookings(): Observable<any[]> — GET /api/v1/bookings
+  getMyFavorites(): Observable<any[]> — GET /api/v1/favorites
+  getMyProperties(): Observable<any[]> — GET /api/v1/properties?owner=me (for owner/agent role)
+
+profile.component.ts + .html + .scss:
+- Load getMe() on init, show a skeleton loader (3 animated gray bars) while loading
+- User card: avatar initials circle (gold bg, first letter of name), name, email, role badge (buyer=blue, owner/agent=gold, admin=red)
+- KYC status banner: if kycStatus !== 'approved': show warning strip "Verify your identity to unlock bookings and payments" + "Get Verified" button → router.navigate(['/kyc'])
+- Edit profile form: name, phone, bio — save button calls updateMe()
+- Change password section: currentPassword + newPassword + confirmPassword fields
+- Tab navigation (no external libs — use simple boolean flags):
+  * "Bookings" tab: list bookings with status badge (pending=amber, approved=green, rejected=red, cancelled=gray, completed=purple)
+  * "Favorites" tab: grid of property cards using existing PropertyCardComponent
+  * "My Listings" tab (visible only for owner/agent/admin): grid of own properties with isApproved badge
+- All API errors shown via NotificationService (already exists at shared/services/notification.service.ts)
+
+Add route to app-routing.module.ts:
+{ path: 'profile', canActivate: [authGuard], loadChildren: () => import('./features/profile/profile.module').then(m => m.ProfileModule) }
+
+Update nav.component.html: when user is logged in, wrap username in routerLink="/profile"
+Design: match dark luxury theme (background: var(--obsidian), accents: #C9A96E gold)
+
+Show ALL generated files complete.</div>
+    </div>
+
+    <!-- Task 2.4 -->
+    <div class="task-card">
+      <div class="task-header">
+        <span class="task-num">TASK 2.4</span>
+        <span class="task-title">Property Detail Page — Full-Page Route /properties/:id</span>
+      </div>
+      <div class="task-meta">
+        <span class="badge badge-warn">HIGH</span>
+        <span class="badge badge-info">New component + routing</span>
+        <span class="badge badge-purple">Effort: 5 hrs</span>
+      </div>
+      <div class="task-desc">Only a modal exists. No shareable URL, no SEO, no full detail view. Backend GET /properties/:id returns owner info, last 5 reviews, and isFavorited flag all in one call.</div>
+      <div class="prompt-label">AI Coding Prompt</div>
+      <div class="prompt-block">Create a Property Detail page for Luxe Estates Angular 17 inside the PropertiesModule.
+
+Add: src/app/features/properties/components/property-detail/
+  property-detail.component.ts + .html + .scss
+
+Add child route inside properties.module.ts routing:
+{ path: ':id', component: PropertyDetailComponent }
+(Existing route '' → PropertiesPageComponent stays as-is)
+
+PropertyDetailComponent must:
+1. Read route param: this.route.snapshot.paramMap.get('id')
+2. Call propertiesService.getPropertyById(id) — show skeleton loader during load
+3. Image gallery:
+   - Main large image (first in images[])
+   - Row of thumbnails below — click to swap main image
+   - Fallback placeholder if images[] is empty
+4. Stats row: bedrooms | bathrooms | area (m²) with SVG icons (inline simple paths)
+5. Listing type badge (For Sale / For Rent) and status badge (Available/Reserved/Sold)
+6. Features list: render property.features[] as gold-outlined chips
+7. Two action cards side by side:
+   a) Schedule Viewing card:
+      - Date input (min = today's date)
+      - Time input
+      - Message textarea
+      - Submit button → propertiesService.scheduleViewing(id, date) 
+        (update scheduleViewing to also accept time and message)
+      - If not authenticated: authService.openModal('login') instead
+      - On success: notificationService.show('Viewing request sent!', 'success')
+   b) Send Inquiry card:
+      - Message textarea (min 20 chars)
+      - Submit → propertiesService.makeInquiry(id, message)
+      - Same auth check pattern
+8. Favorite heart button (floating on image):
+   Filled/outline based on propertiesService.isFavorited(id)
+   On click: propertiesService.toggleFavorite(id)
+9. Reviews section:
+   Fetch from GET /api/v1/reviews/property/:id via HttpClient directly
+   Show: star rating (1–5 gold stars), comment, reviewer name, date formatted with DatePipe
+   Empty state card: "No reviews yet — book a visit and share your experience"
+10. Location section: show property.location.city, property.location.district, property.location.street
+
+Update property-card.component.html:
+Add [routerLink]="['/properties', property._id]" to the card title
+
+Design: dark luxury theme matching existing property-modal.component.scss. Max width 1200px, two-column layout (gallery left, actions right) that collapses to one column on mobile.
+Show all files complete.</div>
+    </div>
+
+    <!-- PHASE 3 -->
+    <div class="phase-header">
+      <span class="phase-icon">🟡</span>
+      <div>
+        <div style="font-size:13px;font-weight:500;">Phase 3 — Real-Time & Transactions</div>
+        <div style="font-size:11px;color:var(--color-text-secondary);font-weight:400;">Days 11–18 · Socket.IO, KYC, Payments, Booking</div>
+      </div>
+    </div>
+
+    <!-- Task 3.1 -->
+    <div class="task-card">
+      <div class="task-header">
+        <span class="task-num">TASK 3.1</span>
+        <span class="task-title">Socket.IO Client — Real-Time Bids & Notifications</span>
+      </div>
+      <div class="task-meta">
+        <span class="badge badge-ok">MEDIUM</span>
+        <span class="badge badge-info">npm install + 2 new services</span>
+        <span class="badge badge-purple">Effort: 4 hrs</span>
+      </div>
+      <div class="task-desc">Backend has a full Socket.IO server: newBid, auctionClosed, auctionJoined, notification events. Without a client, auctions show stale bids and users never see real-time notifications.</div>
+      <div class="prompt-label">AI Coding Prompt</div>
+      <div class="prompt-block">Add Socket.IO real-time support to Luxe Estates Angular 17.
+
+npm install socket.io-client
+
+Create src/app/core/services/socket.service.ts:
+import { io, Socket } from 'socket.io-client';
+
+@Injectable({ providedIn: 'root' })
+export class SocketService {
+  private socket: Socket | null = null;
+
+  connect(): void {
+    if (this.socket?.connected) return;
+    const token = this.authService.getToken();
+    const baseUrl = environment.apiUrl.replace('/api/v1', '');
+    this.socket = io(baseUrl, {
+      auth: { token },
+      withCredentials: true,
+      transports: ['websocket', 'polling']
+    });
+    this.socket.on('connect_error', (err) => console.warn('Socket error:', err.message));
+  }
+
+  disconnect(): void { this.socket?.disconnect(); this.socket = null; }
+
+  joinAuction(auctionId: string): void { this.socket?.emit('joinAuction', auctionId); }
+  leaveAuction(auctionId: string): void { this.socket?.emit('leaveAuction', auctionId); }
+
+  onNewBid(auctionId: string): Observable<{ auctionId: string; bid: any; currentBid: number; timestamp: string }> {
+    return fromEvent(this.socket!, 'newBid').pipe(
+      filter((data: any) => data.auctionId === auctionId)
+    ) as Observable<any>;
+  }
+
+  onAuctionClosed(auctionId: string): Observable<{ winner: any; finalBid: number; closedAt: string }> {
+    return fromEvent(this.socket!, 'auctionClosed').pipe(
+      filter((data: any) => data.auctionId === auctionId)
+    ) as Observable<any>;
+  }
+
+  onNotification(): Observable<{ type: string; title: string; message: string; link: string }> {
+    return fromEvent(this.socket!, 'notification') as Observable<any>;
+  }
+}
+
+Update AuctionsComponent:
+- After loadAuctions() resolves, if authService.isAuthenticated(): socketService.connect()
+- For each auction: socketService.joinAuction(a._id)
+- Subscribe to socketService.onNewBid(a._id) → update auction.currentBid + auction.bidders in the array + cdr.detectChanges()
+- Subscribe to socketService.onAuctionClosed(a._id) → notificationService.show('Auction ended!', 'info')
+- ngOnDestroy: call leaveAuction for all, then socketService.disconnect()
+
+Update AuthService.logout(): call socketService.disconnect() before clearing storage.
+
+Show all complete files including proper RxJS imports.</div>
+    </div>
+
+    <!-- Task 3.2 -->
+    <div class="task-card">
+      <div class="task-header">
+        <span class="task-num">TASK 3.2</span>
+        <span class="task-title">Notifications Center — Bell Icon + Dropdown + Real-Time Push</span>
+      </div>
+      <div class="task-meta">
+        <span class="badge badge-ok">MEDIUM</span>
+        <span class="badge badge-info">1 new service + nav update</span>
+        <span class="badge badge-purple">Effort: 4 hrs</span>
+      </div>
+      <div class="task-desc">Backend stores notifications and pushes them via Socket.IO. Frontend has zero UI for this. Unread count badge on bell + dropdown panel + mark-as-read are all needed.</div>
+      <div class="prompt-label">AI Coding Prompt</div>
+      <div class="prompt-block">Add a Notifications Center to Luxe Estates Angular 17.
+
+1. Create src/app/core/services/app-notifications.service.ts:
+(named AppNotificationsService to avoid collision with existing NotificationService toast)
+
+interface AppNotification {
+  _id: string; type: string; title: string; message: string;
+  isRead: boolean; link: string; createdAt: string;
+}
+
+@Injectable({ providedIn: 'root' })
+export class AppNotificationsService {
+  private notifications$ = new BehaviorSubject<AppNotification[]>([]);
+  readonly unreadCount$: Observable<number> = this.notifications$.pipe(
+    map(list => list.filter(n => !n.isRead).length)
+  );
+
+  loadNotifications(): void {
+    this.http.get<any>(`${environment.apiUrl}/notifications`).subscribe({
+      next: (res) => this.notifications$.next(res.data || []),
+      error: () => {}
+    });
+  }
+
+  markAsRead(id: string): Observable<any> {
+    return this.http.patch(`${environment.apiUrl}/notifications/${id}/read`, {}).pipe(
+      tap(() => {
+        const updated = this.notifications$.value.map(n => n._id === id ? {...n, isRead: true} : n);
+        this.notifications$.next(updated);
+      })
+    );
+  }
+
+  markAllRead(): Observable<any> {
+    return this.http.patch(`${environment.apiUrl}/notifications/read-all`, {}).pipe(
+      tap(() => {
+        const updated = this.notifications$.value.map(n => ({...n, isRead: true}));
+        this.notifications$.next(updated);
+      })
+    );
+  }
+
+  getNotifications(): Observable<AppNotification[]> { return this.notifications$.asObservable(); }
+
+  prependNotification(n: AppNotification): void {
+    this.notifications$.next([n, ...this.notifications$.value]);
+  }
+}
+
+2. Update NavComponent to add:
+   - Inject AppNotificationsService and SocketService and AuthService
+   - showNotifPanel = false; property
+   - toggleNotifPanel(): void
+   - In ngOnInit (add this lifecycle): if authenticated, load notifications, subscribe to socketService.onNotification() → prependNotification()
+   - unreadCount$ = this.appNotificationsService.unreadCount$
+
+3. Update nav.component.html — add notification bell area (shown only when authenticated):
+   Bell SVG icon button with unread count badge (red pill, number from unreadCount$ | async)
+   Dropdown panel (absolute positioned, 320px wide, max-height 400px scrollable):
+     Header: "Notifications" + "Mark all read" button
+     List of notifications from getNotifications() | async:
+       Each item: icon circle (color by type), title + message truncated, time ago, isRead state (bolder border if unread)
+       Click → markAsRead(n._id) → router.navigate([n.link]) → close panel
+     Empty state: "You're all caught up"
+   Design: glassmorphism panel (backdrop-filter blur(20px), dark bg rgba(10,10,15,0.95), gold accents)
+
+Show all complete files with full SCSS.</div>
+    </div>
+
+    <!-- Task 3.3 -->
+    <div class="task-card">
+      <div class="task-header">
+        <span class="task-num">TASK 3.3</span>
+        <span class="task-title">KYC Submission Flow — Required Gate for Bookings & Payments</span>
+      </div>
+      <div class="task-meta">
+        <span class="badge badge-ok">MEDIUM</span>
+        <span class="badge badge-info">New standalone component</span>
+        <span class="badge badge-purple">Effort: 5 hrs</span>
+      </div>
+      <div class="task-desc">Backend's requireKYC middleware blocks all bookings and payments until kycStatus === 'approved'. Without a KYC frontend, no user can ever complete a booking. This is the most critical unblocking flow after auth.</div>
+      <div class="prompt-label">AI Coding Prompt</div>
+      <div class="prompt-block">Create a KYC (Identity Verification) page for Luxe Estates Angular 17.
+
+File: src/app/features/kyc/kyc.component.ts (standalone) + .html + .scss
+
+Backend endpoints:
+  POST /api/v1/kyc — submit KYC docs: body { documentType, frontImageUrl, backImageUrl }
+  GET /api/v1/kyc/status — returns { kycStatus: 'not_submitted'|'pending'|'approved'|'rejected', rejectionReason? }
+  POST /api/v1/properties/:id/images — multipart image upload to Cloudinary (reuse for KYC image upload)
+
+Component logic:
+Step 1 — Show KYC status first (GET /kyc/status on init)
+  not_submitted / rejected: show the submission form
+  pending: show amber "Under Review" state with animated pulsing indicator, poll status every 30s
+  approved: show green "Identity Verified" checkmark state
+
+Step 2 — Submission form (shown for not_submitted/rejected):
+  Document type selector: National ID | Passport | Driver's License (radio buttons)
+  Front image upload: file input with preview thumbnail + "Choose File" styled button
+  Back image upload: same (hidden if type === 'passport')
+  Progress bar during upload (fake 0-90%, jumps to 100% on success)
+
+Step 3 — Upload flow:
+  To upload images, POST FormData to /api/v1/properties/temp/images (or use existing upload endpoint)
+  Actually: create a dedicated service method that POSTs the image file to the backend
+  and returns the Cloudinary URL from the response
+  Then submit: POST /api/v1/kyc with { documentType: 'national_id'|'passport'|'drivers_license', frontImageUrl, backImageUrl }
+
+Step 4 — After submit:
+  Switch to 'pending' state, start 30-second polling of GET /kyc/status
+  If rejected: show rejectionReason from backend + allow resubmission (reset form)
+
+Route: add to app-routing.module.ts:
+{ path: 'kyc', canActivate: [authGuard], loadComponent: () => import('./features/kyc/kyc.component').then(m => m.KycComponent) }
+
+Design: dark luxury theme, step indicator (3 dots: Upload → Review → Verified)
+Gold accent for verified state, amber for pending, crimson for rejected.
+Show complete file.</div>
+    </div>
+
+    <!-- Task 3.4 -->
+    <div class="task-card">
+      <div class="task-header">
+        <span class="task-num">TASK 3.4</span>
+        <span class="task-title">Booking Flow — Create, View, Manage Bookings</span>
+      </div>
+      <div class="task-meta">
+        <span class="badge badge-ok">MEDIUM</span>
+        <span class="badge badge-info">New service + integration in detail page</span>
+        <span class="badge badge-purple">Effort: 4 hrs</span>
+      </div>
+      <div class="task-desc">Backend has full booking CRUD with approve/reject/cancel flow. Frontend has nothing. Bookings are triggered from the property detail page and managed in the profile dashboard.</div>
+      <div class="prompt-label">AI Coding Prompt</div>
+      <div class="prompt-block">Create a Booking Service and integrate booking into the Property Detail page for Luxe Estates Angular 17.
+
+1. Create src/app/features/bookings/bookings.service.ts:
+
+Backend endpoints:
+  POST /api/v1/bookings — create booking: { property: propertyId, start_date, end_date, amount }
+  GET /api/v1/bookings — get my bookings (buyer sees own, owner sees received)
+  GET /api/v1/bookings/:id — single booking detail
+  PATCH /api/v1/bookings/:id/approve — owner approves
+  PATCH /api/v1/bookings/:id/reject — owner rejects
+  PATCH /api/v1/bookings/:id/cancel — buyer cancels
+
+interface BookingRequest {
+  property: string;   // propertyId
+  start_date: string; // ISO date string
+  end_date: string;
+  amount: number;     // frontend pulls from property.price (server recalculates anyway)
+}
+
+Service methods:
+  createBooking(req: BookingRequest): Observable<any>
+  getMyBookings(): Observable<any[]> — maps res.data
+  approveBooking(id: string): Observable<any>
+  rejectBooking(id: string): Observable<any>
+  cancelBooking(id: string): Observable<any>
+
+2. Add a "Book Property" section to PropertyDetailComponent (src/app/features/properties/components/property-detail/):
+  - Shown only if property.listingType === 'rent' OR property.status === 'available'
+  - If user is not authenticated: show "Sign in to Book" button → authService.openModal()
+  - If kycStatus !== 'approved': show "Verify Identity First" button → router.navigate(['/kyc'])
+  - Booking form: start_date (date input, min today), end_date (date input, min = start_date + 1)
+  - Show calculated nights/days and total cost automatically
+  - Submit → bookingsService.createBooking({ property: id, start_date, end_date, amount: property.price })
+  - On success: notificationService.show('Booking request sent! Awaiting owner approval.', 'success')
+  - On 403 (KYC required): show prompt to complete KYC
+
+3. Update profile.component.ts Bookings tab:
+  For each booking show:
+  - Property title (link to /properties/:id)
+  - Date range, amount
+  - Status badge with color coding
+  - Cancel button (if status === 'pending')
+  - Pay Now button (if status === 'approved' && paymentStatus === 'not_initiated')
+
+Show all complete files.</div>
+    </div>
+
+    <!-- Task 3.5 -->
+    <div class="task-card">
+      <div class="task-header">
+        <span class="task-num">TASK 3.5</span>
+        <span class="task-title">Payment Checkout Flow — Paymob, PayPal, Bank Transfer, Cash</span>
+      </div>
+      <div class="task-meta">
+        <span class="badge badge-ok">MEDIUM</span>
+        <span class="badge badge-info">New checkout component</span>
+        <span class="badge badge-purple">Effort: 6 hrs</span>
+      </div>
+      <div class="task-desc">Backend has a complete 4-provider payment system with server-side amount calculation, idempotency, and webhook verification. Frontend has zero payment UI. This is the revenue-generating feature.</div>
+      <div class="prompt-label">AI Coding Prompt</div>
+      <div class="prompt-block">Create a Payment Checkout page for Luxe Estates Angular 17.
+
+File: src/app/features/checkout/checkout.component.ts (standalone) + .html + .scss
+
+Route: { path: 'checkout/:bookingId', canActivate: [authGuard], loadComponent: ... }
+
+Backend payment endpoints:
+  POST /api/v1/payments/initiate — body: { bookingId, paymentMethod: 'paymob'|'paypal'|'bank_transfer'|'cash' }
+    Response for paymob: { data: { paymentKey, iframeUrl } }
+    Response for paypal: { data: { approvalUrl } }
+    Response for bank_transfer: { data: { referenceNumber, bankDetails } }
+    Response for cash: { data: { message: 'Cash payment recorded' } }
+  GET /api/v1/payments/verify/:paymentId — poll payment status
+
+CheckoutComponent:
+1. Load booking details from GET /api/v1/bookings/:bookingId on init
+   Show: property title, date range, amount breakdown (property price + 2.5% platform fee)
+2. Payment method selection (4 option cards with icons):
+   Card: Credit/Debit via Paymob (Egypt) — show Paymob logo
+   Card: PayPal — redirect to PayPal approval URL
+   Card: Bank Transfer — shows reference number and bank details
+   Card: Cash — marks as completed immediately
+3. "Pay Now" button → POST /payments/initiate with { bookingId, paymentMethod }
+4. Handle each response:
+   paymob: open iframeUrl in an <iframe> overlay (modal) inside the page. Poll GET /payments/verify/:paymentId every 5 seconds for up to 10 minutes. On status === 'completed': show success, redirect to /profile
+   paypal: window.location.href = approvalUrl (PayPal handles the return URL server-side)
+   bank_transfer: show referenceNumber + bank account details in a card with "Copy" button. Instruct user to transfer and await admin confirmation.
+   cash: show confirmation card, redirect to /profile after 3 seconds
+
+Security note: NEVER calculate the amount on the frontend. The display is for UX only. Backend recalculates from property.price in DB.
+
+Show complete file with proper error handling for 403 KYC errors (redirect to /kyc).</div>
+    </div>
+
+    <!-- PHASE 4 -->
+    <div class="phase-header">
+      <span class="phase-icon">🟢</span>
+      <div>
+        <div style="font-size:13px;font-weight:500;">Phase 4 — Backend Fixes & Production Hardening</div>
+        <div style="font-size:11px;color:var(--color-text-secondary);font-weight:400;">Days 19–25 · Fix bugs, add agents API, CI/CD, env security</div>
+      </div>
+    </div>
+
+    <!-- Task 4.1 -->
+    <div class="task-card">
+      <div class="task-header">
+        <span class="task-num">TASK 4.1</span>
+        <span class="task-title">Fix 3 Critical Backend Bugs + Add Agents Route</span>
+      </div>
+      <div class="task-meta">
+        <span class="badge badge-danger">BLOCKER</span>
+        <span class="badge badge-info">Backend: 3–4 files</span>
+        <span class="badge badge-purple">Effort: 3 hrs</span>
+      </div>
+      <div class="task-desc">Three confirmed backend bugs cause runtime crashes and zero revenue reporting. Plus the agents route must be added for the AgentsComponent to load real data.</div>
+      <div class="prompt-label">AI Coding Prompt</div>
+      <div class="prompt-block">Fix all confirmed bugs in the Real Estate Pro Express.js backend and add a missing route.
+
+BUG FIX 1 — src/controllers/dashboard.controller.js, changeUserRole function:
+Find the code that calls .lean() before .save(). Change to use findByIdAndUpdate() instead:
+const user = await User.findByIdAndUpdate(
+  userId, { role: newRole }, { new: true, runValidators: true }
+).select('-password -otpHash');
+Remove the .lean() call entirely.
+
+BUG FIX 2 — src/controllers/dashboard.controller.js, adminStats function:
+Find the Payment aggregation $match stage. Change status: "paid" to status: "completed"
+Also fix recentPayments: change .populate('user_id') to .populate('user')
+and .populate('booking_id') to .populate('booking')
+
+BUG FIX 3 — src/middlewares/rateLimit.middleware.js (or wherever rate limiters are defined):
+Install: npm install rate-limit-redis @redis/client
+Import RedisStore from rate-limit-redis and the existing redis client
+Update the auth rate limiter and global rate limiter to use:
+  store: new RedisStore({ sendCommand: (...args) => redisClient.sendCommand(args) })
+This makes rate limiting work across multiple server instances.
+
+NEW ROUTE — Create src/routes/agents.routes.js:
+GET /api/v1/agents — returns verified agents/owners
+Handler query:
+  User.find({ role: { $in: ['agent', 'owner'] }, isVerified: true, isActive: true, isBanned: false })
+    .select('name email role bio phone createdAt kycStatus')
+    .sort({ createdAt: -1 })
+    .limit(20)
+Response shape (must match frontend Agent interface):
+  { success: true, data: users.map(u => ({
+    _id: u._id, name: u.name, email: u.email, role: u.role,
+    bio: u.bio || 'Luxury Real Estate Specialist',
+    phone: u.phone,
+    initial: u.name.charAt(0).toUpperCase(),
+    rating: 4.8, sales: '0', value: '$0'
+  }))}
+Apply: optional protect middleware (list is public), cache(300) middleware
+Register in server.js: app.use('/api/v1/agents', require('./routes/agents.routes'));
+Add Swagger JSDoc annotations following existing conventions.
+
+Show all modified/created files in full.</div>
+    </div>
+
+    <!-- Task 4.2 -->
+    <div class="task-card">
+      <div class="task-header">
+        <span class="task-num">TASK 4.2</span>
+        <span class="task-title">Security — Rotate Secrets, Fix .env, Add .dockerignore</span>
+      </div>
+      <div class="task-meta">
+        <span class="badge badge-danger">CRITICAL</span>
+        <span class="badge badge-info">DevOps + Security</span>
+        <span class="badge badge-purple">Effort: 2 hrs</span>
+      </div>
+      <div class="task-desc">Real credentials are committed to git. This is the most critical security issue. Must be resolved before any production deployment.</div>
+      <div class="prompt-label">AI Coding Prompt</div>
+      <div class="prompt-block">Fix the security credential exposure issue in the Real Estate Pro backend.
+
+STEP 1 — Immediately rotate all secrets:
+Generate new JWT secrets (run locally): node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+Generate new ENCRYPTION_KEY: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+Revoke the committed Gmail app password in Google Account settings and generate a new one.
+Rotate the MongoDB Atlas password in Atlas dashboard and update the connection string.
+
+STEP 2 — Git history cleanup:
+Create .env.example with all variable NAMES but EMPTY values (no real secrets):
+
+PORT=3000
+NODE_ENV=development
+MONGO_URI=mongodb+srv://user:password@cluster.mongodb.net/dbname
+JWT_SECRET=generate_with_crypto_randomBytes_64_hex
+JWT_REFRESH_SECRET=generate_with_crypto_randomBytes_64_hex_different_from_above
+JWT_EXPIRES_IN=15m
+CLIENT_URL=http://localhost:4200
+REDIS_URL=redis://localhost:6379
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASS=your-gmail-app-password
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+ENCRYPTION_KEY=generate_64_char_hex_string
+PAYMOB_WEBHOOK_SECRET=your-paymob-secret
+PAYPAL_WEBHOOK_ID=your-paypal-webhook-id
+
+Add to .gitignore (create if missing):
+.env
+.env.local
+.env.*.local
+logs/
+coverage/
+node_modules/
+
+STEP 3 — Create .dockerignore:
+.env
+.env.*
+logs/
+node_modules/
+.git/
+tests/
+coverage/
+.github/
+*.md
+
+STEP 4 — Remove refresh token from JSON response body in auth.controller.js:
+Find the login and refreshToken handlers. In the JSON response, remove the refreshToken field.
+Only set it as a cookie. Mobile clients can read the initial token from the login body,
+but subsequent refresh calls MUST use the cookie.
+
+STEP 5 — Add .env to .gitignore THEN purge from history:
+git filter-repo --path .env --invert-paths
+OR use BFG: bfg --delete-files .env
+Then: git push --force-with-lease origin main
+
+Show all created/modified files.</div>
+    </div>
+
+    <!-- Task 4.3 -->
+    <div class="task-card">
+      <div class="task-header">
+        <span class="task-num">TASK 4.3</span>
+        <span class="task-title">Property Creation Page — /add-property for Owners & Agents</span>
+      </div>
+      <div class="task-meta">
+        <span class="badge badge-ok">MEDIUM</span>
+        <span class="badge badge-info">New feature module</span>
+        <span class="badge badge-purple">Effort: 5 hrs</span>
+      </div>
+      <div class="task-desc">The nav routes owners to /add-property but this route doesn't exist. Owners and agents need this to list properties. Backend creates property then accepts images separately via Cloudinary upload.</div>
+      <div class="prompt-label">AI Coding Prompt</div>
+      <div class="prompt-block">Create a Property Creation/Listing page for Luxe Estates Angular 17.
+
+File: src/app/features/add-property/add-property.component.ts (standalone) + .html + .scss
+
+Add roleGuard at src/app/core/auth/role.guard.ts:
+export const roleGuard = (allowedRoles: string[]): CanActivateFn => (_route, _state) => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  const user = auth.currentUser;
+  if (user && allowedRoles.includes(user.role)) return true;
+  router.navigate(['/become-agent']);
+  return false;
+};
+
+Route in app-routing.module.ts:
+{ path: 'add-property', canActivate: [authGuard, roleGuard(['owner', 'agent', 'admin'])], loadComponent: ... }
+
+AddPropertyComponent — Reactive Form with these sections:
+
+Section 1 — Basic Info:
+  title: required, minLength(10)
+  description: required, minLength(20)
+  type: select ['apartment','villa','house','studio','office','shop','land','commercial']
+  listingType: radio ['sale','rent']
+  price: required, min(0), number
+
+Section 2 — Location:
+  location.city: required
+  location.district: required
+  location.street: optional
+
+Section 3 — Details:
+  bedrooms: number input, min 0
+  bathrooms: number input, min 0
+  area: number input (m²), min 0
+
+Section 4 — Images:
+  Multiple file input (accept="image/jpeg,image/png,image/webp", multiple)
+  Preview thumbnails with ✕ remove button
+  Max 10 files validation
+
+Submit Flow (2-step):
+Step 1: POST /api/v1/properties with all text fields (no images):
+  const body = { title, description, type, listingType, price, location, bedrooms, bathrooms, area }
+  → receives { data: { _id: createdId } }
+Step 2: For each selected image file:
+  const formData = new FormData();
+  formData.append('images', file);
+  POST /api/v1/properties/${createdId}/images with FormData
+  Show upload progress (uploaded X of Y images)
+Step 3: On completion:
+  notificationService.show('Property submitted for admin approval!', 'success')
+  router.navigate(['/profile'])
+
+Add pending approval notice: after creation, always show "Your property is under admin review before it appears publicly"
+Design: dark luxury 2-column form layout matching existing design tokens.
+Show complete file.</div>
+    </div>
+
+    <!-- Task 4.4 -->
+    <div class="task-card">
+      <div class="task-header">
+        <span class="task-num">TASK 4.4</span>
+        <span class="task-title">Admin Dashboard — Stats, User Management, KYC Approval</span>
+      </div>
+      <div class="task-meta">
+        <span class="badge badge-ok">MEDIUM</span>
+        <span class="badge badge-info">New admin module</span>
+        <span class="badge badge-purple">Effort: 6 hrs</span>
+      </div>
+      <div class="task-desc">Backend has a full admin API: dashboard stats, user list, KYC approval queue, property approval. Without a frontend, admins must use tools like Postman or MongoDB Compass to manage the platform.</div>
+      <div class="prompt-label">AI Coding Prompt</div>
+      <div class="prompt-block">Create an Admin Dashboard module for Luxe Estates Angular 17.
+
+Create src/app/features/admin/ as a lazy-loaded NgModule:
+admin.module.ts, admin-routing.module.ts
+Components: admin-layout (shell), admin-stats, admin-users, admin-kyc, admin-properties
+
+Route: { path: 'admin', canActivate: [authGuard, roleGuard(['admin'])], loadChildren: ... }
+Add admin link to nav only when user.role === 'admin'
+
+admin-stats.component — Dashboard overview:
+  4 metric cards: GET /api/v1/dashboard/admin/stats
+  Returns: { totalUsers, totalProperties, totalBookings, totalRevenue (fix C-03 first) }
+  Recent bookings table: GET /api/v1/dashboard/admin/bookings
+  Recent users list: GET /api/v1/dashboard/admin/users
+
+admin-kyc.component — KYC Approval Queue:
+  GET /api/v1/kyc/pending — list pending KYC submissions
+  For each: show user name, email, document type, submitted date
+  Approve button: PATCH /api/v1/kyc/:userId/approve
+  Reject button: PATCH /api/v1/kyc/:userId/reject with a rejection reason input
+
+admin-users.component — User Management:
+  GET /api/v1/users — paginated user list
+  For each user: name, email, role badge, isVerified, isBanned
+  Ban/Unban toggle: PATCH /api/v1/users/:id/ban
+  Change role dropdown: PATCH /api/v1/dashboard/admin/users/:id/role with { role: 'buyer'|'owner'|'agent' }
+
+admin-properties.component — Property Approval:
+  GET /api/v1/properties/pending (admin route) — list unapproved properties
+  For each: title, type, owner name, price, created date
+  Approve button: PATCH /api/v1/properties/:id/approve
+  Each property links to /properties/:id for detail view
+
+Use shared table component pattern (no external lib). Pagination with page/limit params.
+Design: match luxury dark theme but with tighter information density for dashboard use.
+Show all generated files.</div>
+    </div>
+
+    <!-- Task 4.5 -->
+    <div class="task-card">
+      <div class="task-header">
+        <span class="task-num">TASK 4.5</span>
+        <span class="task-title">Pagination, Loading States & Global Error Handling</span>
+      </div>
+      <div class="task-meta">
+        <span class="badge badge-ok">LOW-MEDIUM</span>
+        <span class="badge badge-info">Shared components</span>
+        <span class="badge badge-purple">Effort: 4 hrs</span>
+      </div>
+      <div class="task-desc">Properties and auctions have no pagination. No global loading bar. No empty states. ChunkLoadErrors from lazy loading are not handled. These are production polish requirements.</div>
+      <div class="prompt-label">AI Coding Prompt</div>
+      <div class="prompt-block">Add pagination, loading states, and global error handling to Luxe Estates Angular 17.
+
+1. Shared PaginatorComponent — src/app/shared/paginator/paginator.component.ts (standalone):
+   @Input() currentPage: number = 1
+   @Input() totalPages: number = 1
+   @Input() totalItems: number = 0
+   @Output() pageChange = new EventEmitter<number>()
+   Renders: [Prev] 1 2 ... 8 9 [10] ... 15 [Next] — ellipsis for large page counts (show first, last, and window around current)
+   Style: dark theme, gold active page highlight, disabled prev/next at boundaries
+   Export from SharedModule
+
+2. Update PropertiesService.getProperties() to accept page param:
+   Returns Observable<{ data: Property[]; totalItems: number; totalPages: number; currentPage: number }>
+   Backend response: { success, data, pagination: { total, pages, page, limit } }
+
+3. Update PropertiesPageComponent:
+   currentPage = 1, totalPages = 1
+   Show <app-paginator> at bottom
+   On page change: call getProperties(filters, page), scrollTo top
+
+4. GlobalErrorHandler — src/app/core/error/global-error.handler.ts:
+   implements ErrorHandler
+   On ChunkLoadError (lazy route load failed): window.location.reload()
+   On other errors: console.error in dev, suppress in prod
+   Register in AppModule: { provide: ErrorHandler, useClass: GlobalErrorHandler }
+
+5. LoadingService — src/app/core/services/loading.service.ts:
+   isLoading$ = new BehaviorSubject<boolean>(false)
+   show() / hide()
+
+6. LoadingInterceptor — src/app/core/interceptors/loading.interceptor.ts:
+   Wraps every request with show()/hide()
+   Skips URLs containing 'notifications/unread-count' and 'kyc/status' (polling)
+   Register in AppModule FIRST (before AuthInterceptor)
+
+7. Top loading bar in AppComponent template:
+   <div class="loading-bar" *ngIf="loadingService.isLoading$ | async"></div>
+   CSS: position fixed, top 0, width 100%, height 3px, background: #C9A96E,
+        animation: loadingPulse 1.2s ease-in-out infinite alternate
+   @keyframes: width 30% to 85% (indeterminate feel)
+
+8. Empty states — add to properties-page.component.html:
+   <div *ngIf="(filteredProperties$ | async)?.length === 0" class="empty-state">
+   Show icon + "No properties match your filters" + "Clear Filters" button
+
+Show all complete files.</div>
+    </div>
+
+  </div>
+
+  <!-- EXECUTION TIMELINE -->
+  <div class="section">
+    <div class="section-title"><span class="dot dot-green"></span> Execution Timeline</div>
+    <table class="compat-table">
+      <thead>
+        <tr><th>Phase</th><th>Tasks</th><th>Duration</th><th>Unblocks</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="badge badge-danger">Phase 1</span></td><td>1.1 · 1.2 · 1.3</td><td>Days 1–3</td><td>All API calls, all data, correct roles</td></tr>
+        <tr><td><span class="badge badge-warn">Phase 2</span></td><td>2.1 · 2.2 · 2.3 · 2.4</td><td>Days 4–10</td><td>Stable sessions, search nav, user profile, property detail</td></tr>
+        <tr><td><span class="badge badge-ok">Phase 3</span></td><td>3.1 · 3.2 · 3.3 · 3.4 · 3.5</td><td>Days 11–18</td><td>Real-time, KYC gate, bookings, payments (revenue)</td></tr>
+        <tr><td><span class="badge badge-info">Phase 4</span></td><td>4.1 · 4.2 · 4.3 · 4.4 · 4.5</td><td>Days 19–25</td><td>Backend bugs fixed, admin panel, security, pagination</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

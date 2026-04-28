@@ -1,0 +1,96 @@
+<!-- ═══════════════════════════════════════════════════════════════════════
+     LUXE ESTATES — Agents Component Template
+     Author: مينا — Agents Module
+     Tasks: 04 (Grid) + 05 (Stats & Social Buttons)
+     ═══════════════════════════════════════════════════════════════════════ -->
+
+<section class="agents-section" id="agents" #sectionRef>
+
+  <!-- Section Header -->
+  <div class="section-header reveal">
+    <div class="eyebrow">EXPERT TEAM</div>
+    <h2 class="section-title">Elite <em>Agents</em></h2>
+    <p class="section-sub">
+      Connect with our world-class property specialists.
+    </p>
+  </div>
+
+  <!-- ── Agents Grid — Task 04 ─────────────────────────────────────────── -->
+  <!-- 4 columns desktop, 2 tablet, 1 mobile -->
+  <div class="agents-grid">
+
+    <div
+      *ngFor="let agent of agents"
+      class="agent-card reveal"
+      #agentCard
+    >
+
+      <!-- Avatar Placeholder (circular) -->
+      <div class="agent-avatar-wrap">
+        <div class="agent-avatar">
+          {{ agent.initial || agent.name.charAt(0) }}
+        </div>
+      </div>
+
+      <!-- Agent Info -->
+      <div class="agent-info">
+        <h3 class="agent-name">{{ agent.name }}</h3>
+        <p class="agent-specialty">{{ agent.specialty }}</p>
+
+        <!-- Countries tags -->
+        <div class="agent-countries">
+          <span
+            class="country-tag"
+            *ngFor="let country of agent.countries"
+          >{{ country }}</span>
+        </div>
+      </div>
+
+      <!-- ── Task 05: Stats Row ──────────────────────────────────────── -->
+      <div class="agent-stats">
+        <div class="stat-item">
+          <div class="stat-val">{{ agent.sales }}</div>
+          <div class="stat-key">Sales</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-val">{{ agent.value }}</div>
+          <div class="stat-key">Volume</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-val">★ {{ agent.rating }}</div>
+          <div class="stat-key">Rating</div>
+        </div>
+      </div>
+
+      <!-- ── Task 05: Social Buttons ────────────────────────────────── -->
+      <div class="agent-social">
+        <button
+          class="social-btn"
+          title="Email {{ agent.name }}"
+          (click)="onContactEmail(agent)"
+        >
+          EM
+        </button>
+        <button
+          class="social-btn"
+          title="Call {{ agent.name }}"
+          (click)="onContactPhone(agent)"
+        >
+          PH
+        </button>
+        <button
+          class="social-btn"
+          title="{{ agent.name }} on LinkedIn"
+          (click)="onLinkedIn(agent)"
+        >
+          IN
+        </button>
+      </div>
+
+    </div><!-- /agent-card -->
+
+  </div><!-- /agents-grid -->
+
+</section>

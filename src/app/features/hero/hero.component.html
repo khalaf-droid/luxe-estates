@@ -88,7 +88,7 @@
   <!-- Search Bar — positioned at hero bottom, overlaps section below -->
   <!-- Reference: .search-section { margin-top: -60px }               -->
   <div class="hero-search-wrap" [@buttons]="animState">
-    <app-search-bar (explore)="scrollToProperties()"></app-search-bar>
+    <app-search-bar (explore)="onExplore($event)"></app-search-bar>
   </div>
 
 </section>

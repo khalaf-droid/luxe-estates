@@ -4,6 +4,8 @@ import { RouterModule, Routes } from '@angular/router';
 // ✅ استدعاء كومبوننت الترقية الجديد
 import { BecomeAgentComponent } from './features/become-agent/become-agent.component';
 
+import { authGuard } from './core/auth/auth.guard';
+
 const routes: Routes = [
   {
     path: '',
@@ -30,10 +32,27 @@ const routes: Routes = [
       import('./features/agents/agents.module').then((m) => m.AgentsModule),
   },
   
-  // ✅ إضافة المسار الجديد الخاص بصفحة الترقية (يجب أن يكون قبل مسار الـ Wildcard **)
   {
     path: 'become-agent',
     component: BecomeAgentComponent,
+  },
+
+  {
+    path: 'profile',
+    canActivate: [authGuard],
+    loadChildren: () => import('./features/profile/profile.module').then(m => m.ProfileModule)
+  },
+
+  // مسار إعادة تعيين كلمة المرور
+  {
+    path: 'reset-password/:token',
+    loadComponent: () => import('./core/auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent)
+  },
+  
+  // مسار تأكيد الحساب (OTP)
+  {
+    path: 'verify-otp',
+    loadComponent: () => import('./core/auth/otp-verify/otp-verify.component').then(m => m.OtpVerifyComponent)
   },
 
   // مسار الـ Wildcard لاصطياد أي روابط خاطئة (يجب أن يظل في النهاية دائمًا)

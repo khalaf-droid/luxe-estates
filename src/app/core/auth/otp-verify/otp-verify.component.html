@@ -1,0 +1,41 @@
+<div class="otp-container">
+  <div class="otp-card">
+    <div class="otp-header">
+      <h1 class="otp-title">Verify <span class="gold">Account</span></h1>
+      <p class="otp-subtitle">We sent a 6-digit code to <br><strong>{{ email }}</strong></p>
+    </div>
+
+    <form [formGroup]="otpForm" (ngSubmit)="onSubmit()" class="otp-form">
+      <div class="otp-inputs">
+        <input #otp1 type="text" maxlength="1" formControlName="otp1" 
+               (input)="onInput($event, otp2)" (keydown)="onKeyDown($event)">
+        <input #otp2 type="text" maxlength="1" formControlName="otp2" 
+               (input)="onInput($event, otp3)" (keydown)="onKeyDown($event, otp1)">
+        <input #otp3 type="text" maxlength="1" formControlName="otp3" 
+               (input)="onInput($event, otp4)" (keydown)="onKeyDown($event, otp2)">
+        <input #otp4 type="text" maxlength="1" formControlName="otp4" 
+               (input)="onInput($event, otp5)" (keydown)="onKeyDown($event, otp3)">
+        <input #otp5 type="text" maxlength="1" formControlName="otp5" 
+               (input)="onInput($event, otp6)" (keydown)="onKeyDown($event, otp4)">
+        <input #otp6 type="text" maxlength="1" formControlName="otp6" 
+               (input)="onInput($event)" (keydown)="onKeyDown($event, otp5)">
+      </div>
+
+      <button type="submit" class="otp-submit" [disabled]="otpForm.invalid || isLoading">
+        <span *ngIf="!isLoading">Verify Account</span>
+        <div *ngIf="isLoading" class="otp-spinner"></div>
+      </button>
+
+      <div class="otp-resend">
+        <p>Didn't receive the code?</p>
+        <button type="button" class="resend-btn" (click)="resendOtp()" [disabled]="resendCooldown > 0 || isResending">
+          {{ resendCooldown > 0 ? 'Resend in ' + resendCooldown + 's' : 'Resend Code' }}
+        </button>
+      </div>
+    </form>
+
+    <div class="otp-footer">
+      <a routerLink="/" class="back-link">Return to Home</a>
+    </div>
+  </div>
+</div>

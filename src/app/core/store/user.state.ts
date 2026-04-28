@@ -12,7 +12,7 @@
  */
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { AuthService, User } from '../auth/auth.service';
+import { AuthService, User, UserRole } from '../auth/auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class UserState {
@@ -35,5 +35,10 @@ export class UserState {
   /** True when the app is running in Demo Mode (no backend) */
   get isDemoMode(): boolean {
     return this.auth.isDemoMode();
+  }
+
+  /** Get the current user's role */
+  get userRole(): UserRole | null {
+    return this.currentUser?.role ?? null;
   }
 }

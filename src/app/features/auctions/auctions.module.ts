@@ -1,35 +1,32 @@
-import { NgModule, Component } from '@angular/core';
+// ─────────────────────────────────────────────────────────────────────────────
+// LUXE ESTATES — Auctions Module
+// Author: مينا — feature/mina-auctions
+// ─────────────────────────────────────────────────────────────────────────────
+
+import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
+import { ReactiveFormsModule } from '@angular/forms';
 
-// ─────────────────────────────────────────────────────────────
-// PLACEHOLDER — مينا: استبدلي الـ component ده بـ AuctionsComponent
-// بتاعتك لما تخلصي شغلك، وامسحي الـ placeholder
-// ─────────────────────────────────────────────────────────────
-@Component({
-  template: `
-    <div style="display:flex;align-items:center;justify-content:center;
-                height:100vh;background:#0A0A0F;color:#E74C3C;
-                font-family:'Space Mono',monospace;font-size:14px;letter-spacing:2px;">
-      AUCTIONS MODULE — جاهز لـ مينا ✦
-    </div>
-  `,
-})
-export class AuctionsPlaceholderComponent {}
+import { AuctionsComponent } from './auctions.component';
+import { CountdownPipe } from '../../shared/pipes/countdown.pipe';
 
 const routes: Routes = [
-  { path: '', component: AuctionsPlaceholderComponent },
+  { path: '', component: AuctionsComponent },
 ];
 
 @NgModule({
   declarations: [
-    AuctionsPlaceholderComponent,
-    // AuctionsComponent   ← مينا تضيف
-    // CountdownPipe       ← مينا تضيف (تأكد pure: false)
+    AuctionsComponent,
+    CountdownPipe,
   ],
   imports: [
     CommonModule,
-    RouterModule.forChild(routes), // ✅ forChild — لا تغيرها لـ forRoot أبداً
+    RouterModule.forChild(routes),  // ← forChild, NOT forRoot
+    ReactiveFormsModule,
+  ],
+  exports: [
+    CountdownPipe,
   ],
 })
 export class AuctionsModule {}

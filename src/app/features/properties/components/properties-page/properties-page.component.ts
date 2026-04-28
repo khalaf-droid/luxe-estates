@@ -1,173 +1,118 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// LUXE ESTATES — Properties Page Component
-// Visual reference: Template/index.html — section.properties-section (lines 1526–1553)
-// ─────────────────────────────────────────────────────────────────────────────
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
+import { ActivatedRoute, Params } from '@angular/router';
+import { Observable } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { map, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
-import {
-  Component,
-  OnInit,
-  OnDestroy,
-  AfterViewInit,
-  ViewChild,
-  ElementRef,
-} from '@angular/core';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-
-import { Property } from '../../models/property.model';
 import { PropertiesService } from '../../services/properties.service';
-import { NotificationService } from '../../../../shared/services/notification.service';
+import { FavoritesService } from '../../services/favorites.service';
 import { AuthService } from '../../../../core/auth/auth.service';
-
-// ─── Filter tab definition ───────────────────────────────────────────────────
-interface FilterTab {
-  key: string;
-  label: string;
-}
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { Property, PropertyFilters } from '../../models/property.model';
 
 @Component({
   selector: 'app-properties-page',
   templateUrl: './properties-page.component.html',
   styleUrls: ['./properties-page.component.scss'],
 })
-export class PropertiesPageComponent implements OnInit, AfterViewInit, OnDestroy {
+export class PropertiesPageComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private svc = inject(PropertiesService);
+  private favoritesService = inject(FavoritesService);
+  private authService = inject(AuthService);
+  private notificationService = inject(NotificationService);
+  private destroyRef = inject(DestroyRef);
 
-  // ── Filter tabs — matches Template/index.html lines 1538–1543 ────────────
-  readonly filterTabs: FilterTab[] = [
-    { key: 'all',        label: 'All'        },
-    { key: 'for-sale',   label: 'For Sale'   },
-    { key: 'for-rent',   label: 'For Rent'   },
-    { key: 'apartment',  label: 'Apartments' },
-    { key: 'villa',      label: 'Villas'     },
-    { key: 'penthouse',  label: 'Penthouses' },
+  // ── Reactive State ────────────────────────────────────────────────────────
+  properties$: Observable<Property[]> = this.svc.properties$;
+  isLoading$: Observable<boolean> = this.svc.loading$;
+  activeFilter$: Observable<string> = this.svc.activeFilter$;
+
+  // UI state
+  selectedProperty: Property | null = null;
+  
+  filterTabs = [
+    { label: 'All', key: 'all' },
+    { label: 'For Sale', key: 'for-sale' },
+    { label: 'For Rent', key: 'for-rent' },
+    { label: 'Apartments', key: 'apartment' },
+    { label: 'Villas', key: 'villa' },
+    { label: 'Penthouses', key: 'penthouse' },
   ];
 
-  // ── State ─────────────────────────────────────────────────────────────────
-  properties: Property[]   = [];
-  activeFilter             = 'all';
-  isLoading                = true;
-  selectedProperty: Property | null = null;   // drives modal *ngIf
-
-  @ViewChild('sectionRef') sectionRef!: ElementRef<HTMLElement>;
-
-  private destroy$ = new Subject<void>();
-
-  constructor(
-    public svc: PropertiesService,
-    private notificationService: NotificationService,
-    private authService: AuthService,
-  ) {}
-
-  // ── Lifecycle ─────────────────────────────────────────────────────────────
   ngOnInit(): void {
-    // Subscribe to filtered stream — all filter logic lives in the service
-    this.svc.filteredProperties$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((props) => {
-        this.properties = props;
-        this.isLoading  = false;
+    // Sync filters from URL query parameters
+    this.route.queryParams
+      .pipe(
+        debounceTime(50),
+        map((params) => this.mapToFilters(params)),
+        distinctUntilChanged((a, b) => this.isEqual(a, b)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((filters) => {
+        this.svc.setFilters(filters);
       });
-
-    // Keep activeFilter in sync with service BehaviorSubject
-    this.svc.activeFilter$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((f) => (this.activeFilter = f));
   }
 
-  ngAfterViewInit(): void {
-    // Scroll-reveal — matches Template initAnimations() (lines 1946–1956)
-    // Adds .visible to .reveal elements as they enter the viewport
-    this.initScrollReveal();
+  private mapToFilters(params: Params): PropertyFilters {
+    if (Object.keys(params).length === 0) return {};
+
+    return {
+      city: params['location'],
+      type: params['type'],
+      status: params['listingType'],
+      minPrice: params['minPrice'] ? Number(params['minPrice']) : undefined,
+      maxPrice: params['maxPrice'] ? Number(params['maxPrice']) : undefined,
+      page: params['page'] ? Number(params['page']) : 1,
+    };
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+  private isEqual(a: PropertyFilters, b: PropertyFilters): boolean {
+    const keysA = Object.keys(a);
+    const keysB = Object.keys(b);
+    return (
+      keysA.length === keysB.length &&
+      keysA.every((key) => (a as any)[key] === (b as any)[key])
+    );
   }
 
-  // ── Filter tab click ──────────────────────────────────────────────────────
-  onFilterClick(key: string): void {
-    this.svc.setFilter(key);   // BehaviorSubject.next() in service
+  onFilterChange(filter: string): void {
+    this.svc.setFilter(filter);
   }
 
-  // ── Card: open modal ────────────────────────────────────────────────────
-  onViewDetails(property: Property): void {
-    this.selectedProperty = property;
-  }
-
-  // ── Modal: close ─────────────────────────────────────────────────────────
-  onModalClosed(): void {
-    this.selectedProperty = null;
-  }
-
-  // ── Modal: schedule viewing — Task 06 handles this inside PropertyModalComponent ──
-  // Modal injects PropertiesService directly and calls scheduleViewing() itself.
-  // This output is kept for potential future use (e.g. parent-level side-effects).
-  onModalScheduleViewing(_property: Property): void { /* handled in modal */ }
-
-  // ── Modal: make inquiry — Task 06 handles this inside PropertyModalComponent ───
-  onModalMakeInquiry(_property: Property): void { /* handled in modal */ }
-
-  onScheduleViewing(property: Property): void {
-    // Fix 2 (audit) — open modal so Task 06 schedule form handles the request
-    // Previously showed a placeholder notification; modal is the correct UX entry point
-    this.selectedProperty = property;
-  }
-
-  // ── Task 05: Favorites Toggle with Auth Guard ──────────────────────────────
-  // Exact auth-check pattern from task requirement
   onFavoriteToggled(propertyId: string): void {
-    // Guard — if not logged in: open auth modal + notify + bail out
     if (!this.authService.isAuthenticated()) {
       this.authService.openModal('login');
       this.notificationService.show('Sign in to save favorites', 'info');
       return;
     }
 
-    // Logged in — POST /api/favorites/:id (falls back to localStorage on error)
-    // Fix 3 (audit) — card does optimistic toggle; API result drives notification.
-    // Known limitation: if API returns a state different from the optimistic toggle
-    // (e.g. race condition), card icon stays visually toggled until next page load.
-    // Full fix requires @Input() isFavorited from parent — out of scope for demo.
-    this.svc.toggleFavorite(propertyId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((isFav) => {
+    this.favoritesService.toggleFavorite(propertyId).subscribe({
+      next: (isFav) => {
         this.notificationService.show(
-          isFav ? 'Added to favorites ✓' : 'Removed from favorites',
+          isFav ? 'Added to favorites' : 'Removed from favorites',
           isFav ? 'success' : 'info'
         );
-      });
+      },
+      error: () => {
+        this.notificationService.show('Failed to update favorite', 'error');
+      }
+    });
+  }
+
+  onViewDetails(property: Property): void {
+    this.selectedProperty = property;
   }
 
   onViewAll(): void {
-    this.notificationService.show('Loading more properties…', 'info');
+    this.svc.setFilters({});
   }
 
-  // ── trackBy for *ngFor performance ───────────────────────────────────────
-  trackById(_: number, p: Property): string {
-    return p._id;
+  onModalClosed(): void {
+    this.selectedProperty = null;
   }
 
-  // ── Scroll-reveal: IntersectionObserver ──────────────────────────────────
-  // Matches Template/index.html initAnimations() function (lines 1946–1956)
-  // threshold: 0.1, rootMargin: '0px 0px -50px 0px'
-  private initScrollReveal(): void {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
-    );
-
-    // Observe all .reveal elements within this component's section
-    const section = this.sectionRef?.nativeElement;
-    if (section) {
-      section.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
-    }
+  trackById(_index: number, item: Property): string {
+    return item._id;
   }
 }
