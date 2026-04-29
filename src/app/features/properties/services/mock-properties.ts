@@ -1,9 +1,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // LUXE ESTATES — Mock Properties Data
 // ─────────────────────────────────────────────────────────────────────────────
-// Source: Template/index.html lines 1887–1894 (mockProperties array)
-// Images: same Unsplash URLs used in the template
-// 6 properties: Dubai, London, NYC (x2), Paris, Nice
+// Types aligned with backend enum:
+//   apartment | villa | house | studio | office | shop | land | commercial
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { Property } from '../models/property.model';
@@ -16,8 +15,10 @@ export const MOCK_PROPERTIES: Property[] = [
     city: 'Dubai',
     price: 8_500_000,
     currency: 'USD',
-    type: 'penthouse',
+    type: 'apartment',           // 'penthouse' not in backend enum → apartment
     status: 'for-sale',
+    listingType: 'sale',
+    availabilityStatus: 'available',
     bedrooms: 5,
     bathrooms: 6,
     area: 450,
@@ -27,7 +28,7 @@ export const MOCK_PROPERTIES: Property[] = [
       'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&q=80',
     ],
     description:
-      'Breathtaking penthouse with panoramic views of Dubai Marina and the Arabian Gulf. Featuring a private rooftop pool, chef\'s kitchen, and bespoke Italian finishes throughout.',
+      "Breathtaking penthouse with panoramic views of Dubai Marina and the Arabian Gulf. Featuring a private rooftop pool, chef's kitchen, and bespoke Italian finishes throughout.",
     features: ['Pool', 'Gym', 'Concierge', 'Smart Home', 'Parking'],
     featured: true,
     badge: 'For Sale',
@@ -41,6 +42,8 @@ export const MOCK_PROPERTIES: Property[] = [
     currency: 'GBP',
     type: 'apartment',
     status: 'for-sale',
+    listingType: 'sale',
+    availabilityStatus: 'available',
     bedrooms: 3,
     bathrooms: 2,
     area: 180,
@@ -49,7 +52,7 @@ export const MOCK_PROPERTIES: Property[] = [
       'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&q=80',
     ],
     description:
-      'A stunning lateral apartment in the heart of Mayfair, one of London\'s most prestigious neighbourhoods. Original period features with contemporary interiors.',
+      "A stunning lateral apartment in the heart of Mayfair, one of London's most prestigious neighbourhoods. Original period features with contemporary interiors.",
     features: ['24/7 Porter', 'Gym', 'Garden', 'Wine Cellar'],
     featured: false,
     badge: 'For Sale',
@@ -63,6 +66,8 @@ export const MOCK_PROPERTIES: Property[] = [
     currency: 'USD',
     type: 'apartment',
     status: 'for-rent',
+    listingType: 'rent',
+    availabilityStatus: 'available',
     bedrooms: 2,
     bathrooms: 2,
     area: 220,
@@ -85,6 +90,8 @@ export const MOCK_PROPERTIES: Property[] = [
     currency: 'EUR',
     type: 'villa',
     status: 'for-sale',
+    listingType: 'sale',
+    availabilityStatus: 'available',
     bedrooms: 7,
     bathrooms: 8,
     area: 800,
@@ -107,6 +114,8 @@ export const MOCK_PROPERTIES: Property[] = [
     currency: 'USD',
     type: 'apartment',
     status: 'for-rent',
+    listingType: 'rent',
+    availabilityStatus: 'available',
     bedrooms: 3,
     bathrooms: 3,
     area: 260,
@@ -122,13 +131,15 @@ export const MOCK_PROPERTIES: Property[] = [
   },
   {
     _id: 'p6',
-    title: "Paris 8ème Haussmann Apartment",
+    title: 'Paris 8ème Haussmann Apartment',
     location: '8th Arrondissement, Paris',
     city: 'Paris',
     price: 4_600_000,
     currency: 'EUR',
     type: 'apartment',
     status: 'for-sale',
+    listingType: 'sale',
+    availabilityStatus: 'available',
     bedrooms: 4,
     bathrooms: 3,
     area: 240,

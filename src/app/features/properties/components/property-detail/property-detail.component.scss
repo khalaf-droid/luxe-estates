@@ -247,6 +247,39 @@ $red:        #C0392B;
   }
 }
 
+.booking-card {
+  .price-breakdown {
+    margin: 20px 0;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+
+    .breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono, 'Space Mono', monospace);
+      font-size: 13px;
+      color: $mist;
+
+      .total-price {
+        font-size: 16px;
+        color: $gold;
+        font-weight: 700;
+      }
+    }
+  }
+
+  .kyc-gate {
+    text-align: center;
+    p {
+      color: $mist;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+  }
+}
+
 .form-group {
   margin-bottom: 20px;
   label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: $mist; margin-bottom: 8px; }

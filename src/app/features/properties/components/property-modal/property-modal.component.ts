@@ -20,7 +20,7 @@ import { takeUntil } from 'rxjs/operators';
 
 import { Property } from '../../models/property.model';
 import { PropertiesService } from '../../services/properties.service';
-import { PropertyActionsService } from '../../services/property-actions.service';
+import { PropertyActionsService, ViewingRequestPayload } from '../../services/property-actions.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { AuthService } from '../../../../core/auth/auth.service';
 
@@ -65,7 +65,8 @@ export class PropertyModalComponent implements OnInit, OnDestroy {
 
     // ── Reactive forms (Style B inputs per coding-rules.md §3.5) ─────────
     this.viewingForm = this.fb.group({
-      date: ['', Validators.required],
+      preferredDate: ['', Validators.required],
+      preferredTime: ['', [Validators.required, Validators.pattern(/^([01]\d|2[0-3]):([0-5]\d)$/)]],
     });
 
     this.inquiryForm = this.fb.group({
@@ -96,7 +97,7 @@ export class PropertyModalComponent implements OnInit, OnDestroy {
   get formattedPrice(): string {
     return this.propertiesService.formatPrice(
       this.property.price,
-      this.property.currency,
+      this.property.currency ?? 'USD',
       this.property.status
     );
   }
@@ -122,10 +123,14 @@ export class PropertyModalComponent implements OnInit, OnDestroy {
     if (this.viewingForm.invalid || this.isSubmitting) return;
 
     this.isSubmitting = true;
-    const date = this.viewingForm.get('date')!.value as string;
+    const payload: ViewingRequestPayload = {
+      propertyId:    this.property._id,
+      preferredDate: this.viewingForm.get('preferredDate')!.value as string,
+      preferredTime: this.viewingForm.get('preferredTime')!.value as string,
+    };
 
     this.propertyActionsService
-      .scheduleViewing(this.property._id, date)
+      .scheduleViewing(payload)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (success) => {

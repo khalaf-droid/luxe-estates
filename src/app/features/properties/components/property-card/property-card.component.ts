@@ -65,7 +65,7 @@ export class PropertyCardComponent implements OnInit, OnDestroy {
   get formattedPrice(): string {
     return this.propertiesService.formatPrice(
       this.property.price,
-      this.property.currency,
+      this.property.currency ?? 'USD',
       this.property.status
     );
   }

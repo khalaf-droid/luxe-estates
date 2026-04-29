@@ -73,22 +73,40 @@
         <div *ngIf="activeForm === 'viewing'" class="modal-form-section">
           <div class="modal-form-title">Schedule a Viewing</div>
           <form [formGroup]="viewingForm" (ngSubmit)="submitViewing()">
+
+            <!-- Preferred Date -->
             <div class="form-group">
               <label class="form-label" for="viewingDate">Preferred Date</label>
-              <!-- Style B input — coding-rules.md §3.5 -->
               <input
                 id="viewingDate"
                 type="date"
                 class="form-input"
-                formControlName="date"
+                formControlName="preferredDate"
                 [min]="minDate"
-                [class.form-input--error]="viewingForm.get('date')?.invalid && viewingForm.get('date')?.touched" />
+                [class.form-input--error]="viewingForm.get('preferredDate')?.invalid && viewingForm.get('preferredDate')?.touched" />
               <span
-                *ngIf="viewingForm.get('date')?.invalid && viewingForm.get('date')?.touched"
+                *ngIf="viewingForm.get('preferredDate')?.invalid && viewingForm.get('preferredDate')?.touched"
                 class="form-error">
                 Please select a date
               </span>
             </div>
+
+            <!-- Preferred Time -->
+            <div class="form-group">
+              <label class="form-label" for="viewingTime">Preferred Time</label>
+              <input
+                id="viewingTime"
+                type="time"
+                class="form-input"
+                formControlName="preferredTime"
+                [class.form-input--error]="viewingForm.get('preferredTime')?.invalid && viewingForm.get('preferredTime')?.touched" />
+              <span
+                *ngIf="viewingForm.get('preferredTime')?.invalid && viewingForm.get('preferredTime')?.touched"
+                class="form-error">
+                Please select a time
+              </span>
+            </div>
+
             <div class="modal-form-actions">
               <button
                 type="submit"
@@ -107,6 +125,7 @@
             </div>
           </form>
         </div>
+
 
         <!-- ── TASK 06 — Inline Make Inquiry form ─────────────────────── -->
         <div *ngIf="activeForm === 'inquiry'" class="modal-form-section">

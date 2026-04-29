@@ -1,36 +1,57 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { BehaviorSubject, Observable, throwError } from 'rxjs';
-import { catchError, map, switchMap, shareReplay, finalize } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { catchError, map, switchMap, shareReplay, finalize, tap } from 'rxjs/operators';
 
 import { environment } from '../../../../environments/environment';
-import { Property, PropertyFilters } from '../models/property.model';
+import { Property, PropertyFilters, PropertyType, ListingStatus } from '../models/property.model';
 import { NotificationService } from '../../../shared/services/notification.service';
 
+// ── API response shapes ───────────────────────────────────────────────────────
 interface ApiResponse<T> {
-  success: boolean;
-  data: T;
+  status:   string;
+  data:     T;
   message?: string;
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+interface PaginatedPropertiesResponse {
+  properties: any[];
+}
+
+export interface PaginationMeta {
+  total:   number;
+  page:    number;
+  pages:   number;
+  results: number;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+@Injectable({ providedIn: 'root' })
 export class PropertiesService {
-  private http = inject(HttpClient);
+  private http                = inject(HttpClient);
   private notificationService = inject(NotificationService);
-  private readonly base = environment.apiUrl;
+  private readonly base       = environment.apiUrl;
 
   // ── Reactive State ────────────────────────────────────────────────────────
-  private _filters$ = new BehaviorSubject<PropertyFilters>({});
-  readonly filters$ = this._filters$.asObservable();
+  private _filters$    = new BehaviorSubject<PropertyFilters>({});
+  readonly filters$    = this._filters$.asObservable();
 
-  private _loading$ = new BehaviorSubject<boolean>(false);
-  readonly loading$ = this._loading$.asObservable();
+  private _loading$    = new BehaviorSubject<boolean>(false);
+  readonly loading$    = this._loading$.asObservable();
 
-  readonly properties$: Observable<Property[]> = this.filters$.pipe(
+  private _error$      = new BehaviorSubject<string | null>(null);
+  readonly error$      = this._error$.asObservable();
+
+  private _pagination$ = new BehaviorSubject<PaginationMeta | null>(null);
+  readonly pagination$ = this._pagination$.asObservable();
+
+  // Maintain backward compatibility
+  readonly activeFilter$ = new BehaviorSubject<string>('all');
+
+  readonly properties$: Observable<Property[]> = this._filters$.pipe(
     switchMap((filters) => {
       this._loading$.next(true);
+      this._error$.next(null);
       return this.getProperties(filters).pipe(
         finalize(() => this._loading$.next(false))
       );
@@ -38,31 +59,39 @@ export class PropertiesService {
     shareReplay(1)
   );
 
-  // Maintain backward compatibility for existing components
-  readonly activeFilter$ = new BehaviorSubject<string>('all');
   readonly filteredProperties$ = this.properties$;
 
+  // ── Filter control ────────────────────────────────────────────────────────
   setFilters(filters: PropertyFilters): void {
     this._filters$.next(filters);
   }
 
+  getCurrentFilters(): PropertyFilters {
+    return this._filters$.value;
+  }
+
   setFilter(filter: string): void {
     this.activeFilter$.next(filter);
-    
+
     if (filter === 'all') {
       this.setFilters({});
       return;
     }
 
-    const statusMap: Record<string, 'for-sale' | 'for-rent'> = {
+    const statusMap: Record<string, ListingStatus> = {
       'for-sale': 'for-sale',
       'for-rent': 'for-rent',
     };
-    const typeMap: Record<string, 'apartment' | 'villa' | 'penthouse' | 'estate'> = {
-      apartment: 'apartment',
-      villa: 'villa',
-      penthouse: 'penthouse',
-      estate: 'estate',
+
+    const typeMap: Record<string, PropertyType> = {
+      apartment:  'apartment',
+      villa:      'villa',
+      house:      'house',
+      studio:     'studio',
+      office:     'office',
+      shop:       'shop',
+      land:       'land',
+      commercial: 'commercial',
     };
 
     if (statusMap[filter]) {
@@ -72,54 +101,107 @@ export class PropertiesService {
     }
   }
 
+  // ── API calls ─────────────────────────────────────────────────────────────
+
   getProperties(filters?: PropertyFilters): Observable<Property[]> {
     let params = new HttpParams();
-    if (filters?.status)   params = params.set('status',   filters.status);
+
+    // Map frontend status (for-sale/for-rent) → backend listingType (sale/rent)
+    if (filters?.status) {
+      params = params.set('listingType', filters.status === 'for-rent' ? 'rent' : 'sale');
+    }
+
     if (filters?.type)     params = params.set('type',     filters.type);
     if (filters?.city)     params = params.set('city',     filters.city);
     if (filters?.maxPrice) params = params.set('maxPrice', String(filters.maxPrice));
     if (filters?.minPrice) params = params.set('minPrice', String(filters.minPrice));
+    if (filters?.bedrooms) params = params.set('bedrooms', String(filters.bedrooms));
     if (filters?.page)     params = params.set('page',     String(filters.page));
+    if (filters?.limit)    params = params.set('limit',    String(filters.limit));
 
     return this.http
-      .get<ApiResponse<Property[]>>(`${this.base}/properties`, { params })
+      .get<any>(`${this.base}/properties`, { params })
       .pipe(
-        map((res) => res.data),
+        tap((res) => {
+          // Update pagination metadata
+          if (res.total !== undefined) {
+            this._pagination$.next({
+              total:   res.total   ?? 0,
+              page:    res.page    ?? 1,
+              pages:   res.pages   ?? 1,
+              results: res.results ?? 0,
+            });
+          }
+        }),
+        map((res) => {
+          const properties: any[] = res.data?.properties ?? [];
+          return properties.map((p) => this.mapProperty(p));
+        }),
         catchError((err: any) => {
-          this.notificationService.show('Failed to load properties', 'error');
-          return throwError(() => err);
+          const message = err.error?.message ?? 'Failed to load properties. Please try again.';
+          this._error$.next(message);
+          this.notificationService.show(message, 'error');
+          return of([] as Property[]); // Graceful degradation — return empty array, don't crash
         })
       );
   }
 
   getPropertyById(id: string): Observable<Property> {
     return this.http
-      .get<ApiResponse<Property>>(`${this.base}/properties/${id}`)
+      .get<ApiResponse<{ property: any; isFavorited?: boolean }>>(`${this.base}/properties/${id}`)
       .pipe(
-        map((res) => res.data),
-        catchError(err => throwError(() => err))
+        map((res) => {
+          const p = res.data?.property;
+          if (!p) throw new Error('Property not found in response');
+          return this.mapProperty(p);
+        }),
+        catchError((err) => throwError(() => err))
       );
   }
 
   getMyProperties(): Observable<Property[]> {
     return this.http
-      .get<ApiResponse<Property[]>>(`${this.base}/properties?owner=me`)
+      .get<ApiResponse<{ properties: any[] }>>(`${this.base}/properties/my`)
       .pipe(
-        map(res => res.data),
-        catchError(err => throwError(() => err))
+        map((res) => {
+          const properties: any[] = res.data?.properties ?? [];
+          return properties.map((p) => this.mapProperty(p));
+        }),
+        catchError((err) => throwError(() => err))
       );
   }
 
-  formatPrice(
-    price: number,
-    currency: string,
-    status: 'for-sale' | 'for-rent'
-  ): string {
+  // ── Private: normalize every raw API property object ─────────────────────
+  private mapProperty(p: any): Property {
+    const listingType: 'sale' | 'rent' = p.listingType ?? 'sale';
+    return {
+      ...p,
+      listingType,
+      // Derive UI status from listingType
+      status:             listingType === 'rent' ? 'for-rent' as const : 'for-sale' as const,
+      // Flatten nested location object → display string
+      location:           p.location?.city
+                            ? `${p.location.city}${p.location.district ? ', ' + p.location.district : ''}`
+                            : (typeof p.location === 'string' ? p.location : 'Unknown'),
+      city:               p.location?.city ?? p.city ?? 'Unknown',
+      // Preserve backend availability status separately
+      availabilityStatus: p.status,  // 'available' | 'reserved' | 'sold'
+      // Derive badge (backend also sends this as a virtual)
+      badge:              p.badge ?? (listingType === 'rent' ? 'For Rent' : 'For Sale'),
+      // Optional fields — keep whatever backend returns
+      currency:           p.currency,
+      features:           p.features   ?? [],
+      featured:           p.featured   ?? false,
+      avgRating:          p.avgRating,
+      reviewCount:        p.reviewCount,
+      owner:              p.owner,
+    };
+  }
+
+  // ── Price formatting ──────────────────────────────────────────────────────
+  formatPrice(price: number, currency: string, status: 'for-sale' | 'for-rent'): string {
     const symbols: Record<string, string> = {
-      USD: '$',
-      GBP: '£',
-      EUR: '€',
-      AED: 'AED ',
+      USD: '$', GBP: '£', EUR: '€', AED: 'AED ', SAR: 'SAR ', EGP: 'EGP ',
     };
     const symbol = symbols[currency] ?? '$';
 

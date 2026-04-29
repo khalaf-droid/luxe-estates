@@ -7,10 +7,13 @@ import { takeUntil, switchMap, map, catchError, tap } from 'rxjs/operators';
 import { PropertiesService } from '../../services/properties.service';
 import { FavoritesService } from '../../services/favorites.service';
 import { ReviewsService } from '../../services/reviews.service';
-import { PropertyActionsService } from '../../services/property-actions.service';
+import { PropertyActionsService, ViewingRequestPayload } from '../../services/property-actions.service';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { Property } from '../../models/property.model';
+import { BookingsService } from '../../../../features/bookings/bookings.service';
+import { KycService, KYCStatusResponse } from '../../../../core/services/kyc.service';
+import { LoadingService } from '../../../../core/services/loading.service';
 
 @Component({
   selector: 'app-property-detail',
@@ -29,10 +32,14 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
   
   private authService = inject(AuthService);
   private notificationService = inject(NotificationService);
+  private bookingsService = inject(BookingsService);
+  private kycService = inject(KycService);
+  private loadingService = inject(LoadingService);
 
   property$: Observable<Property | null> = of(null);
   reviews$: Observable<any[]> = of([]);
   isFavorited$: Observable<boolean> = of(false);
+  kycStatus$: Observable<KYCStatusResponse | null> = of(null);
   
   isLoading = true;
   error: string | null = null;
@@ -41,13 +48,21 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
   
   viewingForm!: FormGroup;
   inquiryForm!: FormGroup;
+  bookingForm!: FormGroup;
   isSubmittingViewing = false;
   isSubmittingInquiry = false;
+  isSubmittingBooking = false;
 
   private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
     this.buildForms();
+
+    if (this.authService.isAuthenticated()) {
+      this.kycStatus$ = this.kycService.getKYCStatus().pipe(
+        catchError(() => of(null))
+      );
+    }
 
     this.property$ = this.route.paramMap.pipe(
       takeUntil(this.destroy$),
@@ -82,11 +97,17 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
 
   private buildForms(): void {
     this.viewingForm = this.fb.group({
-      date: ['', Validators.required]
+      preferredDate: ['', Validators.required],
+      preferredTime: ['', [Validators.required, Validators.pattern(/^([01]\d|2[0-3]):([0-5]\d)$/)]]
     });
 
     this.inquiryForm = this.fb.group({
       message: ['', [Validators.required, Validators.minLength(10)]]
+    });
+
+    this.bookingForm = this.fb.group({
+      start_date: ['', Validators.required],
+      end_date: ['', Validators.required]
     });
   }
 
@@ -99,6 +120,30 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
 
   get minDate(): string {
     return new Date().toISOString().split('T')[0];
+  }
+
+  get minEndDate(): string {
+    const start = this.bookingForm.get('start_date')?.value;
+    if (!start) return this.minDate;
+    const date = new Date(start);
+    date.setDate(date.getDate() + 1);
+    return date.toISOString().split('T')[0];
+  }
+
+  get nights(): number {
+    const start = this.bookingForm.get('start_date')?.value;
+    const end = this.bookingForm.get('end_date')?.value;
+    if (!start || !end) return 0;
+    
+    const d1 = new Date(start);
+    const d2 = new Date(end);
+    const timeDiff = d2.getTime() - d1.getTime();
+    const days = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    return days > 0 ? days : 0;
+  }
+
+  getBookingTotal(pricePerNight: number): number {
+    return this.nights * pricePerNight;
   }
 
   setActiveImage(index: number): void {
@@ -135,9 +180,14 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
     if (this.viewingForm.invalid || this.isSubmittingViewing) return;
 
     this.isSubmittingViewing = true;
-    const date = this.viewingForm.get('date')?.value;
 
-    this.propertyActionsService.scheduleViewing(propertyId, date).subscribe({
+    const payload: ViewingRequestPayload = {
+      propertyId:    propertyId,
+      preferredDate: this.viewingForm.get('preferredDate')?.value,
+      preferredTime: this.viewingForm.get('preferredTime')?.value,
+    };
+
+    this.propertyActionsService.scheduleViewing(payload).subscribe({
       next: (success) => {
         this.isSubmittingViewing = false;
         if (success) {
@@ -179,6 +229,59 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
       error: (err) => {
         this.isSubmittingInquiry = false;
         this.notificationService.show(err.error?.message || 'An error occurred. Please try again.', 'error');
+      }
+    });
+  }
+
+  onBookProperty(property: Property, kycStatus: KYCStatusResponse | null): void {
+    if (!this.authService.isAuthenticated()) {
+      this.authService.openModal('login');
+      this.notificationService.show('Sign in to book this property', 'info');
+      return;
+    }
+
+    if (this.authService.currentUser?.role !== 'buyer') {
+      this.notificationService.show('Only buyers can book properties.', 'error');
+      return;
+    }
+
+    if (kycStatus?.status !== 'approved') {
+      this.router.navigate(['/kyc']);
+      this.notificationService.show('Please verify your identity to book properties', 'error');
+      return;
+    }
+
+    if (this.bookingForm.invalid || this.isSubmittingBooking) return;
+
+    const start = new Date(this.bookingForm.get('start_date')?.value);
+    const end = new Date(this.bookingForm.get('end_date')?.value);
+    
+    if (start >= end) {
+      this.notificationService.show('Check-out date must be after check-in date.', 'error');
+      return;
+    }
+
+    this.isSubmittingBooking = true;
+    this.loadingService.show();
+    
+    const req = {
+      propertyId: property._id,
+      start_date: this.bookingForm.get('start_date')?.value,
+      end_date: this.bookingForm.get('end_date')?.value,
+      amount: this.getBookingTotal(property.price)
+    };
+
+    this.bookingsService.createBooking(req).subscribe({
+      next: () => {
+        this.isSubmittingBooking = false;
+        this.loadingService.hide();
+        this.notificationService.show('Booking request sent! Awaiting owner approval.', 'success');
+        this.bookingForm.reset();
+      },
+      error: (err) => {
+        this.isSubmittingBooking = false;
+        this.loadingService.hide();
+        this.notificationService.show(err.error?.message || 'Failed to submit booking', 'error');
       }
     });
   }

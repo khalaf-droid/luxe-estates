@@ -1,30 +1,24 @@
 <!-- ─────────────────────────────────────────────────────────────────────────
   LUXE ESTATES — Properties Page
-  Visual reference: Template/index.html lines 1526–1553
-  Classes: .properties-section, .properties-header, .properties-tabs,
-           .prop-tab, .section-eyebrow, .section-title, .properties-grid
+  Production-ready: loading / error / empty / pagination states
 ───────────────────────────────────────────────────────────────────────────── -->
 
 <section class="properties-section" #sectionRef>
 
-  <!-- ── Section header — Template lines 1527–1534 ─────────────────────── -->
+  <!-- ── Section header ──────────────────────────────────────────────────── -->
   <div class="properties-header reveal">
     <div>
-      <!-- Eyebrow — Template line 1529: .section-eyebrow -->
       <div class="section-eyebrow">Curated Selection</div>
-      <!-- Title — Template line 1530: .section-title with <em> italic gold -->
       <h2 class="section-title">Featured <em>Properties</em></h2>
     </div>
     <div>
-      <!-- Sub-text — Template line 1533 -->
       <p class="section-sub">
         Every listing is personally vetted by our expert team of global property consultants.
       </p>
     </div>
   </div>
 
-  <!-- ── Filter tabs — Template lines 1537–1544 ────────────────────────── -->
-  <!-- .properties-tabs with .prop-tab, active state: gold border + gold text -->
+  <!-- ── Filter tabs ─────────────────────────────────────────────────────── -->
   <div class="properties-tabs reveal">
     <button
       *ngFor="let tab of filterTabs"
@@ -36,31 +30,68 @@
     </button>
   </div>
 
-  <!-- ── Loading state ──────────────────────────────────────────────────── -->
+  <!-- ── Loading state ───────────────────────────────────────────────────── -->
   <div *ngIf="isLoading$ | async" class="properties-loading">
     <div class="loading-bar"></div>
   </div>
 
-  <!-- ── Properties grid — Template lines 1546–1548 ────────────────────── -->
-  <!-- repeat(3, 1fr), gap: 2px, first card spans 2 cols at 16:9 -->
-  <div *ngIf="(isLoading$ | async) === false" class="properties-grid">
-    <app-property-card
-      *ngFor="let prop of properties$ | async; let i = index; trackBy: trackById"
-      [property]="prop"
-      [isFirst]="i === 0"
-      (viewDetails)="onViewDetails($event)"
-      (favoriteToggled)="onFavoriteToggled($event)">
-    </app-property-card>
+  <!-- ── Error state ─────────────────────────────────────────────────────── -->
+  <div *ngIf="(error$ | async) as err" class="properties-error reveal">
+    <div class="error-card">
+      <span class="error-icon">⚠</span>
+      <p class="error-message">{{ err }}</p>
+      <button class="btn-secondary" (click)="retryLoad()" data-cursor-hover>
+        Try Again
+      </button>
+    </div>
   </div>
 
-  <!-- Empty state — OUTSIDE the grid so it's not a grid item ──────────── -->
-  <ng-container *ngIf="properties$ | async as props">
-    <div *ngIf="(isLoading$ | async) === false && props.length === 0" class="properties-empty reveal">
+  <!-- ── Properties grid ─────────────────────────────────────────────────── -->
+  <ng-container *ngIf="(isLoading$ | async) === false && (error$ | async) === null">
+    <div *ngIf="(properties$ | async)?.length" class="properties-grid">
+      <app-property-card
+        *ngFor="let prop of properties$ | async; let i = index; trackBy: trackById"
+        [property]="prop"
+        [isFirst]="i === 0"
+        (viewDetails)="onViewDetails($event)"
+        (favoriteToggled)="onFavoriteToggled($event)">
+      </app-property-card>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="!(properties$ | async)?.length" class="properties-empty reveal">
       <p class="properties-empty-text">No properties match this filter.</p>
+      <button class="btn-secondary" (click)="onViewAll()" data-cursor-hover>
+        View All Properties
+      </button>
+    </div>
+
+    <!-- ── Pagination ─────────────────────────────────────────────────────── -->
+    <div *ngIf="totalPages > 1" class="properties-pagination reveal">
+      <button
+        class="pagination-btn"
+        [disabled]="currentPage <= 1"
+        (click)="onPageChange(currentPage - 1)"
+        data-cursor-hover>
+        ← Prev
+      </button>
+
+      <span class="pagination-info">
+        Page {{ currentPage }} of {{ totalPages }}
+        <span class="pagination-total">({{ totalResults }} properties)</span>
+      </span>
+
+      <button
+        class="pagination-btn"
+        [disabled]="currentPage >= totalPages"
+        (click)="onPageChange(currentPage + 1)"
+        data-cursor-hover>
+        Next →
+      </button>
     </div>
   </ng-container>
 
-  <!-- ── View All button — Template line 1550–1552 ──────────────────────── -->
+  <!-- ── View All button ─────────────────────────────────────────────────── -->
   <div class="properties-footer reveal">
     <button class="btn-secondary" (click)="onViewAll()" data-cursor-hover>
       View All Properties →
@@ -69,8 +100,7 @@
 
 </section>
 
-<!-- ── Property Modal — Task 04 ──────────────────────────────────────────── -->
-<!-- *ngIf: present in DOM only when a property is selected (opens modal) -->
+<!-- ── Property Modal ──────────────────────────────────────────────────────── -->
 <app-property-modal
   *ngIf="selectedProperty"
   [property]="selectedProperty"
