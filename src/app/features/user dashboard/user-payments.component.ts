@@ -21,7 +21,7 @@ export class UserPaymentsComponent implements OnInit {
 
   get total(): number {
     return this.payments
-      .filter((p) => p.status === 'completed')
-      .reduce((sum, p) => sum + (p.amount || 0), 0);
+      .filter((p) => p.status === 'paid')
+      .reduce((sum, p) => sum + (p.amount || p.totalAmount || 0), 0);
   }
 }

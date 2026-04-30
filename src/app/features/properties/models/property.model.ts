@@ -70,6 +70,8 @@ export interface Property {
 // Filter shape — maps to backend query params
 // ─────────────────────────────────────────────────────────────────────────────
 export interface PropertyFilters {
+  /** Map to full text search */
+  search?: string;
   /** Maps to backend ?listingType=sale|rent */
   status?: ListingStatus;
   type?: PropertyType;
@@ -79,5 +81,7 @@ export interface PropertyFilters {
   bedrooms?: number;
   page?: number;
   limit?: number;
+  /** Map to cursor pagination */
+  cursor?: string;
 }
 

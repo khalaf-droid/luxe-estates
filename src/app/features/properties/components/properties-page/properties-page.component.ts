@@ -54,7 +54,7 @@ export class PropertiesPageComponent implements OnInit {
     // Sync filters from URL query parameters
     this.route.queryParams
       .pipe(
-        debounceTime(50),
+        debounceTime(200),
         map((params) => this.mapToFilters(params)),
         distinctUntilChanged((a, b) => this.isEqual(a, b)),
         takeUntilDestroyed(this.destroyRef)
@@ -80,19 +80,21 @@ export class PropertiesPageComponent implements OnInit {
     if (Object.keys(params).length === 0) return {};
 
     return {
-      city:     params['location'] || params['city'],
+      search:   params['search']   || undefined,
+      city:     params['location'] || params['city'] || undefined,
       type:     params['type']     as PropertyType | undefined,
       status:   params['listingType'] === 'rent' ? 'for-rent' :
                 params['listingType'] === 'sale' ? 'for-sale' : undefined,
       minPrice: params['minPrice'] ? Number(params['minPrice']) : undefined,
       maxPrice: params['maxPrice'] ? Number(params['maxPrice']) : undefined,
       page:     params['page']     ? Number(params['page'])     : 1,
+      cursor:   params['cursor']   || undefined,
     };
   }
 
   private isEqual(a: PropertyFilters, b: PropertyFilters): boolean {
-    const keysA = Object.keys(a);
-    const keysB = Object.keys(b);
+    const keysA = Object.keys(a).filter(k => (a as any)[k] !== undefined);
+    const keysB = Object.keys(b).filter(k => (b as any)[k] !== undefined);
     return (
       keysA.length === keysB.length &&
       keysA.every((key) => (a as any)[key] === (b as any)[key])

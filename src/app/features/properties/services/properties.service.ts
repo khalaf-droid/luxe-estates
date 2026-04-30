@@ -23,6 +23,7 @@ export interface PaginationMeta {
   page:    number;
   pages:   number;
   results: number;
+  nextCursor?: string;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -111,13 +112,21 @@ export class PropertiesService {
       params = params.set('listingType', filters.status === 'for-rent' ? 'rent' : 'sale');
     }
 
+    if (filters?.search) {
+      params = params.set('search', filters.search);
+      // Strictly prevent conflict: do not send city if we are doing a full-text search
+      params = params.delete('city');
+    } else if (filters?.city) {
+      params = params.set('city', filters.city);
+    }
+
     if (filters?.type)     params = params.set('type',     filters.type);
-    if (filters?.city)     params = params.set('city',     filters.city);
     if (filters?.maxPrice) params = params.set('maxPrice', String(filters.maxPrice));
     if (filters?.minPrice) params = params.set('minPrice', String(filters.minPrice));
     if (filters?.bedrooms) params = params.set('bedrooms', String(filters.bedrooms));
     if (filters?.page)     params = params.set('page',     String(filters.page));
     if (filters?.limit)    params = params.set('limit',    String(filters.limit));
+    if (filters?.cursor)   params = params.set('cursor',   filters.cursor);
 
     return this.http
       .get<any>(`${this.base}/properties`, { params })
@@ -130,6 +139,7 @@ export class PropertiesService {
               page:    res.page    ?? 1,
               pages:   res.pages   ?? 1,
               results: res.results ?? 0,
+              nextCursor: res.nextCursor,
             });
           }
         }),

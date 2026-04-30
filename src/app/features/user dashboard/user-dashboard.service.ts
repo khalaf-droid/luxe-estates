@@ -120,4 +120,14 @@ export class UserDashboardService {
       catchError(this.handleError('Failed to load payments'))
     );
   }
+
+  initiatePayment(bookingId: string): Observable<any> {
+    return this.http.post<ApiResponse<any>>(`${this.base}/payments/checkout`, {
+      bookingId,
+      paymentMethod: 'paymob' // Default for now
+    }).pipe(
+      map((res) => res.data),
+      catchError(this.handleError('Failed to initiate payment'))
+    );
+  }
 }

@@ -29,6 +29,20 @@ export class UserBookingsComponent implements OnInit {
       : this.bookings.filter((b) => b.status === this.filter);
   }
 
+  pay(booking: any): void {
+    if (!booking?._id) return;
+    this.userService.initiatePayment(booking._id).subscribe({
+      next: (res) => {
+        if (res.paymentUrl) {
+          window.location.href = res.paymentUrl;
+        } else {
+          this.load();
+        }
+      },
+      error: () => {}
+    });
+  }
+
   cancel(booking: any): void {
     if (!booking?._id) return;
     this.activeId = booking._id;
