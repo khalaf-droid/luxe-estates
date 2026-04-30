@@ -1,0 +1,49 @@
+<div>
+  <div class="dash-eyebrow">Account</div>
+  <h1 class="dash-title">My Profile</h1>
+  <p class="dash-sub">Update your personal information and account details.</p>
+
+  <div *ngIf="isLoading" class="loading-state">Loading profile...</div>
+
+  <div *ngIf="!isLoading && user" class="profile-layout">
+    <div class="dash-panel profile-card">
+      <div class="profile-avatar">
+        <div class="avatar-lg">{{ initials }}</div>
+        <div>
+          <p class="profile-name">{{ user.name }}</p>
+          <span class="badge {{ user.role }}">{{ user.role | titlecase }}</span>
+          <p class="profile-since">Member since {{ user.createdAt | date:'MMMM y' }}</p>
+        </div>
+      </div>
+      <div class="profile-meta">
+        <div class="meta-row">
+          <span class="meta-label">Email</span>
+          <span>{{ user.email }}</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">Verified</span>
+          <span class="badge {{ user.isVerified ? 'approved' : 'pending' }}">
+            {{ user.isVerified ? 'Verified' : 'Pending' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-panel">
+      <h2>Edit Information</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" [(ngModel)]="form.name" placeholder="Your full name" />
+        </div>
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="tel" [(ngModel)]="form.phone" placeholder="+1 555 000 0000" />
+        </div>
+      </div>
+      <button class="btn primary" [disabled]="isSaving" (click)="save()">
+        {{ isSaving ? 'Saving...' : 'Save Changes' }}
+      </button>
+    </div>
+  </div>
+</div>

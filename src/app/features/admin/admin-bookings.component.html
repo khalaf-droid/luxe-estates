@@ -1,0 +1,52 @@
+<section class="admin-panel-card">
+  <h2>Bookings</h2>
+  <p>Review recent bookings and manage open booking requests.</p>
+
+  <div class="table-actions">
+    <label>
+      Filter:
+      <select [(ngModel)]="bookingFilter">
+        <option value="all">All</option>
+        <option value="pending">Pending</option>
+        <option value="approved">Approved</option>
+        <option value="rejected">Rejected</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Property</th>
+          <th>User</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let booking of filteredBookings">
+          <td>{{ booking.property_id?.title || booking.property?.title || booking.property?.name || 'N/A' }}</td>
+          <td>{{ booking.user_id?.name || booking.user_id?.email || booking.user?.name || booking.user?.email || 'N/A' }}</td>
+          <td>{{ booking.createdAt | date:'mediumDate' }}</td>
+          <td>{{ booking.status | uppercase }}</td>
+          <td>
+            <button
+              class="action-btn"
+              [disabled]="activeBookingId === booking._id || booking.status === 'approved'"
+              (click)="changeBookingStatus(booking, 'approved')">
+              Approve
+            </button>
+            <button
+              class="action-btn reject"
+              [disabled]="activeBookingId === booking._id || booking.status === 'rejected'"
+              (click)="changeBookingStatus(booking, 'rejected')">
+              Reject
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>

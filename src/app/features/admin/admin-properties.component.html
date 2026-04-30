@@ -1,0 +1,46 @@
+<section class="admin-panel-card">
+  <h2>Properties</h2>
+  <p>Review property listings and manage their approval status.</p>
+
+  <div class="table-actions">
+    <div *ngIf="isLoading" class="loading-label">Loading properties...</div>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Location</th>
+          <th>Price</th>
+          <th>Status</th>
+          <th>Approval</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let property of properties">
+          <td>{{ property.title }}</td>
+          <td>{{ property.city || property.location || 'N/A' }}</td>
+          <td>{{ property.price | currency:property.currency:'symbol' }}</td>
+          <td>{{ property.status | uppercase }}</td>
+          <td>{{ getApprovalStatus(property) | uppercase }}</td>
+          <td>
+            <button
+              class="action-btn"
+              [disabled]="activePropertyId === property._id"
+              (click)="updateApproval(property, 'approve')">
+              Approve
+            </button>
+            <button
+              class="action-btn reject"
+              [disabled]="activePropertyId === property._id"
+              (click)="updateApproval(property, 'reject')">
+              Reject
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>

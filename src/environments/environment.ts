@@ -6,6 +6,6 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3000/api/v1',
+  apiUrl: 'http://localhost:5000/api/v1',
   googleClientId: 'your_google_client_id_here'
 };

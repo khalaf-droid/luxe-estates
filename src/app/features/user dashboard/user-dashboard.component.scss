@@ -1,0 +1,537 @@
+@import '../../../styles/variables';
+
+// ============================================================
+// LUXE ESTATES — User Dashboard Shell Styles
+// Senior Fullstack Polished Version
+// ============================================================
+
+.user-shell {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: 100vh;
+  background: var(--obsidian);
+  color: var(--white);
+  overflow: hidden;
+
+  @media (max-width: $bp-tablet) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ─── Sidebar ─────────────────────────────────────────────────────────────────
+
+.user-sidebar {
+  @include glass-bg(0.98);
+  @include gold-border('right');
+  padding: 2.5rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  z-index: var(--z-nav);
+  transition: var(--transition-slow);
+
+  @media (max-width: $bp-tablet) {
+    display: none; // Hidden on mobile for now, can be toggled
+  }
+}
+
+.brand {
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  
+  span:first-child {
+    font-family: var(--font-display);
+    color: var(--gold);
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-shadow: 0 0 20px rgba(201, 169, 110, 0.2);
+  }
+
+  span:last-child {
+    font-family: var(--font-mono);
+    color: var(--mist);
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+  }
+}
+
+.user-avatar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: rgba(201, 169, 110, 0.04);
+  border-radius: 20px;
+  border: 1px solid rgba(201, 169, 110, 0.1);
+  transition: var(--transition-base);
+
+  &:hover {
+    background: rgba(201, 169, 110, 0.08);
+    border-color: rgba(201, 169, 110, 0.2);
+  }
+}
+
+.avatar-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--obsidian);
+  font-weight: 700;
+  box-shadow: 0 4px 15px rgba(139, 105, 20, 0.3);
+}
+
+.avatar-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.avatar-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--white);
+  letter-spacing: 0.5px;
+}
+
+.avatar-role {
+  font-size: 0.65rem;
+  color: var(--gold);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+// ─── Navigation ──────────────────────────────────────────────────────────────
+
+.user-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+
+  a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: rgba(250, 250, 248, 0.5);
+    padding: 0.85rem 1.25rem;
+    border-radius: 14px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: var(--transition-base);
+    position: relative;
+    overflow: hidden;
+
+    svg {
+      transition: var(--transition-base);
+      opacity: 0.6;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 20%;
+      height: 60%;
+      width: 2px;
+      background: var(--gold);
+      transform: scaleY(0);
+      transition: var(--transition-base);
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--white);
+      
+      svg { opacity: 1; color: var(--gold); }
+    }
+
+    &.active {
+      background: rgba(201, 169, 110, 0.08);
+      color: var(--gold);
+      font-weight: 600;
+
+      svg { opacity: 1; color: var(--gold); }
+      &::after { transform: scaleY(1); }
+    }
+  }
+}
+
+.back-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--mist);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 1rem 0;
+  transition: var(--transition-base);
+
+  &:hover {
+    color: var(--white);
+    transform: translateX(-4px);
+  }
+}
+
+// ─── Main Content Area ───────────────────────────────────────────────────────
+
+.user-content {
+  padding: 3rem 4rem;
+  background: linear-gradient(135deg, var(--obsidian), var(--obsidian-2));
+  height: 100vh;
+  overflow-y: auto;
+  position: relative;
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-thumb { background: rgba(201, 169, 110, 0.2); }
+
+  @media (max-width: $bp-tablet) {
+    padding: 2rem;
+  }
+}
+
+// ─── Shared Component Elements (Profile, Stats, etc.) ───────────────────────
+
+.dash-header {
+  margin-bottom: 3rem;
+  animation: slideInUp 0.6s var(--transition);
+}
+
+.dash-eyebrow {
+  @include eyebrow;
+  margin-bottom: 1rem;
+}
+
+.dash-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 5vw, 3.5rem);
+  color: var(--white);
+  line-height: 1;
+  margin: 0;
+  background: linear-gradient(to right, var(--white), var(--mist));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.dash-sub {
+  color: var(--mist);
+  font-size: 1rem;
+  max-width: 600px;
+  margin-top: 1rem;
+}
+
+// ─── Statistics Grid ─────────────────────────────────────────────────────────
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+  animation: slideInUp 0.8s var(--transition) 0.1s both;
+}
+
+.stat-card {
+  background: var(--obsidian-3);
+  padding: 2rem;
+  border-radius: 24px;
+  @include gold-border;
+  transition: var(--transition-bounce);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 100px; height: 100px;
+    background: radial-gradient(circle at top right, rgba(201, 169, 110, 0.05), transparent);
+  }
+
+  &:hover {
+    transform: translateY(-8px);
+    border-color: rgba(201, 169, 110, 0.4);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  }
+
+  .stat-label {
+    display: block;
+    color: var(--gold);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .stat-value {
+    display: block;
+    font-size: 2.2rem;
+    color: var(--white);
+    font-family: var(--font-display);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-note {
+    color: var(--mist);
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+}
+
+// ─── Panels & Data Tables ────────────────────────────────────────────────────
+
+.dash-panel {
+  background: var(--obsidian-2);
+  border-radius: 30px;
+  padding: 2.5rem;
+  @include gold-border;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  animation: slideInUp 1s var(--transition) 0.2s both;
+
+  h2 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--white);
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    &::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, rgba(201, 169, 110, 0.2), transparent);
+    }
+  }
+}
+
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px;
+    
+    th {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--mist);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      padding: 1rem;
+      text-align: left;
+    }
+
+    td {
+      padding: 1.25rem 1rem;
+      background: rgba(255, 255, 255, 0.02);
+      border-top: 1px solid rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+      transition: var(--transition-base);
+
+      &:first-child { border-left: 1px solid rgba(255, 255, 255, 0.02); border-radius: 12px 0 0 12px; }
+      &:last-child { border-right: 1px solid rgba(255, 255, 255, 0.02); border-radius: 0 12px 12px 0; }
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(201, 169, 110, 0.15);
+      color: var(--gold-light);
+    }
+  }
+}
+
+// ─── UI Components (Badges, Buttons) ─────────────────────────────────────────
+
+.badge {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: 600;
+
+  &.pending   { background: rgba(201, 169, 110, 0.1); color: var(--gold); border: 1px solid rgba(201, 169, 110, 0.2); }
+  &.approved  { background: rgba(39, 174, 96, 0.1); color: var(--emerald); border: 1px solid rgba(39, 174, 96, 0.2); }
+  &.rejected  { background: rgba(192, 57, 43, 0.1); color: var(--crimson); border: 1px solid rgba(192, 57, 43, 0.2); }
+}
+
+.btn {
+  padding: 0.8rem 1.75rem;
+  border-radius: 12px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: var(--transition-bounce);
+  border: none;
+  font-weight: 600;
+
+  &.primary {
+    background: var(--gold);
+    color: var(--obsidian);
+    box-shadow: 0 8px 20px rgba(139, 105, 20, 0.2);
+    
+    &:hover {
+      background: var(--gold-light);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 25px rgba(139, 105, 20, 0.3);
+    }
+  }
+
+  &.ghost {
+    background: transparent;
+    color: var(--white);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--white);
+    }
+  }
+}
+
+// ─── Profile & Forms ─────────────────────────────────────────────────────────
+
+.profile-layout {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 2rem;
+
+  @media (max-width: $bp-desktop) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-group {
+  margin-bottom: 2rem;
+
+  label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--gold);
+    margin-bottom: 0.75rem;
+    letter-spacing: 2px;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(201, 169, 110, 0.15);
+    border-radius: 14px;
+    padding: 1rem 1.25rem;
+    color: var(--white);
+    font-family: var(--font-body);
+    transition: var(--transition-base);
+
+    &:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--gold);
+      box-shadow: 0 0 0 4px rgba(201, 169, 110, 0.1);
+    }
+  }
+}
+
+// ─── Animations ──────────────────────────────────────────────────────────────
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+// ─── Loading & Error States ──────────────────────────────────────────────────
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03), transparent);
+    animation: skeleton-wave 1.5s infinite;
+  }
+}
+
+@keyframes skeleton-wave {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.skeleton-line {
+  height: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.error-panel {
+  text-align: center;
+  padding: 4rem 2rem;
+  margin-bottom: 3rem;
+  
+  .error-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    
+    svg {
+      color: var(--crimson, #ff4d4d);
+      opacity: 0.8;
+    }
+    
+    h3 {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      color: var(--white);
+      margin: 0;
+    }
+    
+    p {
+      color: var(--mist);
+      max-width: 400px;
+      line-height: 1.6;
+    }
+  }
+}
+
+.btn-retry {
+  @extend .btn;
+  background: var(--gold);
+  color: var(--obsidian);
+  margin-top: 1rem;
+  box-shadow: 0 8px 20px rgba(139, 105, 20, 0.2);
+  
+  &:hover {
+    background: var(--gold-light);
+    transform: translateY(-2px);
+  }
+}
