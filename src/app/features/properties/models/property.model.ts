@@ -1,36 +1,87 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // LUXE ESTATES — Property Model
-// Source of truth: Template/index.html — mockProperties array (lines 1887–1894)
+// Aligned with: Real-Estate-Backend-/src/models/property.model.js
 // ─────────────────────────────────────────────────────────────────────────────
+
+/** Property types — must match backend enum exactly */
+export type PropertyType =
+  | 'apartment'
+  | 'villa'
+  | 'house'
+  | 'studio'
+  | 'office'
+  | 'shop'
+  | 'land'
+  | 'commercial';
+
+/** listingType — native backend field (sale | rent) */
+export type ListingType = 'sale' | 'rent';
+
+/**
+ * status in the UI sense (for-sale / for-rent) — derived from listingType.
+ * @deprecated Use listingType for all API calls; this is a UI display helper only.
+ */
+export type ListingStatus = 'for-sale' | 'for-rent';
+
+/** Availability status — the backend `status` field (available / reserved / sold) */
+export type AvailabilityStatus = 'available' | 'reserved' | 'sold';
 
 export interface Property {
   _id: string;
   title: string;
-  location: string;       // city display name  e.g. "Dubai", "London"
-  city: string;           // filter key          e.g. "Dubai", "New York"
+  /** Flat display string (e.g. "Dubai Marina, UAE") — derived from location.city in the service */
+  location: string;
+  /** Filter key — same as location.city from backend */
+  city: string;
   price: number;
-  currency: string;       // e.g. 'USD'
-  type: 'apartment' | 'villa' | 'penthouse' | 'estate';
-  status: 'for-sale' | 'for-rent';
+  /** e.g. 'USD' | 'GBP' | 'EUR' | 'AED' — may be undefined for legacy records */
+  currency?: string;
+  type: PropertyType;
+  /** UI-only derived field: 'for-sale' | 'for-rent' — mapped from listingType in service */
+  status: ListingStatus;
+  /** Native backend field */
+  listingType: ListingType;
+  /** Availability: 'available' | 'reserved' | 'sold' */
+  availabilityStatus?: AvailabilityStatus;
   bedrooms: number;
   bathrooms: number;
-  area: number;           // m²
+  /** m² */
+  area: number;
   images: string[];
   description: string;
-  features: string[];     // e.g. ['Pool', 'Gym', 'Concierge']
-  featured: boolean;
-  badge: string;          // e.g. 'For Sale', 'For Rent', 'New', 'Featured'
+  /** e.g. ['Pool', 'Gym', 'Concierge'] — may be undefined for legacy records */
+  features?: string[];
+  featured?: boolean;
+  /** e.g. 'For Sale', 'For Rent', 'New', 'Featured' — derived in service */
+  badge?: string;
+  avgRating?: number;
+  reviewCount?: number;
+  owner?: {
+    _id: string;
+    name: string;
+    email: string;
+    phone?: string;
+    photo?: string;
+    bio?: string;
+  };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Filter shape — matches Template filter tabs:
-// ALL | FOR SALE | FOR RENT | APARTMENTS | VILLAS | PENTHOUSES
+// Filter shape — maps to backend query params
 // ─────────────────────────────────────────────────────────────────────────────
 export interface PropertyFilters {
-  status?: 'for-sale' | 'for-rent';
-  type?: 'apartment' | 'villa' | 'penthouse' | 'estate';
+  /** Map to full text search */
+  search?: string;
+  /** Maps to backend ?listingType=sale|rent */
+  status?: ListingStatus;
+  type?: PropertyType;
   city?: string;
   maxPrice?: number;
   minPrice?: number;
+  bedrooms?: number;
   page?: number;
+  limit?: number;
+  /** Map to cursor pagination */
+  cursor?: string;
 }
+

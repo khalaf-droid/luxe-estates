@@ -44,7 +44,7 @@
         <div class="info-header">
           <h1 class="property-title">{{ property.title }}</h1>
           <p class="property-location"><i class="icon-map-pin"></i> {{ property.location }}</p>
-          <div class="property-price">{{ formatPrice(property.price, property.currency, property.status) }}</div>
+          <div class="property-price">{{ formatPrice(property.price, property.currency || 'USD', property.status) }}</div>
         </div>
 
         <div class="stats-row">
@@ -70,8 +70,8 @@
           <p class="description-text">{{ property.description }}</p>
         </div>
 
-        <div class="features-box">
-          <h3 class="section-title">Features & Amenities</h3>
+        <div class="features-box" *ngIf="property.features && property.features.length > 0">
+          <h3 class="section-title">Features &amp; Amenities</h3>
           <div class="features-grid">
             <span *ngFor="let feature of property.features" class="feature-chip">{{ feature }}</span>
           </div>
@@ -105,13 +105,69 @@
     <!-- Right Column: Actions Sidebar -->
     <aside class="sidebar">
       <div class="sticky-sidebar">
+        <!-- Booking Card (Rentals Only) -->
+        <div *ngIf="property.listingType === 'rent'" class="action-card booking-card">
+          <h3 class="card-title">Book This Property</h3>
+          
+          <ng-container *ngIf="(kycStatus$ | async) as kyc; else kycCheck">
+            <div *ngIf="kyc.status === 'approved'; else verifyIdentity">
+              <form [formGroup]="bookingForm" (ngSubmit)="onBookProperty(property, kyc)">
+                <div class="form-group">
+                  <label for="booking-start">Check-in</label>
+                  <input type="date" id="booking-start" formControlName="start_date" [min]="minDate" class="luxury-input">
+                </div>
+                <div class="form-group">
+                  <label for="booking-end">Check-out</label>
+                  <input type="date" id="booking-end" formControlName="end_date" [min]="minEndDate" class="luxury-input">
+                </div>
+
+                <div class="price-breakdown" *ngIf="nights > 0">
+                  <div class="breakdown-row">
+                    <span>{{ property.price | currency:property.currency:'symbol':'1.0-0' }} x {{ nights }} nights</span>
+                    <span class="total-price">{{ getBookingTotal(property.price) | currency:property.currency:'symbol':'1.0-0' }}</span>
+                  </div>
+                </div>
+
+                <button type="submit" class="btn-gold full-width" [disabled]="bookingForm.invalid || isSubmittingBooking">
+                  <span *ngIf="!isSubmittingBooking">Request to Book</span>
+                  <div *ngIf="isSubmittingBooking" class="spinner dark"></div>
+                </button>
+              </form>
+            </div>
+            
+            <ng-template #verifyIdentity>
+              <div class="kyc-gate">
+                <p>Identity verification is required before booking luxury properties.</p>
+                <button class="btn-primary full-width" routerLink="/kyc">Verify Identity</button>
+              </div>
+            </ng-template>
+          </ng-container>
+
+          <ng-template #kycCheck>
+            <div class="kyc-gate">
+              <p>Sign in to securely book this property.</p>
+              <button class="btn-primary full-width" (click)="onBookProperty(property, null)">Sign In</button>
+            </div>
+          </ng-template>
+        </div>
+
         <!-- Viewing Card -->
         <div class="action-card">
           <h3 class="card-title">Schedule a Viewing</h3>
           <form [formGroup]="viewingForm" (ngSubmit)="onScheduleViewing(property._id)">
             <div class="form-group">
               <label for="viewing-date">Preferred Date</label>
-              <input type="date" id="viewing-date" formControlName="date" [min]="minDate" class="luxury-input">
+              <input type="date" id="viewing-date" formControlName="preferredDate" [min]="minDate" class="luxury-input">
+              <div *ngIf="viewingForm.get('preferredDate')?.touched && viewingForm.get('preferredDate')?.errors?.['required']" class="error-text">
+                Please select a date.
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="viewing-time">Preferred Time</label>
+              <input type="time" id="viewing-time" formControlName="preferredTime" class="luxury-input">
+              <div *ngIf="viewingForm.get('preferredTime')?.touched && viewingForm.get('preferredTime')?.errors?.['required']" class="error-text">
+                Please select a time.
+              </div>
             </div>
             <button type="submit" class="btn-primary full-width" [disabled]="viewingForm.invalid || isSubmittingViewing">
               <span *ngIf="!isSubmittingViewing">Request Viewing</span>

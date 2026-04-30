@@ -3,7 +3,8 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 
 export interface SearchPayload {
-  location?: string;
+  search?: string;
+  city?: string;
   type?: string;
   listingType?: string;
   minPrice?: number;
@@ -38,7 +39,7 @@ export class SearchBarComponent {
 
   constructor() {
     this.searchForm = this.fb.group({
-      location: [''],
+      searchQuery: [''],
       propertyType: ['All Types'],
       listingType: ['For Sale'],
       budget: ['Any Budget'],
@@ -62,10 +63,14 @@ export class SearchBarComponent {
   }
 
   onExplore(): void {
-    const { location, propertyType, listingType, budget } = this.searchForm.value;
+    const { searchQuery, propertyType, listingType, budget } = this.searchForm.value;
+    
+    const input = (searchQuery || '').trim();
+    const isAdvancedSearch = input.includes(' ') || input.length > 10;
     
     const payload: SearchPayload = {
-      location: location || undefined,
+      search: isAdvancedSearch && input ? input : undefined,
+      city: !isAdvancedSearch && input ? input : undefined,
       type: propertyType === 'All Types' ? undefined : propertyType.toLowerCase(),
       listingType: listingType === 'For Sale' ? 'for-sale' : 'for-rent',
       ...this.budgetToRange(budget)

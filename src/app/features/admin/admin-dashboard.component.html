@@ -1,0 +1,77 @@
+<section class="admin-dashboard">
+  <div class="admin-dashboard__container">
+    <header class="dashboard-hero reveal visible">
+      <div class="dashboard-hero__copy">
+        <div class="section-eyebrow">Admin Overview</div>
+        <h1 class="section-title">Luxe <em>Operations</em></h1>
+        <p>
+          A focused control room for platform health, premium listing review, user access, and booking operations.
+        </p>
+      </div>
+
+      <div class="dashboard-hero__actions">
+        <a routerLink="/admin/properties" class="btn btn-secondary" data-cursor-hover>
+          Review Listings
+        </a>
+        <a routerLink="/admin/bookings" class="btn btn-primary" data-cursor-hover>
+          Open Bookings
+        </a>
+      </div>
+    </header>
+
+    <ng-container *ngIf="vm$ | async as vm">
+      <div class="metrics-strip reveal visible reveal-delay-1">
+        <article class="metric-card" *ngFor="let metric of vm.metrics">
+          <span>{{ metric.label }}</span>
+          <strong>{{ metric.value }}</strong>
+          <p>{{ metric.helper }}</p>
+        </article>
+      </div>
+
+      <div class="dashboard-panels reveal visible reveal-delay-2">
+        <article class="snapshot-panel">
+          <div class="panel-heading">
+            <div>
+              <div class="section-eyebrow">Platform Health</div>
+              <h2 class="section-title">Current <em>Snapshot</em></h2>
+            </div>
+            <span class="badge badge-emerald">Online</span>
+          </div>
+
+          <div class="snapshot-grid">
+            <div class="snapshot-row" *ngFor="let metric of vm.metrics">
+              <span>{{ metric.label }}</span>
+              <strong>{{ metric.value }}</strong>
+            </div>
+          </div>
+        </article>
+
+        <aside class="analysis-panel">
+          <div class="section-eyebrow">Analysis</div>
+          <h2 class="section-title">Admin <em>Focus</em></h2>
+          <p>
+            Start with access, listing quality, and booking flow. These queues affect trust, inventory value, and platform conversion.
+          </p>
+        </aside>
+      </div>
+
+      <div class="queue-grid reveal visible reveal-delay-3">
+        <article class="queue-card" *ngFor="let queue of queues">
+          <span class="badge" [class.badge-gold]="queue.badge === 'gold'" [class.badge-emerald]="queue.badge === 'emerald'" [class.badge-crimson]="queue.badge === 'crimson'">
+            {{ queue.badgeText }}
+          </span>
+
+          <div class="queue-card__body">
+            <div class="section-eyebrow">{{ queue.eyebrow }}</div>
+            <h3>{{ queue.title }}</h3>
+            <p>{{ queue.description }}</p>
+          </div>
+
+          <a [routerLink]="queue.route" class="queue-link" data-cursor-hover>
+            {{ queue.cta }}
+          </a>
+        </article>
+      </div>
+    </ng-container>
+  </div>
+</section>

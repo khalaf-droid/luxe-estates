@@ -1,0 +1,80 @@
+.admin-panel-card {
+  background: var(--obsidian-3);
+  border-radius: 24px;
+  padding: 2rem;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(201, 169, 110, 0.14);
+  color: var(--white);
+}
+
+.admin-panel-card h2 {
+  margin-top: 0;
+  color: var(--white);
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  margin-top: 1.5rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 1rem 0.9rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+th {
+  color: var(--gold);
+  font-weight: 700;
+  font-family: var(--font-mono);
+  letter-spacing: 1px;
+}
+
+tbody tr:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.table-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.loading-label {
+  color: var(--gold);
+  font-size: 0.95rem;
+}
+
+.action-btn {
+  border: none;
+  padding: 0.75rem 1.1rem;
+  border-radius: 999px;
+  cursor: pointer;
+  color: var(--obsidian);
+  background: var(--gold);
+  font-family: var(--font-mono);
+  letter-spacing: 1px;
+  transition: transform 0.2s var(--transition), opacity 0.2s var(--transition);
+}
+
+.action-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.action-btn.reject {
+  background: var(--crimson);
+  margin-left: 0.75rem;
+}
+
+.action-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

@@ -1,0 +1,25 @@
+<section class="admin-shell">
+  <aside class="admin-sidebar">
+    <div class="brand">
+      <span>LUXE</span>
+      <span>ADMIN</span>
+    </div>
+
+    <nav class="admin-nav">
+      <a routerLink="overview" routerLinkActive="active">Overview</a>
+      <a routerLink="users" routerLinkActive="active">Users</a>
+      <a routerLink="properties" routerLinkActive="active">Properties</a>
+      <a routerLink="bookings" routerLinkActive="active">Bookings</a>
+    </nav>
+  </aside>
+
+  <main class="admin-content">
+    <div class="admin-topbar">
+      <div class="section-eyebrow">Admin Portal</div>
+      <h1>Admin Dashboard</h1>
+      <p>Manage users, properties, and bookings from a single control panel.</p>
+    </div>
+
+    <router-outlet></router-outlet>
+  </main>
+</section>

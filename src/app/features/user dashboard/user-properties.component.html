@@ -1,0 +1,35 @@
+<div>
+  <div class="dash-eyebrow">Host Panel</div>
+  <h1 class="dash-title">My Properties</h1>
+  <p class="dash-sub">Manage your listed properties and track their approval status.</p>
+
+  <div class="dash-panel">
+    <div *ngIf="isLoading" class="loading-state">Loading properties...</div>
+    <div *ngIf="!isLoading && properties.length === 0" class="empty-state">
+      <strong>No listings yet</strong>
+      Add your first property to start hosting.
+    </div>
+    <div class="table-wrap" *ngIf="!isLoading && properties.length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Location</th>
+            <th>Price</th>
+            <th>Status</th>
+            <th>Approval</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of properties">
+            <td>{{ p.title }}</td>
+            <td>{{ p.city || p.location || 'N/A' }}</td>
+            <td>{{ p.price | currency:(p.currency || 'USD'):'symbol':'1.0-0' }}</td>
+            <td><span class="badge {{ p.status || 'active' }}">{{ (p.status || 'active') | uppercase }}</span></td>
+            <td><span class="badge {{ getApproval(p) }}">{{ getApproval(p) | uppercase }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

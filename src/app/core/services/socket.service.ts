@@ -1,31 +1,38 @@
-import { Injectable, inject } from '@angular/core';
-import { io, Socket } from 'socket.io-client';
-import { Observable, fromEvent } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { Observable, fromEvent, EMPTY } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
-@Injectable({
-  providedIn: 'root',
-})
+// ─────────────────────────────────────────────────────────────────────────────
+// SocketService — thin wrapper around socket.io-client
+// Uses dynamic import() so it tree-shakes correctly in Angular builds
+// ─────────────────────────────────────────────────────────────────────────────
+@Injectable({ providedIn: 'root' })
 export class SocketService {
-  private socket: Socket | null = null;
+  // Use 'any' to avoid fighting socket.io-client's type exports across versions
+  private socket: any = null;
   private readonly baseUrl = environment.apiUrl.replace('/api/v1', '');
 
   connect(token: string): void {
     if (this.socket?.connected) return;
 
-    this.socket = io(this.baseUrl, {
-      auth: { token },
-      withCredentials: true,
-      transports: ['websocket', 'polling'],
-    });
+    // Dynamic import avoids CommonJS/AMD optimization bailout warning
+    import('socket.io-client').then(({ io }) => {
+      this.socket = io(this.baseUrl, {
+        auth:            { token },
+        withCredentials: true,
+        transports:      ['websocket', 'polling'],
+      });
 
-    this.socket.on('connect', () => {
-      console.log('Socket.IO connected successfully');
-    });
+      this.socket.on('connect', () => {
+        console.log('[Socket] connected');
+      });
 
-    this.socket.on('connect_error', (error) => {
-      console.error('Socket.IO connection error:', error);
+      this.socket.on('connect_error', (error: Error) => {
+        console.warn('[Socket] connection error:', error?.message ?? error);
+      });
+    }).catch(() => {
+      console.warn('[Socket] socket.io-client not available');
     });
   }
 
@@ -45,18 +52,21 @@ export class SocketService {
   }
 
   onNewBid(auctionId: string): Observable<any> {
-    return fromEvent(this.socket!, 'newBid').pipe(
-      filter((data: any) => data.auctionId === auctionId)
+    if (!this.socket) return EMPTY;
+    return fromEvent(this.socket, 'newBid').pipe(
+      filter((data: any) => data?.auctionId === auctionId)
     );
   }
 
   onAuctionClosed(auctionId: string): Observable<any> {
-    return fromEvent(this.socket!, 'auctionClosed').pipe(
-      filter((data: any) => data.auctionId === auctionId)
+    if (!this.socket) return EMPTY;
+    return fromEvent(this.socket, 'auctionClosed').pipe(
+      filter((data: any) => data?.auctionId === auctionId)
     );
   }
 
   onNotification(): Observable<any> {
-    return fromEvent(this.socket!, 'notification');
+    if (!this.socket) return EMPTY;
+    return fromEvent(this.socket, 'notification');
   }
 }

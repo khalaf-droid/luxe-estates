@@ -1,0 +1,38 @@
+<section class="admin-panel-card">
+  <h2>Users</h2>
+  <p>View registered users and manage their access permissions.</p>
+
+  <div class="table-actions">
+    <div *ngIf="isLoading" class="loading-label">Loading users...</div>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users">
+          <td>{{ user.name }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.role | uppercase }}</td>
+          <td>{{ user.isVerified ? 'Verified' : 'Pending' }}</td>
+          <td>
+            <button
+              class="action-btn"
+              [disabled]="activeUserId === user._id"
+              (click)="toggleAdmin(user)">
+              {{ user.role === 'admin' ? 'Revoke Admin' : 'Make Admin' }}
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>

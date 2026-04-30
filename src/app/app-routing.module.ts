@@ -5,6 +5,8 @@ import { RouterModule, Routes } from '@angular/router';
 import { BecomeAgentComponent } from './features/become-agent/become-agent.component';
 
 import { authGuard } from './core/auth/auth.guard';
+import { adminGuard } from './core/auth/admin.guard';
+
 
 const routes: Routes = [
   {
@@ -38,9 +40,15 @@ const routes: Routes = [
   },
 
   {
-    path: 'profile',
+    path: 'dashboard',
     canActivate: [authGuard],
-    loadChildren: () => import('./features/profile/profile.module').then(m => m.ProfileModule)
+    loadChildren: () => import('./features/user dashboard/user-dashboard.module').then(m => m.UserDashboardModule)
+  },
+
+  {
+    path: 'profile',
+    redirectTo: 'dashboard/profile',
+    pathMatch: 'full'
   },
 
   // مسار إعادة تعيين كلمة المرور
@@ -62,6 +70,13 @@ const routes: Routes = [
     loadComponent: () => import('./features/kyc/kyc.component').then(m => m.KycComponent)
   },
 
+  // مسار الـ Admin
+  {
+    path: 'admin',
+    canActivate: [authGuard, adminGuard],
+    loadChildren: () => import('./features/admin/admin.module').then(m => m.AdminModule)
+  },
+
   // مسار الـ Wildcard لاصطياد أي روابط خاطئة (يجب أن يظل في النهاية دائمًا)
   {
     path: '**',
@@ -69,7 +84,7 @@ const routes: Routes = [
     pathMatch: 'full',
   },
 ];
-
+ 
 @NgModule({
   imports: [
     RouterModule.forRoot(routes, {

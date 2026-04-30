@@ -1,0 +1,63 @@
+<div>
+  <div class="dash-eyebrow">Reservations</div>
+  <h1 class="dash-title">My Bookings</h1>
+  <p class="dash-sub">Manage all your property reservations and their statuses.</p>
+
+  <div class="dash-panel">
+    <div class="panel-toolbar">
+      <label>
+        Filter:
+        <select [(ngModel)]="filter">
+          <option value="all">All</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </label>
+    </div>
+
+    <div *ngIf="isLoading" class="loading-state">Loading bookings...</div>
+
+    <div *ngIf="!isLoading && filtered.length === 0" class="empty-state">
+      <strong>No bookings found</strong>
+      Browse properties and make your first reservation.
+    </div>
+
+    <div class="table-wrap" *ngIf="!isLoading && filtered.length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>Check-in</th>
+            <th>Check-out</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let b of filtered">
+            <td>{{ b.property_id?.title || b.property?.title || 'N/A' }}</td>
+            <td>{{ b.start_date | date:'mediumDate' }}</td>
+            <td>{{ b.end_date | date:'mediumDate' }}</td>
+            <td>{{ b.amount | currency:'USD':'symbol':'1.0-0' }}</td>
+            <td><span class="badge {{ b.status }}">{{ b.status | uppercase }}</span></td>
+            <td>
+              <div style="display: flex; gap: 0.5rem;">
+                <button *ngIf="b.status === 'approved'" class="btn primary sm" (click)="pay(b)">
+                  Pay Now
+                </button>
+                <button class="btn danger sm"
+                  [disabled]="activeId === b._id || b.status === 'cancelled' || b.status === 'rejected'"
+                  (click)="cancel(b)">
+                  Cancel
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -61,7 +61,12 @@ export class KycComponent implements OnInit, OnDestroy {
 
   private fetchStatus(): void {
     this.kycService.getKYCStatus().subscribe({
-      next: (res) => this.status = res,
+      next: (res) => {
+        this.status = res;
+        if (res.status === 'approved' || res.status === 'rejected') {
+          this.pollSubscription?.unsubscribe();
+        }
+      },
       error: () => {
         // Fallback for initial state if 404 or error
         this.status = { success: true, status: 'not_submitted' };
@@ -72,6 +77,9 @@ export class KycComponent implements OnInit, OnDestroy {
   private startPolling(): void {
     this.pollSubscription = this.kycService.pollStatus().subscribe(res => {
       this.status = res;
+      if (res.status === 'approved' || res.status === 'rejected') {
+        this.pollSubscription?.unsubscribe();
+      }
     });
   }
 

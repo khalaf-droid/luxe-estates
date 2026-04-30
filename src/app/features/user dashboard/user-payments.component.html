@@ -1,0 +1,48 @@
+<div>
+  <div class="dash-eyebrow">Financials</div>
+  <h1 class="dash-title">Payment History</h1>
+  <p class="dash-sub">A record of all transactions made through the platform.</p>
+
+  <div class="stat-grid" style="margin-bottom:1.5rem">
+    <article class="stat-card">
+      <span class="stat-label">Total Paid</span>
+      <span class="stat-value">{{ total | currency:'USD':'symbol':'1.0-0' }}</span>
+      <span class="stat-note">Completed transactions only.</span>
+    </article>
+    <article class="stat-card">
+      <span class="stat-label">Transactions</span>
+      <span class="stat-value">{{ payments.length }}</span>
+      <span class="stat-note">All-time payment records.</span>
+    </article>
+  </div>
+
+  <div class="dash-panel">
+    <div *ngIf="isLoading" class="loading-state">Loading payments...</div>
+    <div *ngIf="!isLoading && payments.length === 0" class="empty-state">
+      <strong>No payment records</strong>
+      Completed bookings will appear here.
+    </div>
+    <div class="table-wrap" *ngIf="!isLoading && payments.length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Property</th>
+            <th>Method</th>
+            <th>Amount</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of payments">
+            <td>{{ p.createdAt | date:'mediumDate' }}</td>
+            <td>{{ p.property?.title || p.booking?.property_id?.title || 'N/A' }}</td>
+            <td>{{ p.method || p.paymentMethod || 'Card' }}</td>
+            <td>{{ p.amount | currency:(p.currency || 'USD'):'symbol':'1.0-0' }}</td>
+            <td><span class="badge {{ p.status || 'completed' }}">{{ (p.status || 'completed') | uppercase }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
