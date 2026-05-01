@@ -28,7 +28,7 @@ export class OtpVerifyComponent implements OnInit, OnDestroy {
   otpForm!: FormGroup;
   isLoading = false;
   isResending = false;
-  
+
   resendCooldown = 0;
   private destroy$ = new Subject<void>();
 

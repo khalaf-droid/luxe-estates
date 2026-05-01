@@ -18,7 +18,7 @@ export interface User {
   email: string;
   role: UserRole;
   token?: string;
-  password?: string; 
+  password?: string;
   isVerified?: boolean;
   otp?: string;
   resetToken?: string;
@@ -33,8 +33,8 @@ export class AuthService {
 
   // ── Storage Keys (Agreed upon with the team) ─────────────────────────────
   private readonly TOKEN_KEY = 'luxe_token';
-  private readonly USER_KEY  = 'luxe_user';
-  private readonly DB_KEY    = 'luxe_all_users'; 
+  private readonly USER_KEY = 'luxe_user';
+  private readonly DB_KEY = 'luxe_all_users';
 
   // ── Global User State ────────────────────────────────────────────────────
   currentUser$ = new BehaviorSubject<User | null>(null);
@@ -71,7 +71,7 @@ export class AuthService {
   }
 
   // ── Team Expected Interfaces (Task 05 constraints) ───────────────────────
-  
+
   isAuthenticated(): boolean {
     return !!localStorage.getItem(this.TOKEN_KEY) && !!this.currentUser$.value;
   }
@@ -92,11 +92,11 @@ export class AuthService {
   openModal(tab: 'login' | 'register' = 'login'): void {
     // Note: We accept the tab parameter to satisfy the team's interface.
     // The modal component defaults to the login tab, or user can switch manually.
-    this.modalOpen$.next(true);  
+    this.modalOpen$.next(true);
   }
 
-  closeModal(): void { 
-    this.modalOpen$.next(false); 
+  closeModal(): void {
+    this.modalOpen$.next(false);
   }
 
   isDemoMode(): boolean { return false; } // Disabled demo mode for real DB logic
@@ -105,7 +105,7 @@ export class AuthService {
   private apiUrl = `${environment.apiUrl}/auth`;
   private http = inject(HttpClient);
   private socketService = inject(SocketService);
-  
+
   login(email: string, password: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/login`, { email, password }).pipe(
       tap((res) => {
@@ -116,6 +116,23 @@ export class AuthService {
     );
   }
 
+<<<<<<< Updated upstream
+=======
+  loginWithGoogle(idToken: string): Observable<any> {
+    return this.http.post<any>(
+      `${this.apiUrl}/google-login`,
+      { idToken },
+      { withCredentials: true }
+    ).pipe(
+      tap((res) => {
+        if (res.status === 'success' && res.data?.accessToken && res.data?.user) {
+          this.handleAuthSuccess(res.data.accessToken, res.data.user);
+        }
+      })
+    );
+  }
+
+>>>>>>> Stashed changes
   register(name: string, email: string, password: string): Observable<any> {
     // The backend handles the default role assignment securely
     return this.http.post<any>(`${this.apiUrl}/register`, { name, email, password });
@@ -153,14 +170,21 @@ export class AuthService {
   // ── Private Helpers ──────────────────────────────────────────────────────
   private handleAuthSuccess(token: string, user: User): User {
     const { password, ...safeUser } = user; // Strip password for security
-    const fullUser: User = { ...safeUser, token };
-    
+
+    // Normalize role to lowercase to ensure type safety
+    const normalizedUser = {
+      ...safeUser,
+      role: (safeUser.role?.toLowerCase() || 'buyer') as UserRole,
+      token,
+    };
+    const fullUser: User = normalizedUser;
+
     localStorage.setItem(this.TOKEN_KEY, token);
     localStorage.setItem(this.USER_KEY, JSON.stringify(fullUser));
-    
+
     this.currentUser$.next(fullUser);
     this._isAuthenticated$.next(true); // Notify the team's observable
-    
+
     return fullUser;
   }
 

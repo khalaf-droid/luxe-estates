@@ -9,25 +9,46 @@
 
     <div class="auth-tabs" *ngIf="activeTab === 'login' || activeTab === 'register'">
       <button class="auth-tab" [class.active]="activeTab === 'login'" (click)="switchTab('login')">SIGN IN</button>
-      <button class="auth-tab" [class.active]="activeTab === 'register'" (click)="switchTab('register')">JOIN LUXE</button>
+      <button class="auth-tab" [class.active]="activeTab === 'register'" (click)="switchTab('register')">JOIN
+        LUXE</button>
     </div>
 
     <p *ngIf="errorMsg" class="auth-error">{{ errorMsg }}</p>
 
     <form *ngIf="activeTab === 'login'" [formGroup]="loginForm" (ngSubmit)="onLogin()" class="auth-form" novalidate>
-      
+
       <div class="auth-field">
         <label class="auth-label" for="login-email">Email Address</label>
-        <input id="login-email" type="email" class="auth-input" [class.invalid]="isFieldInvalid(loginForm, 'email')" formControlName="email" placeholder="your@email.com" />
+        <input id="login-email" type="email" class="auth-input" [class.invalid]="isFieldInvalid(loginForm, 'email')"
+          formControlName="email" placeholder="your@email.com" />
         <span class="auth-validation" *ngIf="isFieldInvalid(loginForm, 'email')">Valid email is required</span>
       </div>
 
       <div class="auth-field">
         <label class="auth-label" for="login-password">Password</label>
-        <input id="login-password" type="password" class="auth-input" [class.invalid]="isFieldInvalid(loginForm, 'password')" formControlName="password" placeholder="••••••••" />
+        <div class="password-wrapper">
+          <input id="login-password" type="{{ showLoginPassword ? 'text' : 'password' }}" class="auth-input"
+            [class.invalid]="isFieldInvalid(loginForm, 'password')" formControlName="password" placeholder="••••••••" />
+          <button type="button" class="eye-icon" (click)="togglePasswordVisibility('login')">
+            <svg *ngIf="!showLoginPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <svg *ngIf="showLoginPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+              </path>
+              <line x1="1" y1="1" x2="23" y2="23"></line>
+            </svg>
+          </button>
+        </div>
         <span class="auth-validation" *ngIf="isFieldInvalid(loginForm, 'password')">Password is required</span>
-        
-        <a href="javascript:void(0)" class="forgot-password" (click)="goForgot()" style="display: block; text-align: left; margin-top: 8px; direction: ltr;">Forgot Password?</a>
+
+        <a href="javascript:void(0)" class="forgot-password" (click)="goForgot()"
+          style="display: block; text-align: left; margin-top: 8px; direction: ltr;">Forgot Password?</a>
       </div>
 
       <button type="submit" class="auth-submit" [disabled]="isLoading">
@@ -35,69 +56,153 @@
         <span *ngIf="isLoading" class="auth-spinner"></span>
       </button>
 
+      <button type="button" class="auth-google-btn" (click)="onGoogleSignIn()" [disabled]="isGoogleLoading">
+        <span *ngIf="!isGoogleLoading">SIGN IN WITH GOOGLE</span>
+        <span *ngIf="isGoogleLoading" class="auth-spinner"></span>
+      </button>
     </form>
 
-    <form *ngIf="activeTab === 'register'" [formGroup]="registerForm" (ngSubmit)="onRegister()" class="auth-form" novalidate>
-      
+    <form *ngIf="activeTab === 'register'" [formGroup]="registerForm" (ngSubmit)="onRegister()" class="auth-form"
+      novalidate>
+
       <div class="auth-field">
         <label class="auth-label">Full Name</label>
-        <input type="text" class="auth-input" [class.invalid]="isFieldInvalid(registerForm, 'name')" formControlName="name" placeholder="Enter your full name" />
+        <input type="text" class="auth-input" [class.invalid]="isFieldInvalid(registerForm, 'name')"
+          formControlName="name" placeholder="Enter your full name" />
         <span class="auth-validation" *ngIf="isFieldInvalid(registerForm, 'name')">Name is required</span>
       </div>
 
       <div class="auth-field">
         <label class="auth-label">Email Address</label>
-        <input type="email" class="auth-input" [class.invalid]="isFieldInvalid(registerForm, 'email')" formControlName="email" placeholder="your@email.com" />
+        <input type="email" class="auth-input" [class.invalid]="isFieldInvalid(registerForm, 'email')"
+          formControlName="email" placeholder="your@email.com" />
         <span class="auth-validation" *ngIf="isFieldInvalid(registerForm, 'email')">Valid email is required</span>
       </div>
 
       <div class="auth-field">
         <label class="auth-label">Password</label>
-        <input type="password" class="auth-input" [class.invalid]="isFieldInvalid(registerForm, 'password')" formControlName="password" placeholder="••••••••" />
-        <span class="auth-validation" *ngIf="isFieldInvalid(registerForm, 'password')">
-          <ng-container *ngIf="registerForm.get('password')?.hasError('strongPassword')">Must be 8+ chars (uppercase, lowercase, number, special char)</ng-container>
-        </span>
+        <div class="password-wrapper">
+          <input type="{{ showRegisterPassword ? 'text' : 'password' }}" class="auth-input"
+            [class.invalid]="isFieldInvalid(registerForm, 'password')" formControlName="password"
+            placeholder="••••••••" />
+          <button type="button" class="eye-icon" (click)="togglePasswordVisibility('register')">
+            <svg *ngIf="!showRegisterPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <svg *ngIf="showRegisterPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path
+                d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+              </path>
+              <line x1="1" y1="1" x2="23" y2="23"></line>
+            </svg>
+          </button>
+        </div>
+
+        <div class="strength-bars">
+          <div class="bar"
+            [ngClass]="{'red': passwordStrength >= 1, 'orange': passwordStrength >= 2, 'yellow': passwordStrength >= 3, 'green': passwordStrength >= 4}">
+          </div>
+          <div class="bar"
+            [ngClass]="{'orange': passwordStrength >= 2, 'yellow': passwordStrength >= 3, 'green': passwordStrength >= 4}">
+          </div>
+          <div class="bar" [ngClass]="{'yellow': passwordStrength >= 3, 'green': passwordStrength >= 4}"></div>
+          <div class="bar" [ngClass]="{'green': passwordStrength >= 4}"></div>
+        </div>
+        <span class="strength-label" [ngClass]="getStrengthColorClass()">{{ getStrengthLabel() }}</span>
+
+        <div class="password-accordion">
+          <div class="accordion-header" (click)="toggleRequirements()">
+            Password requirements <span class="arrow" [class.open]="isRequirementsExpanded">▼</span>
+          </div>
+          <div class="accordion-content" [class.expanded]="isRequirementsExpanded">
+            <ul>
+              <li [class.met]="passwordHasLength">8+ characters</li>
+              <li [class.met]="passwordHasCase">Uppercase & lowercase letters</li>
+              <li [class.met]="passwordHasNumber">At least one number</li>
+              <li [class.met]="passwordHasSpecial">At least one special character</li>
+            </ul>
+          </div>
+        </div>
       </div>
 
       <div class="auth-field">
         <label class="auth-label">Confirm Password</label>
-        <input type="password" class="auth-input" [class.invalid]="isFieldInvalid(registerForm, 'confirmPassword')" formControlName="confirmPassword" placeholder="••••••••" />
-        <span class="auth-validation" *ngIf="isFieldInvalid(registerForm, 'confirmPassword')">Passwords do not match</span>
+        <div class="password-wrapper">
+          <input type="{{ showConfirmPassword ? 'text' : 'password' }}" class="auth-input"
+            [class.invalid]="isFieldInvalid(registerForm, 'confirmPassword')" formControlName="confirmPassword"
+            placeholder="••••••••" />
+          <button type="button" class="eye-icon" (click)="togglePasswordVisibility('confirm')">
+            <svg *ngIf="!showConfirmPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <svg *ngIf="showConfirmPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path
+                d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+              </path>
+              <line x1="1" y1="1" x2="23" y2="23"></line>
+            </svg>
+          </button>
+        </div>
+        <span class="auth-validation" *ngIf="isFieldInvalid(registerForm, 'confirmPassword')">Passwords do not
+          match</span>
       </div>
 
       <button type="submit" class="auth-submit" [disabled]="isLoading">CREATE ACCOUNT</button>
     </form>
 
-    <form *ngIf="activeTab === 'forgot'" [formGroup]="forgotForm" (ngSubmit)="onForgotSubmit()" class="auth-form" novalidate>
-      <h3 style="color: #fff; text-align: center; margin-bottom: 10px; font-family: 'Cormorant Garamond', serif;">Reset Password</h3>
-      <p style="color: #8A8AA0; font-size: 13px; text-align: center; margin-bottom: 20px;">Enter your email to receive an OTP.</p>
+    <form *ngIf="activeTab === 'forgot'" [formGroup]="forgotForm" (ngSubmit)="onForgotSubmit()" class="auth-form"
+      novalidate>
+      <h3 style="color: #fff; text-align: center; margin-bottom: 10px; font-family: 'Cormorant Garamond', serif;">Reset
+        Password</h3>
+      <p style="color: #8A8AA0; font-size: 13px; text-align: center; margin-bottom: 20px;">Enter your email to receive
+        an OTP.</p>
 
       <div class="auth-field">
         <label class="auth-label">Email Address</label>
-        <input type="email" class="auth-input" [class.invalid]="isFieldInvalid(forgotForm, 'email')" formControlName="email" placeholder="your@email.com" />
+        <input type="email" class="auth-input" [class.invalid]="isFieldInvalid(forgotForm, 'email')"
+          formControlName="email" placeholder="your@email.com" />
       </div>
 
       <button type="submit" class="auth-submit">SEND OTP</button>
-      
-      <button type="button" class="auth-switch-btn" style="margin-top: 15px;" (click)="switchTab('login')">← Back to Login</button>
+
+      <button type="button" class="auth-switch-btn" style="margin-top: 15px;" (click)="switchTab('login')">← Back to
+        Login</button>
     </form>
 
 
 
-    <form *ngIf="activeTab === 'verify-otp'" [formGroup]="verifyOtpForm" (ngSubmit)="onVerifyOtpSubmit()" class="auth-form" novalidate>
-      <h3 style="color: #fff; text-align: center; margin-bottom: 10px; font-family: 'Cormorant Garamond', serif;">Verify Your Email</h3>
-      <p style="color: #8A8AA0; font-size: 13px; text-align: center; margin-bottom: 20px;">We sent a 6-digit code to your email.</p>
+    <form *ngIf="activeTab === 'verify-otp'" [formGroup]="verifyOtpForm" (ngSubmit)="onVerifyOtpSubmit()"
+      class="auth-form" novalidate>
+      <h3 style="color: #fff; text-align: center; margin-bottom: 10px; font-family: 'Cormorant Garamond', serif;">Verify
+        Your Email</h3>
+      <p style="color: #8A8AA0; font-size: 13px; text-align: center; margin-bottom: 20px;">We sent a 6-digit code to
+        your email.</p>
 
       <div class="auth-field">
         <label class="auth-label">6-Digit OTP</label>
-        <input type="text" class="auth-input" [class.invalid]="isFieldInvalid(verifyOtpForm, 'otp')" formControlName="otp" placeholder="123456" maxlength="6" style="text-align: center; font-size: 20px; letter-spacing: 10px;" />
+        <div class="otp-container">
+          <input *ngFor="let index of otpInputs" type="text" [id]="'otp-' + index" class="auth-input otp-box"
+            [formControlName]="'otp' + index" maxlength="1" (input)="onOtpInput($event, index)"
+            (keydown)="onOtpKeydown($event, index)" (paste)="onOtpPaste($event)" />
+        </div>
       </div>
 
       <button type="submit" class="auth-submit" [disabled]="isLoading">
         <span *ngIf="!isLoading">VERIFY EMAIL</span>
         <span *ngIf="isLoading" class="auth-spinner"></span>
       </button>
-      <button type="button" class="auth-switch-btn" style="margin-top: 15px;" (click)="switchTab('login')">Cancel</button>
+      <button type="button" class="auth-switch-btn" style="margin-top: 15px;"
+        (click)="switchTab('login')">Cancel</button>
     </form>
 
   </div>
