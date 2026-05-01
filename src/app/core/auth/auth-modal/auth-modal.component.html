@@ -13,9 +13,10 @@
         LUXE</button>
     </div>
 
-    <p *ngIf="errorMsg" class="auth-error">{{ errorMsg }}</p>
+    <div class="auth-scroll-container">
+      <p *ngIf="errorMsg" class="auth-error">{{ errorMsg }}</p>
 
-    <form *ngIf="activeTab === 'login'" [formGroup]="loginForm" (ngSubmit)="onLogin()" class="auth-form" novalidate>
+      <form *ngIf="activeTab === 'login'" [formGroup]="loginForm" (ngSubmit)="onLogin()" class="auth-form" novalidate>
 
       <div class="auth-field">
         <label class="auth-label" for="login-email">Email Address</label>
@@ -115,6 +116,7 @@
         </div>
         <span class="strength-label" [ngClass]="getStrengthColorClass()">{{ getStrengthLabel() }}</span>
 
+        <!-- Password Requirements Accordion — Moved back under password (Task 2) -->
         <div class="password-accordion">
           <div class="accordion-header" (click)="toggleRequirements()">
             Password requirements <span class="arrow" [class.open]="isRequirementsExpanded">▼</span>
@@ -179,8 +181,6 @@
         Login</button>
     </form>
 
-
-
     <form *ngIf="activeTab === 'verify-otp'" [formGroup]="verifyOtpForm" (ngSubmit)="onVerifyOtpSubmit()"
       class="auth-form" novalidate>
       <h3 style="color: #fff; text-align: center; margin-bottom: 10px; font-family: 'Cormorant Garamond', serif;">Verify
@@ -204,6 +204,7 @@
       <button type="button" class="auth-switch-btn" style="margin-top: 15px;"
         (click)="switchTab('login')">Cancel</button>
     </form>
+    </div> <!-- End .auth-scroll-container -->
 
   </div>
 </div>

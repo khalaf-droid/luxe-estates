@@ -38,6 +38,9 @@ $red: #C0392B;
   border: 1px solid rgba($gold, 0.3);
   padding: 40px 36px;
   border-radius: 2px;
+  min-height: 620px; // Stabilizes height during tab switching
+  display: flex;
+  flex-direction: column;
   animation: slideUp 0.25s ease;
 
   @media (max-width: 480px) {
@@ -112,6 +115,33 @@ $red: #C0392B;
 
   &:hover:not(.active) {
     color: $white;
+  }
+}
+
+// ─── Scrollable Container ──────────────────────────────────────────────────
+.auth-scroll-container {
+  max-height: 65vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 6px; // Space for scrollbar
+  margin-top: 10px;
+
+  /* Custom Premium Scrollbar */
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $obsidian;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba($gold, 0.4);
+    border-radius: 10px;
+
+    &:hover {
+      background: $gold;
+    }
   }
 }
 
@@ -479,12 +509,13 @@ $red: #C0392B;
   }
 }
 
-// ─── Password Requirements Accordion ───────────────────────────────────────────
+// ─── Password Requirements Accordion (Task 3: No Input-Box Look) ──────────────
 .password-accordion {
-  margin-top: 4px;
-  background: rgba($obsidian-3, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 2px;
+  margin-top: 12px;
+  background: transparent;
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.05); // Very subtle line to separate from meter
+  padding-top: 8px;
 
   .accordion-header {
     padding: 10px 12px;

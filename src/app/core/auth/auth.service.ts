@@ -47,9 +47,12 @@ export class AuthService {
   private readonly _isAuthenticated$ = new BehaviorSubject<boolean>(!!localStorage.getItem(this.TOKEN_KEY));
   readonly isAuthenticated$ = this._isAuthenticated$.asObservable();
 
-  // ── Modal State ──────────────────────────────────────────────────────────
+  // ─── Modal State ──────────────────────────────────────────────────────────
   private modalOpen$ = new BehaviorSubject<boolean>(false);
   readonly isModalOpen$ = this.modalOpen$.asObservable();
+
+  private modalTab$ = new BehaviorSubject<'login' | 'register'>('login');
+  readonly currentModalTab$ = this.modalTab$.asObservable();
 
   constructor() {
     this.restoreSession();
@@ -90,8 +93,7 @@ export class AuthService {
   }
 
   openModal(tab: 'login' | 'register' = 'login'): void {
-    // Note: We accept the tab parameter to satisfy the team's interface.
-    // The modal component defaults to the login tab, or user can switch manually.
+    this.modalTab$.next(tab);
     this.modalOpen$.next(true);
   }
 
@@ -116,8 +118,6 @@ export class AuthService {
     );
   }
 
-<<<<<<< Updated upstream
-=======
   loginWithGoogle(idToken: string): Observable<any> {
     return this.http.post<any>(
       `${this.apiUrl}/google-login`,
@@ -132,7 +132,6 @@ export class AuthService {
     );
   }
 
->>>>>>> Stashed changes
   register(name: string, email: string, password: string): Observable<any> {
     // The backend handles the default role assignment securely
     return this.http.post<any>(`${this.apiUrl}/register`, { name, email, password });

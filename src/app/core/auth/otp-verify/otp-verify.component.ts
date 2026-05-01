@@ -73,6 +73,25 @@ export class OtpVerifyComponent implements OnInit, OnDestroy {
     }
   }
 
+  onPaste(event: ClipboardEvent): void {
+    event.preventDefault();
+    const pastedData = event.clipboardData?.getData('text/plain') || '';
+    const digits = pastedData.replace(/\D/g, '').split('').slice(0, 6);
+
+    if (digits.length > 0) {
+      const patchObj: any = {};
+      digits.forEach((digit, i) => {
+        patchObj[`otp${i + 1}`] = digit;
+      });
+      this.otpForm.patchValue(patchObj);
+
+      // Focus the next empty input or the last one
+      const nextIndex = Math.min(digits.length + 1, 6);
+      const nextInput = document.querySelector(`input[formControlName="otp${nextIndex}"]`) as HTMLInputElement;
+      if (nextInput) nextInput.focus();
+    }
+  }
+
   onSubmit(): void {
     if (this.otpForm.invalid) return;
 

@@ -66,6 +66,7 @@ export class AuthModalComponent implements OnInit, OnDestroy {
   activeTab: AuthTab = 'login'; // التاب المفتوح حالياً (افتراضياً تسجيل الدخول)
   isLoading = false;           // لتشغيل الأنيميشن بتاع التحميل جوه الزرار
   isGoogleLoading = false;
+  isFormSubmitted = false; // Flag to silence errors until first click
   errorMsg = '';              // لعرض رسائل الخطأ العامة (زي: الإيميل مسجل مسبقاً)
 
   // Guard: true only when a real (non-placeholder) Google Client ID is set
@@ -186,7 +187,18 @@ export class AuthModalComponent implements OnInit, OnDestroy {
     this.buildForms(); // أول ما المودال يفتح، بنبني الفورمز
 
     // بنراقب خدمة الـ Auth عشان نعرف إمتى نظهر أو نخفي المودال
-    this.auth.isModalOpen$.pipe(takeUntil(this.destroy$)).subscribe(open => this.isOpen = open);
+    this.auth.isModalOpen$.pipe(takeUntil(this.destroy$)).subscribe(open => {
+      this.isOpen = open;
+      if (open) {
+        // Reset state when opening
+        this.isFormSubmitted = false;
+        this.errorMsg = '';
+      }
+    });
+
+    this.auth.currentModalTab$.pipe(takeUntil(this.destroy$)).subscribe(tab => {
+      this.switchTab(tab);
+    });
 
     // Subscribe to global ESC bus — only closes when this modal is actually open.
     // close() → AuthService.closeModal() → isModalOpen$ emits false → isOpen = false.
@@ -301,9 +313,22 @@ export class AuthModalComponent implements OnInit, OnDestroy {
   }
 
   // دالة للتنقل بين التابات (Login, Register, OTP...)
-  switchTab(tab: AuthTab): void {
+  switchTab(tab: 'login' | 'register' | 'forgot' | 'verify-otp'): void {
     this.activeTab = tab;
-    this.errorMsg = ''; // بنمسح أي إيرور قديم لما اليوزر يغير التاب
+    this.errorMsg = '';
+    this.isFormSubmitted = false; // Reset errors when switching
+    this.isLoading = false;
+
+    // Reset forms when switching to ensure a clean UI (Task 1)
+    if (tab === 'login') {
+      this.registerForm.reset();
+      this.registerForm.markAsPristine();
+      this.registerForm.markAsUntouched();
+    } else if (tab === 'register') {
+      this.loginForm.reset();
+      this.loginForm.markAsPristine();
+      this.loginForm.markAsUntouched();
+    }
   }
 
   // ─── Forgot Password Flow ──────────────────────────────────────────
@@ -339,7 +364,8 @@ export class AuthModalComponent implements OnInit, OnDestroy {
   // ─── Auth Logic (تسجيل الدخول وإنشاء حساب) ─────────────────────
 
   onLogin(): void {
-    if (this.loginForm.invalid) { this.loginForm.markAllAsTouched(); return; }
+    this.isFormSubmitted = true;
+    if (this.loginForm.invalid) return;
     this.isLoading = true;
     this.errorMsg = '';
     const { email, password } = this.loginForm.value;
@@ -347,8 +373,9 @@ export class AuthModalComponent implements OnInit, OnDestroy {
     this.auth.login(email, password).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res: any) => {
         this.isLoading = false;
-        // Fix: Properly extract the user's name from the raw HTTP response object
-        const userName = res?.data?.user?.name || res?.user?.name || 'there';
+        // Fix: Properly extract the user's name from the normalized backend response (Task 4)
+        const userObj = res?.data?.user || res?.user;
+        const userName = userObj?.name || 'there';
         this.notificationSvc.show(`Welcome back, ${userName}!`, 'success');
         this.close(); // لو النجاح، بنقفل المودال خالص
       },
@@ -360,7 +387,8 @@ export class AuthModalComponent implements OnInit, OnDestroy {
   }
 
   onRegister(): void {
-    if (this.registerForm.invalid) { this.registerForm.markAllAsTouched(); return; }
+    this.isFormSubmitted = true;
+    if (this.registerForm.invalid) return;
     this.isLoading = true;
     this.errorMsg = '';
 
@@ -405,10 +433,13 @@ export class AuthModalComponent implements OnInit, OnDestroy {
       next: () => {
         this.isLoading = false;
         this.notificationSvc.show('Email verified successfully! You can now login.', 'success');
-        this.loginForm.patchValue({ email: this.registeredEmail }); // تجهيز الإيميل للوجين
+        const emailToPrepopulate = this.registeredEmail;
         this.registeredEmail = '';
         this.verifyOtpForm.reset();
-        this.switchTab('login'); // بعد التفعيل بنوديه للوجين عشان يدخل
+
+        // Reset and switch to login (Task 1)
+        this.switchTab('login');
+        this.loginForm.patchValue({ email: emailToPrepopulate }); // Pre-populate email for convenience
       },
       error: (err: any) => {
         this.isLoading = false;
@@ -426,10 +457,10 @@ export class AuthModalComponent implements OnInit, OnDestroy {
     if ((event.target as HTMLElement).classList.contains('auth-overlay')) this.close();
   }
 
-  // دالة للتحقق لو الحقل فيه خطأ وتم لمسه (عشان نظهر الرسالة الحمراء في الـ HTML)
+  // دالة للتحقق لو الحقل فيه خطأ (تظهر فقط عند الضغط على زر الإرسال - Task 1)
   isFieldInvalid(form: FormGroup, field: string): boolean {
     const ctrl = form.get(field);
-    return !!(ctrl && ctrl.invalid && ctrl.touched);
+    return !!(ctrl && ctrl.invalid && this.isFormSubmitted);
   }
 
   // ─── OTP Helpers ──────────────────────────────────────────────────

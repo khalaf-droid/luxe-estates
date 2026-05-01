@@ -7,4 +7,5 @@
 export const environment = {
   production: true,
   apiUrl: 'https://PROD_DOMAIN/api/v1',
+  googleClientId: '668341342866-ufmo1js3tbrv5nkeakgtn81kjsp9r3if.apps.googleusercontent.com'
 };
