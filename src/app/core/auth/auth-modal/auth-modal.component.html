@@ -61,6 +61,8 @@
         <span *ngIf="!isGoogleLoading">SIGN IN WITH GOOGLE</span>
         <span *ngIf="isGoogleLoading" class="auth-spinner"></span>
       </button>
+
+      <div *ngIf="showGoogleNativeButton" id="google-signin-button-container" class="google-signin-button-container"></div>
     </form>
 
     <form *ngIf="activeTab === 'register'" [formGroup]="registerForm" (ngSubmit)="onRegister()" class="auth-form"

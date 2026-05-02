@@ -93,6 +93,8 @@ export class AuthModalComponent implements OnInit, OnDestroy {
   // Subject لإنهاء الاشتراكات (Subscriptions) لما الكومبوننت يتقفل عشان نمنع تسريب الميموري
   private destroy$ = new Subject<void>();
   private googleAccountsInitialized = false;
+  private googleButtonRendered = false;
+  showGoogleNativeButton = false;
   private readonly googleIdentityScript = 'https://accounts.google.com/gsi/client';
   private readonly fallbackGoogleClientId = '668341342866-ufmo1js3tbrv5nkeakgtn81kjsp9r3if.apps.googleusercontent.com';
 
@@ -145,12 +147,31 @@ export class AuthModalComponent implements OnInit, OnDestroy {
         client_id: this.effectiveGoogleClientId,
         callback: (response: any) => this.handleGoogleCredentialResponse(response),
         ux_mode: 'popup',
-        itp_support: true // ✅ Fixes Incognito & FedCM browser blocks
-      });
+        itp_support: true,
+        use_fedcm_for_prompt: false
+    });
 
       this.googleAccountsInitialized = true;
       resolve();
     });
+  }
+
+  private renderGoogleButton(): void {
+    const google = (window as any).google;
+    const container = document.getElementById('google-signin-button-container');
+    if (!google?.accounts?.id || !container || this.googleButtonRendered) {
+      return;
+    }
+
+    google.accounts.id.renderButton(container, {
+      theme: 'outline',
+      size: 'large',
+      width: 280,
+      text: 'signin_with',
+      shape: 'rectangular',
+    });
+
+    this.googleButtonRendered = true;
   }
 
   private handleGoogleCredentialResponse(response: any): void {
@@ -523,7 +544,9 @@ export class AuthModalComponent implements OnInit, OnDestroy {
           throw new Error('Google Identity Services have not been initialized.');
         }
 
-        google.accounts.id.prompt();
+        this.showGoogleNativeButton = true;
+        this.renderGoogleButton();
+        this.isGoogleLoading = false;
       })
       .catch((err: any) => {
         this.isGoogleLoading = false;
