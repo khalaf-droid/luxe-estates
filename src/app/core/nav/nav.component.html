@@ -21,14 +21,19 @@
       <ng-container *ngIf="auth.currentUser$ | async as user; else guestTemplate">
         <div class="user-profile-wrapper">
           <div class="user-info" (click)="toggleDropdown()">
-            <div class="user-avatar">{{ user.name[0] | uppercase }}</div>
+            <ng-container *ngIf="user.photo; else textAvatar">
+              <img [src]="user.photo" alt="Avatar" class="user-avatar user-avatar-img">
+            </ng-container>
+            <ng-template #textAvatar>
+              <div class="user-avatar">{{ user.name[0] | uppercase }}</div>
+            </ng-template>
             <span class="user-name">{{ user.name }}</span>
             <span class="chevron" [class.open]="showDropdown">▾</span>
           </div>
 
           <div class="user-dropdown" *ngIf="showDropdown">
             <!-- Profile: Visible to everyone -->
-            <a class="dropdown-item" routerLink="/dashboard/profile"  (click)="showDropdown = false">My Profile</a>
+            <a class="dropdown-item" routerLink="/account"  (click)="showDropdown = false">My Account</a>
             
             <!-- User Dashboard: Visible to non-admins only -->
             <a class="dropdown-item" *ngIf="user.role !== 'admin'" routerLink="/dashboard/overview" (click)="showDropdown = false">My Dashboard</a>

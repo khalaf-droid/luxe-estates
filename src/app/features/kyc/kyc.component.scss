@@ -36,6 +36,34 @@
   animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.back-action {
+  margin-bottom: var(--space-xl);
+  
+  .btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--mist);
+    font-size: 14px;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+
+    &:hover {
+      color: var(--gold);
+      background: rgba(201, 169, 110, 0.05);
+      border-color: rgba(201, 169, 110, 0.2);
+      transform: translateX(-5px);
+    }
+  }
+}
+
 .kyc-header {
   margin-bottom: var(--space-2xl);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);

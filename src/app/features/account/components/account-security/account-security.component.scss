@@ -1,0 +1,59 @@
+$gold:       #C9A96E;
+$mist:       rgba(255, 255, 255, 0.4);
+
+.content-header {
+  margin-bottom: 2.5rem;
+  h3 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 0.5rem; }
+  p { color: $mist; font-size: 0.9rem; }
+}
+
+.luxury-form {
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    
+    label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: $mist; font-weight: 700; }
+    input {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 1rem;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 0.9rem;
+      transition: all 0.3s;
+      &:focus { border-color: $gold; background: rgba(255, 255, 255, 0.05); outline: none; }
+    }
+    
+    .error-msg {
+      color: #ff4d4d;
+      font-size: 0.75rem;
+      margin-top: 0.2rem;
+    }
+  }
+
+  .action-row { display: flex; justify-content: flex-start; }
+}
+
+.btn-gold {
+  background: $gold;
+  color: #000;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s;
+  
+  &:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(201,169,110,0.2); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}

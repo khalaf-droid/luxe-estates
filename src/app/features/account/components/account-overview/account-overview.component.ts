@@ -1,0 +1,136 @@
+import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { finalize } from 'rxjs';
+import { AccountService, UserProfile } from '../../services/account.service';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { KycStatusBannerComponent } from '../kyc-status-banner/kyc-status-banner.component';
+
+@Component({
+  selector: 'app-account-overview',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, KycStatusBannerComponent],
+  templateUrl: './account-overview.component.html',
+  styleUrls: ['./account-overview.component.scss']
+})
+export class AccountOverviewComponent implements OnInit {
+  private accountService = inject(AccountService);
+  private notificationService = inject(NotificationService);
+  private fb = inject(FormBuilder);
+
+  user$ = this.accountService.user$;
+  profileForm: FormGroup;
+  
+  isUpdating = false;
+  isUploadingPhoto = false;
+
+  constructor() {
+    this.profileForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
+      phone: ['', [Validators.pattern(/^\+?[0-9\s-]{10,15}$/)]],
+      bio: ['', [Validators.maxLength(500)]]
+    });
+  }
+
+  ngOnInit(): void {
+    this.user$.subscribe(user => {
+      if (user) {
+        this.profileForm.patchValue({
+          name: user.name,
+          phone: user.phone || '',
+          bio: user.bio || ''
+        });
+      }
+    });
+  }
+
+  submit(): void {
+    if (this.profileForm.invalid) {
+      this.notificationService.show('Please fix the errors in the form', 'error');
+      return;
+    }
+
+    const previousUser = this.accountService.getCurrentUser();
+    const updatedData = this.profileForm.value;
+
+    // Optimistic UI Update
+    if (previousUser) {
+      this.accountService.setUserData({ ...previousUser, ...updatedData });
+    }
+
+    this.isUpdating = true;
+    this.accountService.updateProfile(updatedData).pipe(
+      finalize(() => this.isUpdating = false)
+    ).subscribe({
+      next: () => this.notificationService.show('Profile synchronized with database', 'success'),
+      error: (err) => {
+        // Rollback on failure
+        this.accountService.setUserData(previousUser);
+        this.notificationService.show(err.error?.message || 'Synchronization failed', 'error');
+      }
+    });
+  }
+
+  handleFileSelect(event: any): void {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Client-side validation
+    if (!file.type.startsWith('image/')) {
+      this.notificationService.show('Please select a valid image file', 'error');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      this.notificationService.show('Image size must be less than 5MB', 'error');
+      return;
+    }
+
+    this.isUploadingPhoto = true;
+    const formData = new FormData();
+    formData.append('photo', file); // Field name must match backend 'photo'
+
+    this.accountService.updateProfile(formData).pipe(
+      finalize(() => this.isUploadingPhoto = false)
+    ).subscribe({
+      next: (res) => {
+        // Backend returns updated user with Cloudinary URL
+        this.accountService.setUserData(res.data.user);
+        this.notificationService.show('Avatar updated and saved to Cloudinary', 'success');
+      },
+      error: (err) => {
+        this.notificationService.show(err.error?.message || 'Photo upload failed', 'error');
+      }
+    });
+  }
+
+  removePhoto(): void {
+    if (!confirm('Are you sure you want to remove your profile picture?')) return;
+    
+    this.isUploadingPhoto = true;
+    this.accountService.updateProfile({ photo: '' }).pipe(
+      finalize(() => this.isUploadingPhoto = false)
+    ).subscribe({
+      next: (res) => {
+        this.accountService.setUserData(res.data.user);
+        this.notificationService.show('Avatar removed successfully', 'success');
+      },
+      error: (err) => {
+        this.notificationService.show(err.error?.message || 'Failed to remove avatar', 'error');
+      }
+    });
+  }
+
+  navigateToKyc(): void {
+    window.location.href = '/kyc';
+  }
+
+  getRoleBadgeClass(role: string): string {
+    const classes: Record<string, string> = {
+      buyer: 'badge-buyer',
+      owner: 'badge-owner',
+      agent: 'badge-agent',
+      admin: 'badge-admin'
+    };
+    return classes[role] || 'badge-default';
+  }
+}

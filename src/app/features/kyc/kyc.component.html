@@ -1,5 +1,12 @@
 <div class="kyc-container">
   <div class="kyc-card">
+    <!-- Back Button -->
+    <div class="back-action">
+      <a routerLink="/account" class="btn-back">
+        <i class="fa-solid fa-arrow-left"></i> Return to Profile
+      </a>
+    </div>
+
     <!-- Header Section -->
     <div class="kyc-header">
       <div class="header-content">
@@ -66,14 +73,6 @@
               <div class="card-inner">
                 <i class="fa-solid fa-passport"></i>
                 <span class="label">Passport</span>
-              </div>
-            </label>
-            
-            <label class="doc-type-card" [class.active]="kycForm.get('documentType')?.value === 'drivers_license'">
-              <input type="radio" formControlName="documentType" value="drivers_license">
-              <div class="card-inner">
-                <i class="fa-solid fa-address-card"></i>
-                <span class="label">Driver's License</span>
               </div>
             </label>
           </div>

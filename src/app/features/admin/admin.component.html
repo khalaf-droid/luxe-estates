@@ -1,7 +1,14 @@
 <div class="admin-layout">
   <aside class="admin-sidebar">
-    <div class="sidebar-brand">
-      <img src="assets/luxe-gold.svg" alt="Luxe Logo" class="brand-logo" onerror="this.src=''; this.className='brand-logo-fallback'" />
+    <div class="sidebar-brand" *ngIf="auth.currentUser$ | async as user">
+      <ng-container *ngIf="user.photo; else brandLogoFallback">
+        <img [src]="user.photo" alt="Brand Logo" class="brand-logo-avatar" />
+      </ng-container>
+      <ng-template #brandLogoFallback>
+        <div class="brand-logo-fallback" style="display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: #111;">
+          {{ user.name.substring(0, 1) | uppercase }}
+        </div>
+      </ng-template>
       <span class="brand-text">LUXE ESTATES</span>
     </div>
 
@@ -25,11 +32,16 @@
     </nav>
 
     <div class="sidebar-footer">
-      <div class="user-profile">
-        <div class="avatar">AD</div>
+      <div class="user-profile" *ngIf="auth.currentUser$ | async as user">
+        <ng-container *ngIf="user.photo; else textAvatarAdmin">
+          <img [src]="user.photo" alt="Admin Profile" class="avatar user-avatar-img" />
+        </ng-container>
+        <ng-template #textAvatarAdmin>
+          <div class="avatar">{{ user.name.substring(0, 2) | uppercase }}</div>
+        </ng-template>
         <div class="info">
-          <span class="name">Admin User</span>
-          <span class="role">System Administrator</span>
+          <span class="name">{{ user.name }}</span>
+          <span class="role">{{ user.role === 'admin' ? 'System Administrator' : user.role }}</span>
         </div>
       </div>
       <a routerLink="/" class="logout-link"><i class="fa-solid fa-arrow-right-from-bracket"></i> Exit Admin</a>
