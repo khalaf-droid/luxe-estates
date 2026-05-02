@@ -1,6 +1,6 @@
 .notifications-container {
   position: fixed;
-  bottom: 28px;
+  top: 65px;
   right: 28px;
   z-index: 99000;
   display: flex;
@@ -20,14 +20,14 @@
   pointer-events: all;
   cursor: pointer;
   opacity: 0;
-  transform: translateX(40px);
+  transform: translateY(-40px); // Slide from top (Task 1)
   transition:
     opacity 0.35s ease,
     transform 0.35s ease;
 
   &.visible {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateY(0);
   }
 
   // Type colors

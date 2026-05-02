@@ -7,18 +7,18 @@
 
     <form [formGroup]="otpForm" (ngSubmit)="onSubmit()" class="otp-form">
       <div class="otp-inputs">
-        <input #otp1 type="text" maxlength="1" formControlName="otp1" 
-               (input)="onInput($event, otp2)" (keydown)="onKeyDown($event)">
-        <input #otp2 type="text" maxlength="1" formControlName="otp2" 
-               (input)="onInput($event, otp3)" (keydown)="onKeyDown($event, otp1)">
-        <input #otp3 type="text" maxlength="1" formControlName="otp3" 
-               (input)="onInput($event, otp4)" (keydown)="onKeyDown($event, otp2)">
-        <input #otp4 type="text" maxlength="1" formControlName="otp4" 
-               (input)="onInput($event, otp5)" (keydown)="onKeyDown($event, otp3)">
-        <input #otp5 type="text" maxlength="1" formControlName="otp5" 
-               (input)="onInput($event, otp6)" (keydown)="onKeyDown($event, otp4)">
-        <input #otp6 type="text" maxlength="1" formControlName="otp6" 
-               (input)="onInput($event)" (keydown)="onKeyDown($event, otp5)">
+        <input #otp1 type="text" maxlength="1" formControlName="otp1" (input)="onInput($event, otp2)"
+          (keydown)="onKeyDown($event)" (paste)="onPaste($event)">
+        <input #otp2 type="text" maxlength="1" formControlName="otp2" (input)="onInput($event, otp3)"
+          (keydown)="onKeyDown($event, otp1)" (paste)="onPaste($event)">
+        <input #otp3 type="text" maxlength="1" formControlName="otp3" (input)="onInput($event, otp4)"
+          (keydown)="onKeyDown($event, otp2)" (paste)="onPaste($event)">
+        <input #otp4 type="text" maxlength="1" formControlName="otp4" (input)="onInput($event, otp5)"
+          (keydown)="onKeyDown($event, otp3)" (paste)="onPaste($event)">
+        <input #otp5 type="text" maxlength="1" formControlName="otp5" (input)="onInput($event, otp6)"
+          (keydown)="onKeyDown($event, otp4)" (paste)="onPaste($event)">
+        <input #otp6 type="text" maxlength="1" formControlName="otp6" (input)="onInput($event)"
+          (keydown)="onKeyDown($event, otp5)" (paste)="onPaste($event)">
       </div>
 
       <button type="submit" class="otp-submit" [disabled]="otpForm.invalid || isLoading">

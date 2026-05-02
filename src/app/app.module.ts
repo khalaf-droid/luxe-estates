@@ -3,6 +3,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
+import { SocialLoginModule, SocialAuthServiceConfig, GoogleLoginProvider } from '@abacritt/angularx-social-login';
+import { environment } from '../environments/environment';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -36,6 +38,9 @@ import { AuthModalComponent } from './core/auth/auth-modal/auth-modal.component'
 
     // Footer feature module — exports FooterComponent as <app-footer>
     FooterModule,
+
+    // Task 1.4 — Google Sign-In SDK
+    SocialLoginModule,
   ],
 
   providers: [
@@ -49,8 +54,24 @@ import { AuthModalComponent } from './core/auth/auth-modal/auth-modal.component'
       useClass: TokenRefreshInterceptor,
       multi: true,
     },
+    // Task 1.4 — Google OAuth provider config
+    {
+      provide: 'SocialAuthServiceConfig',
+      useValue: {
+        autoLogin: false,
+        providers: [
+          {
+            id: GoogleLoginProvider.PROVIDER_ID,
+            provider: new GoogleLoginProvider(environment.googleClientId, {
+              oneTapEnabled: false, // disable One Tap to avoid cross-origin iframe issues
+            }),
+          },
+        ],
+        onError: (err: any) => console.error('[GoogleAuth] Provider error:', err),
+      } as SocialAuthServiceConfig,
+    },
   ],
 
   bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule { }

@@ -257,21 +257,23 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(10, 10, 15, 0.98);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(10, 10, 15, 0.95);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
   z-index: 999;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 40px;
+  gap: 60px;
   opacity: 0;
+  transform: translateY(-10px);
   pointer-events: none;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
   &.open {
     opacity: 1;
+    transform: translateY(0);
     pointer-events: auto;
   }
 
@@ -300,10 +302,18 @@
   }
 
   .mobile-nav-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 280px;
+
+    .btn-signin,
     .btn-list {
-      display: block;
-      min-width: 200px;
+      width: 100%;
       text-align: center;
+      padding: 14px;
+      font-size: 13px;
     }
   }
 }
