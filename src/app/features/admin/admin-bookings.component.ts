@@ -26,7 +26,14 @@ export class AdminBookingsComponent implements OnInit {
     search: '',
     status: 'all',
     sort: '-created_at',
-    page: 1
+    page: 1,
+    limit: 10
+  };
+
+  pagination = {
+    total: 0,
+    pages: 1,
+    pageArray: [] as number[]
   };
 
   private searchSubject = new Subject<string>();
@@ -39,6 +46,7 @@ export class AdminBookingsComponent implements OnInit {
       debounceTime(400),
       distinctUntilChanged()
     ).subscribe(() => {
+      this.filters.page = 1; // Reset to page 1 on search
       this.loadBookings();
     });
   }
@@ -63,11 +71,20 @@ export class AdminBookingsComponent implements OnInit {
     this.adminService.getBookings(this.filters).subscribe({
       next: (res) => {
         this.bookings = res.bookings;
+        this.pagination.total = res.total;
+        this.pagination.pages = res.pages;
+        this.pagination.pageArray = Array.from({ length: res.pages }, (_, i) => i + 1);
         this.calculateInsights();
         this.isLoading = false;
       },
       error: () => this.isLoading = false
     });
+  }
+
+  changePage(page: number): void {
+    if (page < 1 || page > this.pagination.pages) return;
+    this.filters.page = page;
+    this.loadBookings();
   }
 
   calculateInsights(): void {

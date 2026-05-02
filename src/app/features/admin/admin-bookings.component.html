@@ -69,59 +69,54 @@
     </div>
   </div>
 
-  <!-- Bookings Table -->
-  <div class="table-container" [class.loading]="isLoading">
-    <table>
+  <!-- Bookings Table Content -->
+  <div class="table-container" *ngIf="!isLoading">
+    <table class="admin-table">
       <thead>
         <tr>
-          <th class="checkbox-cell">
-            <input type="checkbox" [checked]="selectedIds.size === bookings.length && bookings.length > 0" (change)="toggleAll()">
-          </th>
-          <th>ID</th>
-          <th>Guest</th>
+          <th class="checkbox-col"><input type="checkbox" (change)="toggleAll()" [checked]="selectedIds.size === bookings.length && bookings.length > 0"></th>
+          <th>Booking ID</th>
+          <th>Client</th>
           <th>Property</th>
-          <th>Dates</th>
-          <th>Amount</th>
+          <th>Location</th>
+          <th>Date Range</th>
+          <th>Total Amount</th>
           <th>Status</th>
-          <th class="actions-cell">Quick Actions</th>
+          <th class="actions-col"></th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let booking of bookings" 
-            [class.active]="selectedBooking?._id === booking._id"
-            [class.priority]="booking.amount > 50000"
-            [class.failed-payment]="booking.payment?.status === 'failed'"
+            [class.selected]="selectedBooking?._id === booking._id"
+            [class.priority]="booking.isPriority"
             (click)="selectBooking(booking)">
-          <td class="checkbox-cell" (click)="$event.stopPropagation()">
+          <td class="checkbox-col" (click)="$event.stopPropagation()">
             <input type="checkbox" [checked]="selectedIds.has(booking._id)" (change)="toggleSelection(booking._id)">
           </td>
-          <td><span class="booking-id">#{{ booking._id.slice(-7).toUpperCase() }}</span></td>
-          <td>
-            <div class="user-meta">
-              <img [src]="booking.user_id?.photo || 'assets/images/default-avatar.png'" alt="Avatar">
-              <div class="text">
-                <span class="name">{{ booking.user_id?.name }}</span>
-                <span class="email">{{ booking.user_id?.email }}</span>
-              </div>
+          <td class="id-cell">#{{ booking._id.slice(-7).toUpperCase() }} <span *ngIf="booking.isPriority" class="priority-star">★</span></td>
+          <td class="user-cell">
+            <img [src]="booking.user_id?.photo || 'assets/images/default-avatar.png'" alt="User">
+            <div class="user-info">
+              <span class="name">{{ booking.user_id?.name }}</span>
+              <span class="email">{{ booking.user_id?.email }}</span>
             </div>
           </td>
-          <td>
-            <div class="property-meta">
-              <span class="title">{{ booking.property_id?.title }}</span>
-              <span class="city">{{ booking.property_id?.location?.city }}</span>
-            </div>
+          <td class="property-cell">{{ booking.property_id?.title }}</td>
+          <td class="location-cell">{{ booking.property_id?.location?.city }}</td>
+          <td class="date-cell">
+            {{ booking.start_date | date:'MMM dd' }} - {{ booking.end_date | date:'MMM dd' }}
+            <small class="year">{{ booking.start_date | date:'yy' }}</small>
           </td>
-          <td class="date-cell">{{ booking.start_date | date:'MMM dd' }} - {{ booking.end_date | date:'MMM dd' }}</td>
-          <td class="amount-cell" [class.high]="booking.amount > 20000">{{ booking.amount | currency }}</td>
-          <td>
+          <td class="price-cell">{{ booking.amount | currency:'EGP':'symbol-narrow':'1.2-2' }}</td>
+          <td class="status-cell">
             <div class="status-stack">
-              <span class="badge status-{{ booking.status }}">{{ booking.status }}</span>
-              <span class="payment-status" [class.error]="booking.payment?.status === 'failed'">
-                {{ booking.payment?.status || 'PENDING' }}
-              </span>
+              <span class="status-badge" [class]="booking.status">{{ booking.status }}</span>
+              <small class="payment-note" *ngIf="booking.payment?.status" [class]="booking.payment.status">
+                {{ booking.payment.status }}
+              </small>
             </div>
           </td>
-          <td class="actions-cell">
+          <td class="actions-col">
             <div class="quick-ops" (click)="$event.stopPropagation()">
               <button class="op-btn ok" (click)="selectBooking(booking); confirmAction('approved')"><i class="fa-solid fa-check"></i></button>
               <button class="op-btn no" (click)="selectBooking(booking); confirmAction('rejected')"><i class="fa-solid fa-xmark"></i></button>
@@ -130,11 +125,39 @@
         </tr>
       </tbody>
     </table>
-    
-    <div class="no-data" *ngIf="!isLoading && bookings.length === 0">
+
+    <!-- Pagination Bar -->
+    <div class="pagination-bar" *ngIf="pagination.pages > 1">
+      <div class="pagination-info">
+        Showing <strong>{{ bookings.length }}</strong> of <strong>{{ pagination.total }}</strong> results
+      </div>
+      <div class="pagination-controls">
+        <button class="pag-btn" [disabled]="filters.page === 1" (click)="changePage(filters.page - 1)">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        
+        <button *ngFor="let p of pagination.pageArray" 
+                class="pag-btn" 
+                [class.active]="p === filters.page"
+                (click)="changePage(p)">
+          {{ p }}
+        </button>
+
+        <button class="pag-btn" [disabled]="filters.page === pagination.pages" (click)="changePage(filters.page + 1)">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="no-data" *ngIf="bookings.length === 0">
       <i class="fa-solid fa-folder-open"></i>
       <p>No reservations matching your filters.</p>
     </div>
+  </div>
+
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading Operations Engine...</p>
   </div>
 
   <!-- Side Detail Panel -->
