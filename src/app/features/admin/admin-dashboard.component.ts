@@ -1,26 +1,15 @@
-import { Component } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { catchError, map, startWith } from 'rxjs/operators';
-import { AdminService, AdminStats } from './admin.service';
+import { Component, inject, OnInit } from '@angular/core';
+import { Observable, BehaviorSubject, combineLatest, of } from 'rxjs';
+import { catchError, map, startWith, switchMap } from 'rxjs/operators';
+import { AdminService, AdminStats, ActivityFeedItem, RevenueReportItem } from './admin.service';
 
-interface DashboardMetric {
-  label: string;
-  value: string;
-  helper: string;
-}
-
-interface DashboardQueue {
-  eyebrow: string;
-  title: string;
-  description: string;
-  route: string;
-  cta: string;
-  badge: 'gold' | 'emerald' | 'crimson';
-  badgeText: string;
-}
-
-interface DashboardViewModel {
-  metrics: DashboardMetric[];
+interface DashboardState {
+  stats: AdminStats | null;
+  revenue: RevenueReportItem[];
+  transactions: any[];
+  activities: ActivityFeedItem[];
+  loading: boolean;
+  error: string | null;
 }
 
 @Component({
@@ -28,87 +17,35 @@ interface DashboardViewModel {
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.scss']
 })
-export class AdminDashboardComponent {
-  private readonly fallbackStats: AdminStats = {
-    users: 0,
-    properties: 0,
-    bookings: 0,
-    revenue: 0,
-  };
+export class AdminDashboardComponent implements OnInit {
+  private adminService = inject(AdminService);
 
-  readonly queues: DashboardQueue[] = [
-    {
-      eyebrow: 'Access',
-      title: 'Users',
-      description: 'Review account status, permissions, and admin access.',
-      route: '/admin/users',
-      cta: 'Manage Users',
-      badge: 'gold',
-      badgeText: 'Roles',
-    },
-    {
-      eyebrow: 'Catalog',
-      title: 'Properties',
-      description: 'Approve listings and keep the luxury inventory polished.',
-      route: '/admin/properties',
-      cta: 'Review Listings',
-      badge: 'emerald',
-      badgeText: 'Listings',
-    },
-    {
-      eyebrow: 'Operations',
-      title: 'Bookings',
-      description: 'Track booking activity and handle open reservation flow.',
-      route: '/admin/bookings',
-      cta: 'Open Bookings',
-      badge: 'crimson',
-      badgeText: 'Live',
-    },
-  ];
+  private periodSubject = new BehaviorSubject<'monthly' | 'yearly'>('monthly');
+  period$ = this.periodSubject.asObservable();
 
-  readonly vm$: Observable<DashboardViewModel>;
+  state$: Observable<DashboardState>;
 
-  constructor(private adminService: AdminService) {
-    this.vm$ = this.adminService.getStats().pipe(
-      startWith(this.fallbackStats),
-      catchError(() => of(this.fallbackStats)),
-      map((stats) => ({ metrics: this.createMetrics(stats) }))
+  constructor() {
+    this.state$ = combineLatest([
+      this.adminService.getStats().pipe(startWith(null), catchError(() => of(null))),
+      this.period$.pipe(switchMap(period => this.adminService.getRevenueAnalytics(period).pipe(startWith([]), catchError(() => of([]))))),
+      this.adminService.getRecentTransactions().pipe(startWith([]), catchError(() => of([]))),
+      this.adminService.getSystemActivity().pipe(startWith([]), catchError(() => of([])))
+    ]).pipe(
+      map(([stats, revenue, transactions, activities]) => ({
+        stats,
+        revenue,
+        transactions,
+        activities,
+        loading: stats === null && revenue.length === 0,
+        error: null
+      }))
     );
   }
 
-  private createMetrics(stats: AdminStats): DashboardMetric[] {
-    return [
-      {
-        label: 'Users',
-        value: stats.users.toLocaleString(),
-        helper: 'Registered accounts',
-      },
-      {
-        label: 'Properties',
-        value: stats.properties.toLocaleString(),
-        helper: 'Managed listings',
-      },
-      {
-        label: 'Bookings',
-        value: stats.bookings.toLocaleString(),
-        helper: 'Reservation records',
-      },
-      {
-        label: 'Revenue',
-        value: this.formatPrice(stats.revenue),
-        helper: 'Paid transactions',
-      },
-      {
-        label: 'Status',
-        value: 'Live',
-        helper: 'Mock fallback ready',
-      },
-    ];
-  }
+  ngOnInit(): void {}
 
-  private formatPrice(price: number): string {
-    if (price >= 1_000_000) return `$${(price / 1_000_000).toFixed(1)}M`;
-    if (price >= 1_000) return `$${(price / 1_000).toFixed(0)}K`;
-    return `$${price.toLocaleString()}`;
+  setPeriod(period: 'monthly' | 'yearly') {
+    this.periodSubject.next(period);
   }
 }

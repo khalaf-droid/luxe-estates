@@ -69,9 +69,12 @@ export class PropertiesPageComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(meta => {
         if (meta) {
-          this.totalPages   = meta.pages;
-          this.totalResults = meta.total;
-          this.currentPage  = meta.page;
+          // Delay to avoid ExpressionChangedAfterItHasBeenCheckedError
+          setTimeout(() => {
+            this.totalPages   = meta.pages;
+            this.totalResults = meta.total;
+            this.currentPage  = meta.page;
+          });
         }
       });
   }

@@ -1,46 +1,208 @@
-<section class="admin-panel-card">
-  <h2>Properties</h2>
-  <p>Review property listings and manage their approval status.</p>
+<div class="admin-properties-container">
+  <!-- Header & Filters -->
+  <div class="admin-header-actions">
+    <div class="header-main">
+      <h1 style="font-family: var(--font-display); font-size: 2.5rem; color: var(--white); margin-bottom: 0.5rem;">
+        Property Management</h1>
+      <p style="color: rgba(255,255,255,0.5); font-family: var(--font-body);">Manage, review, and moderate luxury
+        listings across the global portfolio.</p>
+    </div>
 
-  <div class="table-actions">
-    <div *ngIf="isLoading" class="loading-label">Loading properties...</div>
+    <!-- Tabs -->
+    <nav class="admin-tabs">
+      <button class="tab-btn" [class.active]="filters.isApproved === 'false'" (click)="setTab('pending')">Pending
+        Review</button>
+      <button class="tab-btn" [class.active]="filters.isApproved === 'true'"
+        (click)="setTab('approved')">Approved</button>
+      <button class="tab-btn" [class.active]="filters.isApproved === 'all'" (click)="setTab('all')">All
+        Listings</button>
+    </nav>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="Search by property title..." (input)="onSearch($event)"
+          [value]="filters.search">
+      </div>
+
+      <div class="filters-group">
+        <!-- Type Filter -->
+        <select [(ngModel)]="filters.type" (change)="onFilterChange()">
+          <option value="all">All Types</option>
+          <option value="villa">Villa</option>
+          <option value="apartment">Apartment</option>
+          <option value="office">Office</option>
+          <option value="studio">Studio</option>
+          <option value="commercial">Commercial</option>
+        </select>
+
+        <!-- Price Range Filter -->
+        <select [(ngModel)]="filters.priceRange" (change)="onFilterChange()">
+          <option value="all">Any Price</option>
+          <option value="low">Under $500k (Entry)</option>
+          <option value="medium">$500k - $5M (Premium)</option>
+          <option value="high">Above $5M (Ultra-Luxury)</option>
+        </select>
+      </div>
+    </div>
   </div>
 
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th>Location</th>
-          <th>Price</th>
-          <th>Status</th>
-          <th>Approval</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let property of properties">
-          <td>{{ property.title }}</td>
-          <td>{{ property.city || property.location || 'N/A' }}</td>
-          <td>{{ property.price | currency:property.currency:'symbol' }}</td>
-          <td>{{ property.status | uppercase }}</td>
-          <td>{{ getApprovalStatus(property) | uppercase }}</td>
-          <td>
-            <button
-              class="action-btn"
-              [disabled]="activePropertyId === property._id"
-              (click)="updateApproval(property, 'approve')">
-              Approve
-            </button>
-            <button
-              class="action-btn reject"
-              [disabled]="activePropertyId === property._id"
-              (click)="updateApproval(property, 'reject')">
-              Reject
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <i class="fa-solid fa-circle-notch fa-spin"></i>
+    <span>Fetching Portfolio...</span>
   </div>
-</section>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && properties.length === 0" class="loading-state">
+    <i class="fa-solid fa-folder-open" style="opacity: 0.3;"></i>
+    <span>No properties found matching your criteria.</span>
+  </div>
+
+  <!-- Properties Grid -->
+  <div *ngIf="!isLoading && properties.length > 0" class="properties-grid">
+    <article *ngFor="let property of properties" class="property-card" (click)="selectProperty(property)">
+
+      <div class="card-image">
+        <img [src]="property.images?.[0] || 'assets/property-placeholder.jpg'" [alt]="property.title">
+        <div class="badge-status" [class.pending]="!property.isApproved" [class.approved]="property.isApproved">
+          {{ property.isApproved ? 'Approved' : 'Pending' }}
+        </div>
+      </div>
+
+      <div class="card-content">
+        <div class="title-row">
+          <h3>{{ (property.title.length > 20) ? (property.title | slice:0:17) + '...' : property.title }}</h3>
+          <span class="price">{{ property.price | currency:property.currency:'symbol':'1.0-0' }}</span>
+        </div>
+
+        <div class="location">
+          <i class="fa-solid fa-location-dot"></i>
+          <span>{{ property.location?.city }}, {{ property.location?.district }}</span>
+        </div>
+
+        <div class="owner-info">
+          <div class="owner-avatar">
+            {{ property.owner?.name?.charAt(0) || 'U' }}
+          </div>
+          <div class="owner-details">
+            <span class="name">{{ property.owner?.name || 'Unknown User' }}</span>
+            <span class="time">{{ property.createdAt | date:'mediumDate' }}</span>
+          </div>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="!isLoading && pages > 1">
+    <button class="page-btn" [disabled]="page === 1" (click)="setPage(page - 1)">
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+
+    <span class="page-info">Page {{ page }} of {{ pages }}</span>
+
+    <button class="page-btn" [disabled]="page === pages" (click)="setPage(page + 1)">
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>
+  </div>
+
+  <!-- Detail Drawer -->
+  <div class="details-drawer-overlay" *ngIf="selectedProperty" (click)="selectedProperty = null">
+    <div class="details-drawer" (click)="$event.stopPropagation()">
+      <header class="drawer-header">
+        <h2>Property Details</h2>
+        <button class="close-btn" (click)="selectedProperty = null">&times;</button>
+      </header>
+
+      <div class="drawer-content">
+        <!-- Gallery Preview -->
+        <div class="gallery-preview">
+          <img [src]="selectedProperty.images?.[0]" alt="Main image">
+          <div class="more-images">
+            <i class="fa-solid fa-images"></i>
+            <span>+{{ selectedProperty.images?.length || 0 }} Images</span>
+          </div>
+        </div>
+
+        <!-- Main Info -->
+        <div class="main-info">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+            <span class="price">{{ selectedProperty.price | currency:selectedProperty.currency:'symbol':'1.0-0'
+              }}</span>
+            <span class="badge-status" [class.pending]="!selectedProperty.isApproved"
+              [class.approved]="selectedProperty.isApproved"
+              style="position: static; font-size: 11px; padding: 4px 10px;">
+              {{ selectedProperty.isApproved ? 'Approved & Live' : 'Under Review' }}
+            </span>
+          </div>
+          <h3>{{ selectedProperty.title }}</h3>
+          <div class="loc">
+            <i class="fa-solid fa-location-dot"></i>
+            <span>{{ selectedProperty.location?.street }}, {{ selectedProperty.location?.district }}, {{
+              selectedProperty.location?.city }}</span>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+          <div class="stat-item">
+            <span class="val">{{ selectedProperty.bedrooms }}</span>
+            <span class="label">Beds</span>
+          </div>
+          <div class="stat-item">
+            <span class="val">{{ selectedProperty.bathrooms }}</span>
+            <span class="label">Baths</span>
+          </div>
+          <div class="stat-item">
+            <span class="val">{{ selectedProperty.area }}</span>
+            <span class="label">Sq Ft</span>
+          </div>
+          <div class="stat-item">
+            <span class="val" style="text-transform: capitalize;">{{ selectedProperty.type }}</span>
+            <span class="label">Type</span>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="description-box">
+          <h4>Description</h4>
+          <p>{{ selectedProperty.description }}</p>
+        </div>
+
+        <!-- Features -->
+        <div class="features-list" *ngIf="selectedProperty.features?.length">
+          <h4>Amenities & Features</h4>
+          <div class="features-grid">
+            <div class="feature-tag" *ngFor="let feat of selectedProperty.features">
+              <i class="fa-solid fa-check"></i>
+              {{ feat }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Owner Card -->
+        <div class="owner-card">
+          <div class="avatar-lg">{{ selectedProperty.owner?.name?.charAt(0) }}</div>
+          <div class="info">
+            <span class="label">Property Owner</span>
+            <span class="name">{{ selectedProperty.owner?.name }}</span>
+            <span class="email">{{ selectedProperty.owner?.email }}</span>
+          </div>
+        </div>
+      </div>
+
+      <footer class="drawer-footer">
+        <button class="reject-btn" [disabled]="activePropertyId === selectedProperty._id"
+          (click)="updateApproval(selectedProperty, 'reject')">
+          Reject Listing
+        </button>
+        <button class="approve-btn" [disabled]="activePropertyId === selectedProperty._id"
+          (click)="updateApproval(selectedProperty, 'approve')">
+          Approve & Publish
+        </button>
+      </footer>
+    </div>
+  </div>
+</div>

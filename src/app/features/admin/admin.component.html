@@ -1,25 +1,42 @@
-<section class="admin-shell">
+<div class="admin-layout">
   <aside class="admin-sidebar">
-    <div class="brand">
-      <span>LUXE</span>
-      <span>ADMIN</span>
+    <div class="sidebar-brand">
+      <img src="assets/luxe-gold.svg" alt="Luxe Logo" class="brand-logo" onerror="this.src=''; this.className='brand-logo-fallback'" />
+      <span class="brand-text">LUXE ESTATES</span>
     </div>
 
     <nav class="admin-nav">
-      <a routerLink="overview" routerLinkActive="active">Overview</a>
-      <a routerLink="users" routerLinkActive="active">Users</a>
-      <a routerLink="properties" routerLinkActive="active">Properties</a>
-      <a routerLink="bookings" routerLinkActive="active">Bookings</a>
+      <div class="nav-section">MAIN</div>
+      <a routerLink="overview" routerLinkActive="active" class="nav-item">
+        <i class="fa-solid fa-chart-line"></i> Dashboard
+      </a>
+      <a routerLink="users" routerLinkActive="active" class="nav-item">
+        <i class="fa-solid fa-users"></i> Users
+      </a>
+      <a routerLink="kyc" routerLinkActive="active" class="nav-item">
+        <i class="fa-solid fa-id-card-clip"></i> KYC Center
+      </a>
+      <a routerLink="properties" routerLinkActive="active" class="nav-item">
+        <i class="fa-solid fa-building"></i> Properties
+      </a>
+      <a routerLink="bookings" routerLinkActive="active" class="nav-item">
+        <i class="fa-solid fa-calendar-check"></i> Bookings
+      </a>
     </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-profile">
+        <div class="avatar">AD</div>
+        <div class="info">
+          <span class="name">Admin User</span>
+          <span class="role">System Administrator</span>
+        </div>
+      </div>
+      <a routerLink="/" class="logout-link"><i class="fa-solid fa-arrow-right-from-bracket"></i> Exit Admin</a>
+    </div>
   </aside>
 
-  <main class="admin-content">
-    <div class="admin-topbar">
-      <div class="section-eyebrow">Admin Portal</div>
-      <h1>Admin Dashboard</h1>
-      <p>Manage users, properties, and bookings from a single control panel.</p>
-    </div>
-
+  <main class="admin-main">
     <router-outlet></router-outlet>
   </main>
-</section>
+</div>

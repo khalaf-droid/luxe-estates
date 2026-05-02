@@ -1,99 +1,204 @@
 <div class="kyc-container">
   <div class="kyc-card">
+    <!-- Header Section -->
     <div class="kyc-header">
-      <span class="eyebrow">Verification</span>
-      <h1>KYC Verification</h1>
-      <p class="description">
-        To ensure the security of our platform and comply with regulations, we require identity verification before you can book properties or make payments.
-      </p>
+      <div class="header-content">
+        <span class="eyebrow"><i class="fa-solid fa-shield-halved"></i> Security & Trust</span>
+        <h1>Identity Verification</h1>
+        <p class="description">
+          To protect our community and comply with international regulations, we require a one-time identity verification.
+        </p>
+      </div>
     </div>
 
-    <!-- Status Overview -->
+    <!-- Status Banner (Dynamic) -->
     <div class="status-banner" [ngClass]="status.status" *ngIf="status">
       <div class="status-content">
-        <span class="status-icon" [ngSwitch]="status.status">
-          <i *ngSwitchCase="'approved'">✓</i>
-          <i *ngSwitchCase="'pending'">⌛</i>
-          <i *ngSwitchCase="'rejected'">✕</i>
-          <i *ngSwitchCase="'not_submitted'">!</i>
-        </span>
+        <div class="status-icon-wrapper">
+          <i class="fa-solid" [ngClass]="{
+            'fa-circle-check approved-icon': status.status === 'approved',
+            'fa-clock pending-icon': status.status === 'pending',
+            'fa-circle-exclamation rejected-icon': status.status === 'rejected',
+            'fa-id-card-clip default-icon': status.status === 'not_submitted'
+          }"></i>
+        </div>
         <div class="status-text">
           <h3>{{ getStatusTitle() }}</h3>
           <p>{{ getStatusDescription() }}</p>
         </div>
       </div>
-      <div class="status-badge" [ngClass]="status.status">{{ status.status | titlecase }}</div>
+      <div class="status-badge" [ngClass]="status.status">
+        {{ status.status | titlecase }}
+      </div>
     </div>
 
-    <!-- KYC Form -->
-    <div class="kyc-form-wrapper" *ngIf="status?.status === 'not_submitted' || status?.status === 'rejected'">
+    <!-- Rejection Reason Alert -->
+    <div class="rejection-reason-box" *ngIf="status?.status === 'rejected'">
+      <div class="reason-header">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span>Reason for rejection:</span>
+      </div>
+      <p class="reason-content">{{ status?.reason }}</p>
+    </div>
+
+    <!-- KYC Form Workflow -->
+    <div class="kyc-workflow" *ngIf="status?.status === 'not_submitted' || status?.status === 'rejected'">
       <form [formGroup]="kycForm" (ngSubmit)="onSubmit()">
-        <!-- Document Type -->
-        <div class="form-section">
-          <label class="section-label">Select Document Type</label>
+        
+        <!-- Step 1: Document Type -->
+        <div class="workflow-step">
+          <div class="step-label">
+            <span class="step-num">01</span>
+            <span class="step-title">Select Document Type</span>
+          </div>
+          
           <div class="doc-type-grid">
             <label class="doc-type-card" [class.active]="kycForm.get('documentType')?.value === 'national_id'">
               <input type="radio" formControlName="documentType" value="national_id">
-              <span class="icon">🪪</span>
-              <span class="label">National ID</span>
+              <div class="card-inner">
+                <i class="fa-solid fa-id-card"></i>
+                <span class="label">National ID</span>
+              </div>
             </label>
+            
             <label class="doc-type-card" [class.active]="kycForm.get('documentType')?.value === 'passport'">
               <input type="radio" formControlName="documentType" value="passport">
-              <span class="icon">🛂</span>
-              <span class="label">Passport</span>
+              <div class="card-inner">
+                <i class="fa-solid fa-passport"></i>
+                <span class="label">Passport</span>
+              </div>
             </label>
+            
             <label class="doc-type-card" [class.active]="kycForm.get('documentType')?.value === 'drivers_license'">
               <input type="radio" formControlName="documentType" value="drivers_license">
-              <span class="icon">🪪</span>
-              <span class="label">Driver's License</span>
+              <div class="card-inner">
+                <i class="fa-solid fa-address-card"></i>
+                <span class="label">Driver's License</span>
+              </div>
             </label>
           </div>
         </div>
 
-        <!-- Image Uploads -->
-        <div class="upload-section">
-          <!-- Front Image -->
-          <div class="upload-box">
-            <label class="section-label">{{ kycForm.get('documentType')?.value === 'passport' ? 'Passport Main Page' : 'Front Side' }}</label>
-            <div class="drop-zone" (click)="frontInput.click()" [class.has-preview]="frontPreview">
-              <input type="file" #frontInput hidden (change)="onFileSelected($event, 'front')" accept="image/*">
-              <img *ngIf="frontPreview" [src]="frontPreview" class="preview-img">
-              <div class="upload-placeholder" *ngIf="!frontPreview">
-                <span class="plus">+</span>
-                <span>Upload Image</span>
-              </div>
-            </div>
+        <!-- Step 2: Image Uploads -->
+        <div class="workflow-step">
+          <div class="step-label">
+            <span class="step-num">02</span>
+            <span class="step-title">Upload Documents</span>
           </div>
 
-          <!-- Back Image (Hidden for Passport) -->
-          <div class="upload-box" *ngIf="kycForm.get('documentType')?.value !== 'passport'">
-            <label class="section-label">Back Side</label>
-            <div class="drop-zone" (click)="backInput.click()" [class.has-preview]="backPreview">
-              <input type="file" #backInput hidden (change)="onFileSelected($event, 'back')" accept="image/*">
-              <img *ngIf="backPreview" [src]="backPreview" class="preview-img">
-              <div class="upload-placeholder" *ngIf="!backPreview">
-                <span class="plus">+</span>
-                <span>Upload Image</span>
+          <div class="upload-grid">
+            <!-- Front Image -->
+            <div class="upload-field">
+              <label class="field-hint">{{ kycForm.get('documentType')?.value === 'passport' ? 'Main Data Page' : 'Front Side' }}</label>
+              <div class="drop-zone" (click)="frontInput.click()" [class.has-preview]="frontPreview">
+                <input type="file" #frontInput hidden (change)="onFileSelected($event, 'front')" accept="image/*">
+                
+                <ng-container *ngIf="frontPreview; else frontPlaceholder">
+                  <img [src]="frontPreview" class="preview-img" alt="Front Preview">
+                  <div class="change-overlay">
+                    <i class="fa-solid fa-camera-rotate"></i> Change Image
+                  </div>
+                </ng-container>
+                
+                <ng-template #frontPlaceholder>
+                  <div class="upload-placeholder">
+                    <div class="icon-circle"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                    <span class="main-text">Upload Front Image</span>
+                    <span class="sub-text">JPG, PNG or WEBP (Max 5MB)</span>
+                  </div>
+                </ng-template>
+              </div>
+            </div>
+
+            <!-- Back Image (Conditional) -->
+            <div class="upload-field" *ngIf="kycForm.get('documentType')?.value !== 'passport'">
+              <label class="field-hint">Back Side</label>
+              <div class="drop-zone" (click)="backInput.click()" [class.has-preview]="backPreview">
+                <input type="file" #backInput hidden (change)="onFileSelected($event, 'back')" accept="image/*">
+                
+                <ng-container *ngIf="backPreview; else backPlaceholder">
+                  <img [src]="backPreview" class="preview-img" alt="Back Preview">
+                  <div class="change-overlay">
+                    <i class="fa-solid fa-camera-rotate"></i> Change Image
+                  </div>
+                </ng-container>
+                
+                <ng-template #backPlaceholder>
+                  <div class="upload-placeholder">
+                    <div class="icon-circle"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                    <span class="main-text">Upload Back Image</span>
+                    <span class="sub-text">Required for this document</span>
+                  </div>
+                </ng-template>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="form-actions">
-          <button type="submit" class="btn-gold" [disabled]="kycForm.invalid || isUploading || isLoading">
-            <span *ngIf="!isLoading && !isUploading">Submit Verification</span>
-            <span *ngIf="isLoading || isUploading" class="spinner"></span>
-            <span *ngIf="isUploading">Uploading Images...</span>
-            <span *ngIf="isLoading && !isUploading">Submitting...</span>
+        <!-- Step 3: Property Ownership Documents -->
+        <div class="workflow-step">
+          <div class="step-label">
+            <span class="step-num">03</span>
+            <span class="step-title">Property Ownership Documents</span>
+          </div>
+          <p class="step-desc">Upload documents from the Real Estate Registry (Shahr El Aqari) to prove property ownership.</p>
+
+          <div class="ownership-upload-container">
+            <div class="ownership-grid">
+              <!-- Existing Previews -->
+              <div class="ownership-preview-card" *ngFor="let preview of ownershipPreviews; let i = index">
+                <img [src]="preview" alt="Ownership Document">
+                <button type="button" class="remove-btn" (click)="removeOwnershipFile(i)">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+
+              <!-- Add New Upload -->
+              <div class="add-ownership-card" (click)="ownershipInput.click()">
+                <input type="file" #ownershipInput hidden (change)="onFileSelected($event, 'ownership')" multiple accept="image/*">
+                <i class="fa-solid fa-plus"></i>
+                <span>Add Document</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Section -->
+        <div class="submit-section">
+          <div class="security-info">
+            <i class="fa-solid fa-lock"></i>
+            <span>Your documents are encrypted and stored securely.</span>
+          </div>
+          
+          <button type="submit" class="btn-primary-gold" [disabled]="kycForm.invalid || isUploading || isLoading">
+            <span class="btn-content" *ngIf="!isLoading && !isUploading">
+              Submit for Verification <i class="fa-solid fa-arrow-right-long"></i>
+            </span>
+            
+            <div class="btn-loading" *ngIf="isLoading || isUploading">
+              <span class="spinner-small"></span>
+              <span>{{ isUploading ? 'Uploading Images...' : 'Finalizing Submission...' }}</span>
+            </div>
           </button>
         </div>
       </form>
     </div>
 
     <!-- Approved State Message -->
-    <div class="approved-msg" *ngIf="status?.status === 'approved'">
-      <p>Congratulations! Your account is verified. You can now access all features, including property bookings and bidding.</p>
-      <button class="btn-outline" routerLink="/properties">Browse Properties</button>
+    <div class="approved-success" *ngIf="status?.status === 'approved'">
+      <div class="success-icon"><i class="fa-solid fa-certificate"></i></div>
+      <h2>Account Fully Verified</h2>
+      <p>Congratulations! Your identity has been confirmed. You now have full access to all premium features of Luxe Estates.</p>
+      
+      <div class="success-actions">
+        <button class="btn-gold" routerLink="/properties">
+          Explore Properties <i class="fa-solid fa-house-chimney"></i>
+        </button>
+        <button class="btn-ghost" routerLink="/user/dashboard">
+          Go to Dashboard
+        </button>
+      </div>
     </div>
   </div>
 </div>
+

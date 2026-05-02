@@ -28,6 +28,10 @@ export class KycComponent implements OnInit, OnDestroy {
   selectedFrontFile: File | null = null;
   selectedBackFile: File | null = null;
 
+  // New: Property Ownership Documents
+  ownershipPreviews: string[] = [];
+  selectedOwnershipFiles: File[] = [];
+
   private pollSubscription?: Subscription;
 
   ngOnInit(): void {
@@ -44,7 +48,8 @@ export class KycComponent implements OnInit, OnDestroy {
     this.kycForm = this.fb.group({
       documentType: ['national_id', Validators.required],
       frontImage: [null, Validators.required],
-      backImage: [null]
+      backImage: [null],
+      ownershipDocs: [[]] // Track ownership document count or existence
     });
 
     // Handle Passport logic (back image not required)
@@ -83,8 +88,28 @@ export class KycComponent implements OnInit, OnDestroy {
     });
   }
 
-  onFileSelected(event: any, side: 'front' | 'back'): void {
-    const file = event.target.files[0];
+  onFileSelected(event: any, side: 'front' | 'back' | 'ownership'): void {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    if (side === 'ownership') {
+      // Handle multiple files for ownership
+      Array.from(files as FileList).forEach(file => {
+        if (!file.type.startsWith('image/')) return;
+        
+        const reader = new FileReader();
+        reader.onload = () => {
+          this.ownershipPreviews.push(reader.result as string);
+          this.selectedOwnershipFiles.push(file);
+          this.kycForm.patchValue({ ownershipDocs: this.selectedOwnershipFiles });
+        };
+        reader.readAsDataURL(file);
+      });
+      return;
+    }
+
+    // Handle single files for ID
+    const file = files[0];
     if (file) {
       if (!file.type.startsWith('image/')) {
         this.notificationService.show('Please select an image file', 'error');
@@ -97,7 +122,7 @@ export class KycComponent implements OnInit, OnDestroy {
           this.frontPreview = reader.result as string;
           this.selectedFrontFile = file;
           this.kycForm.patchValue({ frontImage: true });
-        } else {
+        } else if (side === 'back') {
           this.backPreview = reader.result as string;
           this.selectedBackFile = file;
           this.kycForm.patchValue({ backImage: true });
@@ -105,6 +130,12 @@ export class KycComponent implements OnInit, OnDestroy {
       };
       reader.readAsDataURL(file);
     }
+  }
+
+  removeOwnershipFile(index: number): void {
+    this.ownershipPreviews.splice(index, 1);
+    this.selectedOwnershipFiles.splice(index, 1);
+    this.kycForm.patchValue({ ownershipDocs: this.selectedOwnershipFiles });
   }
 
   async onSubmit(): Promise<void> {
@@ -124,25 +155,33 @@ export class KycComponent implements OnInit, OnDestroy {
         backImageUrl = backRes.url;
       }
 
+      // 3. Upload Ownership Documents
+      const ownershipUrls: string[] = [];
+      for (const file of this.selectedOwnershipFiles) {
+        const res = await this.kycService.uploadImage(file).toPromise();
+        if (res?.success) ownershipUrls.push(res.url);
+      }
+
       this.isUploading = false;
       this.isLoading = true;
 
-      // 3. Submit KYC
+      // 4. Submit KYC
       const submission: KYCSubmission = {
         documentType: this.kycForm.value.documentType,
         frontImage: frontRes.url,
-        backImage: backImageUrl
+        backImage: backImageUrl,
+        ownershipDocuments: ownershipUrls.length > 0 ? ownershipUrls : undefined
       };
 
       this.kycService.submitKYC(submission).pipe(
         finalize(() => this.isLoading = false)
       ).subscribe({
         next: () => {
-          this.notificationService.show('KYC documents submitted successfully!', 'success');
+          this.notificationService.show('Documents submitted successfully!', 'success');
           this.fetchStatus(); // Refresh status immediately
         },
         error: (err) => {
-          this.notificationService.show(err.error?.message || 'Failed to submit KYC', 'error');
+          this.notificationService.show(err.error?.message || 'Failed to submit documents', 'error');
         }
       });
 
@@ -155,18 +194,25 @@ export class KycComponent implements OnInit, OnDestroy {
   getStatusTitle(): string {
     switch (this.status?.status) {
       case 'approved': return 'Identity Verified';
-      case 'pending': return 'Verification Pending';
-      case 'rejected': return 'Verification Rejected';
-      default: return 'Action Required';
+      case 'pending': return 'Verification in Progress';
+      case 'rejected': return 'Action Required: Verification Rejected';
+      case 'not_submitted': return 'Verify Your Identity';
+      default: return 'Verification Status';
     }
   }
 
   getStatusDescription(): string {
     switch (this.status?.status) {
-      case 'approved': return 'Your identity has been successfully verified. You can now book properties.';
-      case 'pending': return 'We are currently reviewing your documents. This usually takes 24-48 hours.';
-      case 'rejected': return this.status?.reason || 'Your verification was rejected. Please check your documents and try again.';
-      default: return 'Please submit your identity documents to verify your account.';
+      case 'approved': 
+        return 'Your identity has been successfully confirmed. You have unlocked full access to all premium features.';
+      case 'pending': 
+        return 'Our compliance team is currently reviewing your documents. This usually takes 24–48 hours.';
+      case 'rejected': 
+        return 'Unfortunately, your submission did not meet our requirements. Please review the reason below and re-submit.';
+      case 'not_submitted': 
+        return 'To ensure a secure marketplace, we require all members to verify their identity before transacting.';
+      default: 
+        return 'Please provide valid government-issued identification.';
     }
   }
 }

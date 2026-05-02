@@ -1,77 +1,84 @@
 <section class="admin-dashboard">
-  <div class="admin-dashboard__container">
-    <header class="dashboard-hero reveal visible">
-      <div class="dashboard-hero__copy">
-        <div class="section-eyebrow">Admin Overview</div>
-        <h1 class="section-title">Luxe <em>Operations</em></h1>
-        <p>
-          A focused control room for platform health, premium listing review, user access, and booking operations.
-        </p>
+  <div class="admin-dashboard__container" *ngIf="state$ | async as state">
+    
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="breadcrumb">Admin Portal <span class="separator">/</span> <span class="current">OVERVIEW</span></div>
+      <div class="actions">
+        <button class="icon-btn"><i class="fa-regular fa-bell"></i><span class="dot-indicator"></span></button>
+        <div class="market-status">
+          <span class="label">MARKET STATUS</span>
+          <span class="status"><span class="dot-green"></span> LIVE ANALYTICS</span>
+        </div>
+        <button class="btn-primary">GENERATE REPORT</button>
       </div>
+    </div>
 
-      <div class="dashboard-hero__actions">
-        <a routerLink="/admin/properties" class="btn btn-secondary" data-cursor-hover>
-          Review Listings
-        </a>
-        <a routerLink="/admin/bookings" class="btn btn-primary" data-cursor-hover>
-          Open Bookings
-        </a>
-      </div>
+    <!-- Header -->
+    <header class="dashboard-hero">
+      <h1 class="section-title">Portfolio Performance</h1>
+      <p class="quote">"Wealth consists not in having great possessions, but in having few wants." — Epictetus</p>
     </header>
 
-    <ng-container *ngIf="vm$ | async as vm">
-      <div class="metrics-strip reveal visible reveal-delay-1">
-        <article class="metric-card" *ngFor="let metric of vm.metrics">
-          <span>{{ metric.label }}</span>
-          <strong>{{ metric.value }}</strong>
-          <p>{{ metric.helper }}</p>
-        </article>
+    <div *ngIf="state.loading" class="loading-state">
+      Loading dashboard data...
+    </div>
+
+    <ng-container *ngIf="!state.loading">
+      <!-- KPI Grid -->
+      <div class="metrics-grid">
+        <app-kpi-card
+          label="TOTAL USERS"
+          [value]="state.stats?.users | number"
+          [percentage]="12.4"
+          [isPositive]="true"
+          iconClass="fa-solid fa-users">
+        </app-kpi-card>
+        <app-kpi-card
+          label="PROPERTIES"
+          [value]="state.stats?.properties | number"
+          [percentage]="5.2"
+          [isPositive]="true"
+          iconClass="fa-regular fa-building">
+        </app-kpi-card>
+        <app-kpi-card
+          label="BOOKINGS"
+          [value]="state.stats?.bookings | number"
+          [percentage]="18.7"
+          [isPositive]="true"
+          iconClass="fa-regular fa-calendar-check">
+        </app-kpi-card>
+        <app-kpi-card
+          label="TOTAL REVENUE"
+          [value]="state.stats?.revenue | currency:'USD':'symbol':'1.0-0'"
+          [percentage]="24.1"
+          [isPositive]="true"
+          iconClass="fa-solid fa-money-bill-wave">
+        </app-kpi-card>
       </div>
 
-      <div class="dashboard-panels reveal visible reveal-delay-2">
-        <article class="snapshot-panel">
-          <div class="panel-heading">
-            <div>
-              <div class="section-eyebrow">Platform Health</div>
-              <h2 class="section-title">Current <em>Snapshot</em></h2>
-            </div>
-            <span class="badge badge-emerald">Online</span>
+      <!-- Revenue Chart Section -->
+      <div class="chart-section">
+        <div class="chart-header">
+          <div>
+            <h2>Revenue Analytics</h2>
+            <p>Global monthly earnings distribution (Current Fiscal Year)</p>
           </div>
-
-          <div class="snapshot-grid">
-            <div class="snapshot-row" *ngFor="let metric of vm.metrics">
-              <span>{{ metric.label }}</span>
-              <strong>{{ metric.value }}</strong>
-            </div>
+          <div class="period-toggles">
+            <button class="toggle-btn" [class.active]="(period$ | async) === 'monthly'" (click)="setPeriod('monthly')">MONTH</button>
+            <button class="toggle-btn">QUARTER</button>
+            <button class="toggle-btn" [class.active]="(period$ | async) === 'yearly'" (click)="setPeriod('yearly')">YEAR</button>
           </div>
-        </article>
-
-        <aside class="analysis-panel">
-          <div class="section-eyebrow">Analysis</div>
-          <h2 class="section-title">Admin <em>Focus</em></h2>
-          <p>
-            Start with access, listing quality, and booking flow. These queues affect trust, inventory value, and platform conversion.
-          </p>
-        </aside>
+        </div>
+        <app-revenue-chart [data]="state.revenue"></app-revenue-chart>
       </div>
 
-      <div class="queue-grid reveal visible reveal-delay-3">
-        <article class="queue-card" *ngFor="let queue of queues">
-          <span class="badge" [class.badge-gold]="queue.badge === 'gold'" [class.badge-emerald]="queue.badge === 'emerald'" [class.badge-crimson]="queue.badge === 'crimson'">
-            {{ queue.badgeText }}
-          </span>
-
-          <div class="queue-card__body">
-            <div class="section-eyebrow">{{ queue.eyebrow }}</div>
-            <h3>{{ queue.title }}</h3>
-            <p>{{ queue.description }}</p>
-          </div>
-
-          <a [routerLink]="queue.route" class="queue-link" data-cursor-hover>
-            {{ queue.cta }}
-          </a>
-        </article>
+      <!-- Data Grids -->
+      <div class="data-grids">
+        <app-transactions-table class="left-col" [transactions]="state.transactions"></app-transactions-table>
+        <app-activity-feed class="right-col" [activities]="state.activities"></app-activity-feed>
       </div>
     </ng-container>
+
   </div>
 </section>

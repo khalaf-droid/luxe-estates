@@ -1,52 +1,219 @@
-<section class="admin-panel-card">
-  <h2>Bookings</h2>
-  <p>Review recent bookings and manage open booking requests.</p>
-
-  <div class="table-actions">
-    <label>
-      Filter:
-      <select [(ngModel)]="bookingFilter">
-        <option value="all">All</option>
-        <option value="pending">Pending</option>
-        <option value="approved">Approved</option>
-        <option value="rejected">Rejected</option>
-      </select>
-    </label>
+<div class="admin-container">
+  <!-- Smart Insights Bar -->
+  <div class="insights-bar">
+    <div class="insight-card" [class.warning]="insights.atRisk > 0">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <div class="info">
+        <span class="count">{{ insights.atRisk }}</span>
+        <span class="label">Bookings at Risk (Failed Payment)</span>
+      </div>
+    </div>
+    <div class="insight-card highlight" [class.active]="insights.highValue > 0">
+      <i class="fa-solid fa-gem"></i>
+      <div class="info">
+        <span class="count">{{ insights.highValue }}</span>
+        <span class="label">High-Value Approvals Pending</span>
+      </div>
+    </div>
+    <div class="insight-card">
+      <i class="fa-solid fa-clock"></i>
+      <div class="info">
+        <span class="count">{{ insights.pendingToday }}</span>
+        <span class="label">Total Tasks Remaining</span>
+      </div>
+    </div>
   </div>
 
-  <div class="table-wrapper">
+  <header class="header-section">
+    <div class="title-wrap">
+      <h2>Bookings Operating System</h2>
+      <p>Mission-critical reservation management & financial oversight.</p>
+    </div>
+    
+    <div class="header-actions">
+      <!-- Bulk Actions Toolbar (Conditional) -->
+      <div class="bulk-toolbar" *ngIf="selectedIds.size > 0">
+        <span class="count">{{ selectedIds.size }} SELECTED</span>
+        <button class="bulk-btn approve" (click)="bulkUpdate('approved')">APPROVE ALL</button>
+        <button class="bulk-btn reject" (click)="bulkUpdate('rejected')">REJECT ALL</button>
+      </div>
+
+      <button class="btn-export" (click)="exportData()">
+        <i class="fa-solid fa-file-export"></i> EXPORT CSV
+      </button>
+    </div>
+  </header>
+
+  <!-- Filters Bar -->
+  <div class="filters-bar">
+    <div class="filter-group search">
+      <div class="search-wrapper">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="Filter by client, property, or ID..." [(ngModel)]="filters.search" (input)="onFilterChange()">
+      </div>
+    </div>
+
+    <div class="filter-group status">
+      <div class="chip-group">
+        <button [class.active]="filters.status === 'all'" (click)="filters.status = 'all'; loadBookings()">All</button>
+        <button [class.active]="filters.status === 'pending'" (click)="filters.status = 'pending'; loadBookings()">Pending</button>
+        <button [class.active]="filters.status === 'approved'" (click)="filters.status = 'approved'; loadBookings()">Approved</button>
+      </div>
+    </div>
+
+    <div class="filter-group sort">
+      <select [(ngModel)]="filters.sort" (change)="loadBookings()">
+        <option value="-created_at">Newest First</option>
+        <option value="-amount">Highest Value</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Bookings Table -->
+  <div class="table-container" [class.loading]="isLoading">
     <table>
       <thead>
         <tr>
+          <th class="checkbox-cell">
+            <input type="checkbox" [checked]="selectedIds.size === bookings.length && bookings.length > 0" (change)="toggleAll()">
+          </th>
+          <th>ID</th>
+          <th>Guest</th>
           <th>Property</th>
-          <th>User</th>
-          <th>Date</th>
+          <th>Dates</th>
+          <th>Amount</th>
           <th>Status</th>
-          <th>Actions</th>
+          <th class="actions-cell">Quick Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let booking of filteredBookings">
-          <td>{{ booking.property_id?.title || booking.property?.title || booking.property?.name || 'N/A' }}</td>
-          <td>{{ booking.user_id?.name || booking.user_id?.email || booking.user?.name || booking.user?.email || 'N/A' }}</td>
-          <td>{{ booking.createdAt | date:'mediumDate' }}</td>
-          <td>{{ booking.status | uppercase }}</td>
+        <tr *ngFor="let booking of bookings" 
+            [class.active]="selectedBooking?._id === booking._id"
+            [class.priority]="booking.amount > 50000"
+            [class.failed-payment]="booking.payment?.status === 'failed'"
+            (click)="selectBooking(booking)">
+          <td class="checkbox-cell" (click)="$event.stopPropagation()">
+            <input type="checkbox" [checked]="selectedIds.has(booking._id)" (change)="toggleSelection(booking._id)">
+          </td>
+          <td><span class="booking-id">#{{ booking._id.slice(-7).toUpperCase() }}</span></td>
           <td>
-            <button
-              class="action-btn"
-              [disabled]="activeBookingId === booking._id || booking.status === 'approved'"
-              (click)="changeBookingStatus(booking, 'approved')">
-              Approve
-            </button>
-            <button
-              class="action-btn reject"
-              [disabled]="activeBookingId === booking._id || booking.status === 'rejected'"
-              (click)="changeBookingStatus(booking, 'rejected')">
-              Reject
-            </button>
+            <div class="user-meta">
+              <img [src]="booking.user_id?.photo || 'assets/images/default-avatar.png'" alt="Avatar">
+              <div class="text">
+                <span class="name">{{ booking.user_id?.name }}</span>
+                <span class="email">{{ booking.user_id?.email }}</span>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div class="property-meta">
+              <span class="title">{{ booking.property_id?.title }}</span>
+              <span class="city">{{ booking.property_id?.location?.city }}</span>
+            </div>
+          </td>
+          <td class="date-cell">{{ booking.start_date | date:'MMM dd' }} - {{ booking.end_date | date:'MMM dd' }}</td>
+          <td class="amount-cell" [class.high]="booking.amount > 20000">{{ booking.amount | currency }}</td>
+          <td>
+            <div class="status-stack">
+              <span class="badge status-{{ booking.status }}">{{ booking.status }}</span>
+              <span class="payment-status" [class.error]="booking.payment?.status === 'failed'">
+                {{ booking.payment?.status || 'PENDING' }}
+              </span>
+            </div>
+          </td>
+          <td class="actions-cell">
+            <div class="quick-ops" (click)="$event.stopPropagation()">
+              <button class="op-btn ok" (click)="selectBooking(booking); confirmAction('approved')"><i class="fa-solid fa-check"></i></button>
+              <button class="op-btn no" (click)="selectBooking(booking); confirmAction('rejected')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
           </td>
         </tr>
       </tbody>
     </table>
+    
+    <div class="no-data" *ngIf="!isLoading && bookings.length === 0">
+      <i class="fa-solid fa-folder-open"></i>
+      <p>No reservations matching your filters.</p>
+    </div>
   </div>
-</section>
+
+  <!-- Side Detail Panel -->
+  <div class="side-panel-overlay" [class.open]="selectedBooking" (click)="closeDetail()">
+    <div class="side-panel" (click)="$event.stopPropagation()">
+      <div class="shortcuts-hint">
+        <span>PRESS <strong>A</strong> TO APPROVE</span>
+        <span>PRESS <strong>R</strong> TO REJECT</span>
+      </div>
+
+      <header class="panel-header" *ngIf="selectedBooking">
+        <div class="header-main">
+          <span class="meta">BOOKING #{{ selectedBooking._id.slice(-7).toUpperCase() }}</span>
+          <h3>Reservation Control</h3>
+        </div>
+        <div class="panel-nav">
+          <button (click)="navigateSelection('prev')"><i class="fa-solid fa-chevron-up"></i></button>
+          <button (click)="navigateSelection('next')"><i class="fa-solid fa-chevron-down"></i></button>
+          <button class="close" (click)="closeDetail()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </header>
+
+      <ng-container *ngIf="selectedBooking">
+        <!-- Guest Details -->
+        <div class="panel-section">
+          <label>Primary Guest</label>
+          <div class="guest-card">
+            <img [src]="selectedBooking.user_id?.photo || 'assets/images/default-avatar.png'" alt="Guest">
+            <div class="info">
+              <span class="name">{{ selectedBooking.user_id?.name }}</span>
+              <span class="email">{{ selectedBooking.user_id?.email }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Property Details -->
+        <div class="panel-section">
+          <label>Property Overview</label>
+          <div class="prop-card">
+            <img [src]="selectedBooking.property_id?.images?.[0]" alt="Prop">
+            <div class="info">
+              <h4>{{ selectedBooking.property_id?.title }}</h4>
+              <span class="loc">{{ selectedBooking.property_id?.location?.city }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Audit Timeline -->
+        <div class="panel-section">
+          <label>Audit History & Timeline</label>
+          <div class="timeline">
+            <div class="timeline-item" *ngFor="let log of selectedBooking.statusHistory">
+              <div class="marker"></div>
+              <div class="content">
+                <span class="status">{{ log.status }}</span>
+                <span class="actor">by {{ log.changedBy?.name || 'Admin' }} • {{ log.changedAt | date:'MMM dd, HH:mm' }}</span>
+                <p class="reason" *ngIf="log.reason">{{ log.reason }}</p>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="marker"></div>
+              <div class="content">
+                <span class="status">Initial Submission</span>
+                <span class="actor">{{ selectedBooking.created_at | date:'MMM dd, HH:mm' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel Actions -->
+        <div class="panel-footer" *ngIf="selectedBooking.status === 'pending'">
+          <button class="btn-main approve" (click)="confirmAction('approved')">
+            <i class="fa-solid fa-check"></i> APPROVE RESERVATION
+          </button>
+          <button class="btn-sub reject" (click)="confirmAction('rejected')">
+            REJECT WITH REASON
+          </button>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>

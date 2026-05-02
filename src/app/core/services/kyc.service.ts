@@ -25,6 +25,7 @@ export interface KYCSubmission {
   documentType: 'national_id' | 'passport' | 'drivers_license';
   frontImage: string;
   backImage?: string;
+  ownershipDocuments?: string[];
 }
 
 @Injectable({
