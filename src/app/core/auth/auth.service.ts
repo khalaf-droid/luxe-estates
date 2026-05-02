@@ -119,11 +119,21 @@ export class AuthService {
   }
 
   loginWithGoogle(idToken: string): Observable<any> {
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+    return this.http.post<any>(`${this.apiUrl}/google`, { idToken }).pipe(
+=======
+>>>>>>> Stashed changes
     return this.http.post<any>(
       `${this.apiUrl}/google-login`,
       { idToken },
       { withCredentials: true }
     ).pipe(
+<<<<<<< Updated upstream
+=======
+>>>>>>> feature/auth-update
+>>>>>>> Stashed changes
       tap((res) => {
         if (res.status === 'success' && res.data?.accessToken && res.data?.user) {
           this.handleAuthSuccess(res.data.accessToken, res.data.user);
