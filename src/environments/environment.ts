@@ -6,6 +6,6 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3000/api/v1',
-  googleClientId: '668341342866-ufmo1js3tbrv5nkeakgtn81kjsp9r3if.apps.googleusercontent.com'
+  apiUrl: 'http://localhost:5002/api/v1',
+  googleClientId: '703833352527-f08lpsbitb01npni81tlvehmtum1kh71.apps.googleusercontent.com'
 };
