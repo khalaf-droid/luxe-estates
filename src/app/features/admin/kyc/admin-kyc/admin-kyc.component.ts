@@ -125,6 +125,26 @@ export class AdminKycComponent implements OnInit, OnDestroy {
     return url;
   }
 
+  getFileIcon(fileType?: string): string {
+    switch (fileType) {
+      case 'pdf': return 'fa-file-pdf';
+      case 'doc': return 'fa-file-word';
+      default: return 'fa-file-image';
+    }
+  }
+
+  getFileIconColor(fileType?: string): string {
+    switch (fileType) {
+      case 'pdf': return '#e74c3c';
+      case 'doc': return '#2980b9';
+      default: return '#C9A96E';
+    }
+  }
+
+  openFile(url?: string): void {
+    if (url) window.open(url, '_blank');
+  }
+
   approveKyc(): void {
     if (!this.selectedUser) return;
     this.isSubmitting = true;

@@ -82,6 +82,7 @@
               <div class="tags">
                 <span class="tag">HIGH NET WORTH</span>
                 <span class="tag">TIER 1 ASSESSMENT</span>
+                <span class="tag gold" *ngIf="selectedUser.kycVersion">VERSION {{ selectedUser.kycVersion }}</span>
               </div>
             </div>
             
@@ -140,11 +141,31 @@
 
           <!-- Ownership Docs (if any) -->
           <div class="section-container" *ngIf="selectedUser.ownershipDocuments?.length">
-            <h4 class="section-title">OWNERSHIP VERIFICATION</h4>
+            <h4 class="section-title">OWNERSHIP VERIFICATION DOCUMENTS</h4>
             <div class="ownership-grid">
-              <div class="own-image-box" *ngFor="let own of selectedUser.ownershipDocuments" (click)="openImage(own.imageUrl)">
-                <img [src]="getOptimizedImageUrl(own.imageUrl)" 
-                     (error)="$any($event.target).src = 'assets/images/doc-placeholder.png'" />
+              <div class="own-doc-card" *ngFor="let own of selectedUser.ownershipDocuments" (click)="openFile(own.fileUrl || own.imageUrl)">
+                
+                <div class="doc-preview-wrap">
+                  <!-- Image Preview -->
+                  <ng-container *ngIf="own.fileType === 'image' || !own.fileType">
+                    <img [src]="getOptimizedImageUrl(own.fileUrl || own.imageUrl)" 
+                         (error)="$any($event.target).src = 'assets/images/doc-placeholder.png'" />
+                  </ng-container>
+
+                  <!-- Icon for PDFs/Docs -->
+                  <ng-container *ngIf="own.fileType && own.fileType !== 'image'">
+                    <i class="fa-solid" [ngClass]="getFileIcon(own.fileType)" [style.color]="getFileIconColor(own.fileType)"></i>
+                  </ng-container>
+
+                  <div class="doc-overlay">
+                    <i class="fa-solid fa-up-right-from-square"></i>
+                  </div>
+                </div>
+
+                <div class="doc-meta">
+                  <span class="doc-name">{{ own.fileName || 'Verification Document' }}</span>
+                  <span class="doc-type">{{ own.fileType || 'Document' }}</span>
+                </div>
               </div>
             </div>
           </div>

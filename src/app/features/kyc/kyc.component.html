@@ -7,6 +7,15 @@
       </a>
     </div>
 
+
+    <!-- Initial Loading State (SSoT) -->
+    <div class="kyc-initial-loading" *ngIf="isInitialLoading">
+      <div class="loader-wrap">
+        <div class="spinner-gold"></div>
+        <p>Synchronizing identity data...</p>
+      </div>
+    </div>
+
     <!-- Header Section -->
     <div class="kyc-header">
       <div class="header-content">
@@ -22,12 +31,21 @@
     <div class="status-banner" [ngClass]="status.status" *ngIf="status">
       <div class="status-content">
         <div class="status-icon-wrapper">
-          <i class="fa-solid" [ngClass]="{
-            'fa-circle-check approved-icon': status.status === 'approved',
-            'fa-clock pending-icon': status.status === 'pending',
-            'fa-circle-exclamation rejected-icon': status.status === 'rejected',
-            'fa-id-card-clip default-icon': status.status === 'not_submitted'
-          }"></i>
+          <!-- User Profile Photo -->
+          <ng-container *ngIf="userPhoto; else statusIconFallback">
+            <img [src]="userPhoto"
+                 class="status-user-photo"
+                 alt="Profile"
+                 (error)="$any($event.target).src = 'https://ui-avatars.com/api/?name=' + userName + '&background=C9A96E&color=000&size=256'">
+          </ng-container>
+          <ng-template #statusIconFallback>
+            <i class="fa-solid" [ngClass]="{
+              'fa-circle-check approved-icon': status.status === 'approved',
+              'fa-clock pending-icon': status.status === 'pending',
+              'fa-circle-exclamation rejected-icon': status.status === 'rejected',
+              'fa-id-card-clip default-icon': status.status === 'not_submitted'
+            }"></i>
+          </ng-template>
         </div>
         <div class="status-text">
           <h3>{{ getStatusTitle() }}</h3>
@@ -48,8 +66,8 @@
       <p class="reason-content">{{ status?.reason }}</p>
     </div>
 
-    <!-- KYC Form Workflow -->
-    <div class="kyc-workflow" *ngIf="status?.status === 'not_submitted' || status?.status === 'rejected'">
+    <!-- KYC Form Workflow (Editable in not_submitted, rejected, and pending states) -->
+    <div class="kyc-workflow" *ngIf="status?.status !== 'approved'">
       <form [formGroup]="kycForm" (ngSubmit)="onSubmit()">
         
         <!-- Step 1: Document Type -->
@@ -107,6 +125,16 @@
                   </div>
                 </ng-template>
               </div>
+
+              <!-- Remove Front Image -->
+              <button
+                *ngIf="frontPreview"
+                type="button"
+                class="remove-doc-btn"
+                (click)="removeImage('front')"
+                title="Remove image">
+                <i class="fa-solid fa-trash-can"></i> Remove
+              </button>
             </div>
 
             <!-- Back Image (Conditional) -->
@@ -130,6 +158,16 @@
                   </div>
                 </ng-template>
               </div>
+
+              <!-- Remove Back Image -->
+              <button
+                *ngIf="backPreview"
+                type="button"
+                class="remove-doc-btn"
+                (click)="removeImage('back')"
+                title="Remove image">
+                <i class="fa-solid fa-trash-can"></i> Remove
+              </button>
             </div>
           </div>
         </div>
@@ -140,25 +178,77 @@
             <span class="step-num">03</span>
             <span class="step-title">Property Ownership Documents</span>
           </div>
-          <p class="step-desc">Upload documents from the Real Estate Registry (Shahr El Aqari) to prove property ownership.</p>
+          <p class="step-desc">Upload ownership documents (PDF, DOC, or images) from the Real Estate Registry to prove property ownership.</p>
 
           <div class="ownership-upload-container">
             <div class="ownership-grid">
-              <!-- Existing Previews -->
-              <div class="ownership-preview-card" *ngFor="let preview of ownershipPreviews; let i = index">
-                <img [src]="preview" alt="Ownership Document">
-                <button type="button" class="remove-btn" (click)="removeOwnershipFile(i)">
-                  <i class="fa-solid fa-xmark"></i>
+
+              <!-- Uploaded Files List -->
+              <div class="ownership-file-card" *ngFor="let doc of ownershipDocs; let i = index">
+                <div class="file-icon-wrap" [style.color]="getFileIconColor(doc.fileType)">
+                  <i class="fa-solid" [ngClass]="getFileIcon(doc.fileType)"></i>
+                </div>
+                <div class="file-info">
+                  <span class="file-name" [title]="doc.fileName">{{ doc.fileName }}</span>
+                  <span class="file-type-badge">{{ doc.fileType?.toUpperCase() }}</span>
+                </div>
+                <button type="button"
+                        class="file-delete-btn"
+                        (click)="deleteOwnershipFile(i)"
+                        [disabled]="isDeletingOwnership[i]"
+                        title="Delete document">
+                  <i class="fa-solid" [ngClass]="isDeletingOwnership[i] ? 'fa-circle-notch fa-spin' : 'fa-trash-can'"></i>
                 </button>
               </div>
 
-              <!-- Add New Upload -->
-              <div class="add-ownership-card" (click)="ownershipInput.click()">
-                <input type="file" #ownershipInput hidden (change)="onFileSelected($event, 'ownership')" multiple accept="image/*">
-                <i class="fa-solid fa-plus"></i>
-                <span>Add Document</span>
+              <!-- Upload New File -->
+              <div class="add-ownership-card" (click)="ownershipInput.click()" [class.uploading]="isUploadingOwnership">
+                <input type="file"
+                       #ownershipInput
+                       hidden
+                       (change)="onOwnershipFileSelected($event)"
+                       multiple
+                       accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp">
+                <ng-container *ngIf="!isUploadingOwnership; else uploadingDoc">
+                  <i class="fa-solid fa-plus"></i>
+                  <span>Add Document</span>
+                  <small>PDF, DOC, or Image</small>
+                </ng-container>
+                <ng-template #uploadingDoc>
+                  <i class="fa-solid fa-circle-notch fa-spin"></i>
+                  <span>Uploading...</span>
+                </ng-template>
+              </div>
+
+            </div>
+
+            <!-- Upload Queue Status Tracker -->
+            <div class="upload-queue" *ngIf="fileUploadQueue.length > 0">
+              <div class="queue-item" *ngFor="let entry of fileUploadQueue; let qi = index"
+                   [ngClass]="entry.status">
+                <div class="queue-file-name">
+                  <i class="fa-solid"
+                     [ngClass]="{
+                       'fa-circle-notch fa-spin': entry.status === 'uploading',
+                       'fa-circle-check': entry.status === 'success',
+                       'fa-circle-exclamation': entry.status === 'error'
+                     }"></i>
+                  <span>{{ entry.name }}</span>
+                </div>
+                <div class="queue-actions">
+                  <span class="queue-status-text">
+                    {{ entry.status === 'uploading' ? 'Uploading...' : entry.status === 'success' ? 'Saved to DB' : entry.error }}
+                  </span>
+                  <button *ngIf="entry.status === 'error'"
+                          type="button"
+                          class="retry-btn"
+                          (click)="retryUpload(qi)">
+                    <i class="fa-solid fa-rotate-right"></i> Retry
+                  </button>
+                </div>
               </div>
             </div>
+
           </div>
         </div>
 
@@ -171,12 +261,12 @@
           
           <button type="submit" class="btn-primary-gold" [disabled]="kycForm.invalid || isUploading || isLoading">
             <span class="btn-content" *ngIf="!isLoading && !isUploading">
-              Submit for Verification <i class="fa-solid fa-arrow-right-long"></i>
+              {{ status?.status === 'pending' ? 'Save Changes' : 'Submit for Verification' }} <i class="fa-solid fa-arrow-right-long"></i>
             </span>
             
             <div class="btn-loading" *ngIf="isLoading || isUploading">
               <span class="spinner-small"></span>
-              <span>{{ isUploading ? 'Uploading Images...' : 'Finalizing Submission...' }}</span>
+              <span>{{ isUploading ? 'Uploading Images...' : (status?.status === 'pending' ? 'Saving Changes...' : 'Finalizing Submission...') }}</span>
             </div>
           </button>
         </div>
@@ -198,6 +288,21 @@
         </button>
       </div>
     </div>
+
+  </div>
+
+  <!-- Safety Warning Modal -->
+  <div class="kyc-modal-overlay" *ngIf="showRevertWarning">
+    <div class="kyc-modal">
+      <div class="modal-icon warning">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h3>Cancel Verification Request?</h3>
+      <p>You have removed all documents. Proceeding will completely cancel your current KYC verification request and reset your status.</p>
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="cancelRevert()">Go Back</button>
+        <button class="btn-danger" (click)="confirmRevert()">Yes, Cancel Request</button>
+      </div>
+    </div>
   </div>
 </div>
-

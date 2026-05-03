@@ -61,12 +61,19 @@ export interface KycSubmission {
   email: string;
   kycStatus: string;
   kycDocuments: KycDocument[];
-  ownershipDocuments?: { imageUrl: string; uploadedAt: string }[];
+  ownershipDocuments?: { 
+    fileUrl?: string; 
+    imageUrl?: string; 
+    fileName?: string; 
+    fileType?: 'image' | 'pdf' | 'doc'; 
+    uploadedAt: string 
+  }[];
   kycSubmittedAt: string;
   kycApprovedAt?: string;
   createdAt?: string;
   kycRejectionReason?: string;
   kycAttempts: number;
+  kycVersion?: number;
 }
 
 export interface PaginatedKyc {
@@ -110,6 +117,7 @@ export class AdminService {
       return throwError(() => err);
     };
   }
+
 
   private unwrapList<T>(key: string) {
     return (res: ApiResponse<T[] | Record<string, T[]>>) => {
