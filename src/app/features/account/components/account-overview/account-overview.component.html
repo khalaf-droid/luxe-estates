@@ -1,0 +1,123 @@
+<div *ngIf="user$ | async as user; else loading">
+  
+  <!-- Premium Header Area -->
+  <div class="glass-header">
+    <div class="header-main">
+      <div class="avatar-container">
+        <div class="avatar-ring" [class.verified]="user.isVerified">
+          <img [src]="user.photo || 'assets/images/default-avatar.png'" 
+               alt="" 
+               class="profile-img"
+               (error)="$any($event.target).src = 'https://ui-avatars.com/api/?name=' + user.name + '&background=C9A96E&color=000&size=256'">
+        </div>
+
+        <!-- Buttons moved below the circle -->
+        <div class="photo-actions">
+          <ng-container *ngIf="!isUploadingPhoto; else uploadingSpinner">
+            <label for="photo-upload" class="action-btn upload" title="Change Avatar">
+              <i class="fa-solid fa-camera"></i>
+              <span>Change</span>
+            </label>
+            <input type="file" id="photo-upload" hidden (change)="handleFileSelect($event)" accept="image/*">
+            
+            <button type="button" class="action-btn remove" *ngIf="user.photo" (click)="removePhoto()" title="Remove Avatar">
+              <i class="fa-solid fa-trash-can"></i>
+              <span>Remove</span>
+            </button>
+          </ng-container>
+
+          <ng-template #uploadingSpinner>
+            <div class="action-btn uploading">
+              <i class="fa-solid fa-circle-notch fa-spin"></i>
+              <span>Uploading...</span>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+
+      <div class="user-identity">
+        <div class="name-row">
+          <h1>{{ user.name }}</h1>
+          <span class="role-badge" [ngClass]="getRoleBadgeClass(user.role)">
+            {{ user.role | uppercase }}
+          </span>
+        </div>
+        <p class="email">{{ user.email }}</p>
+        <div class="status-indicators">
+          <div class="indicator" [class.active]="user.isVerified">
+            <i class="fa-solid" [class.fa-check-circle]="user.isVerified" [class.fa-circle-xmark]="!user.isVerified"></i>
+            <span>{{ user.isVerified ? 'VERIFIED IDENTITY' : 'UNVERIFIED ACCOUNT' }}</span>
+          </div>
+          <div class="indicator kyc" [ngClass]="user.kycStatus">
+            <i class="fa-solid fa-id-card"></i>
+            <span>KYC: {{ user.kycStatus.replace('_', ' ') | titlecase }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-State Driven KYC Banner -->
+  <app-kyc-status-banner 
+    *ngIf="user.kycStatus !== 'error_fallback'; else kycError"
+    [status]="user.kycStatus" 
+    (onAction)="navigateToKyc()">
+  </app-kyc-status-banner>
+
+  <ng-template #kycError>
+    <div class="kyc-error-fallback">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <div class="error-text">
+        <strong>Sync Error:</strong>
+        <span>Verification status currently unavailable. Please try again later.</span>
+      </div>
+    </div>
+  </ng-template>
+
+  <!-- Account Settings Form -->
+  <div class="content-header">
+    <h3>Profile Information</h3>
+    <p>Your details are protected and only visible to verified agents during transactions.</p>
+  </div>
+  
+  <form [formGroup]="profileForm" (ngSubmit)="submit()" class="luxury-form">
+    <div class="form-grid">
+      <div class="input-group">
+        <label>Full Name</label>
+        <input type="text" formControlName="name" placeholder="John Doe">
+        <div class="error-hint" *ngIf="profileForm.get('name')?.touched && profileForm.get('name')?.invalid">
+          <i class="fa-solid fa-circle-exclamation"></i> Full name is required
+        </div>
+      </div>
+      
+      <div class="input-group">
+        <label>Phone Number</label>
+        <input type="text" formControlName="phone" placeholder="+20 XXX XXX XXXX">
+      </div>
+      
+      <div class="input-group full">
+        <label>Professional Bio</label>
+        <textarea formControlName="bio" rows="5" placeholder="Tell the community about your property interests or professional background..."></textarea>
+      </div>
+    </div>
+    
+    <div class="action-row">
+      <button type="submit" class="btn-gold" [disabled]="profileForm.invalid || isUpdating">
+        <i class="fa-solid fa-cloud-arrow-up" *ngIf="!isUpdating"></i>
+        <i class="fa-solid fa-circle-notch fa-spin" *ngIf="isUpdating"></i>
+        <span>{{ isUpdating ? 'SYNCHRONIZING...' : 'UPDATE PROFILE' }}</span>
+      </button>
+    </div>
+  </form>
+
+</div>
+
+<ng-template #loading>
+  <div class="loading-screen">
+    <div class="luxury-loader">
+      <div class="ring"></div>
+      <div class="logo-text">LUXE</div>
+    </div>
+    <p>AUTHENTICATING IDENTITY...</p>
+  </div>
+</ng-template>

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { BookingsService } from '../bookings/bookings.service';
 import { UserDashboardService } from './user-dashboard.service';
 
 @Component({
@@ -11,14 +12,20 @@ export class UserBookingsComponent implements OnInit {
   activeId: string | null = null;
   filter = 'all';
 
-  constructor(private userService: UserDashboardService) {}
+  constructor(
+    private bookingsService: BookingsService,
+    private paymentService: UserDashboardService // Keep this for payments for now
+  ) {}
 
   ngOnInit(): void { this.load(); }
 
   load(): void {
     this.isLoading = true;
-    this.userService.getMyBookings().subscribe({
-      next: (data) => { this.bookings = data; this.isLoading = false; },
+    this.bookingsService.getMyBookings().subscribe({
+      next: (res) => { 
+        this.bookings = res.data?.bookings || res.bookings || res; 
+        this.isLoading = false; 
+      },
       error: () => { this.isLoading = false; }
     });
   }
@@ -31,7 +38,7 @@ export class UserBookingsComponent implements OnInit {
 
   pay(booking: any): void {
     if (!booking?._id) return;
-    this.userService.initiatePayment(booking._id).subscribe({
+    this.paymentService.initiatePayment(booking._id).subscribe({
       next: (res) => {
         if (res.paymentUrl) {
           window.location.href = res.paymentUrl;
@@ -46,7 +53,7 @@ export class UserBookingsComponent implements OnInit {
   cancel(booking: any): void {
     if (!booking?._id) return;
     this.activeId = booking._id;
-    this.userService.cancelBooking(booking._id).subscribe({
+    this.bookingsService.cancelBooking(booking._id).subscribe({
       next: () => { this.activeId = null; this.load(); },
       error: () => { this.activeId = null; }
     });

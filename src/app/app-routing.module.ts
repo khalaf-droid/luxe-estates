@@ -40,6 +40,11 @@ const routes: Routes = [
   },
 
   {
+    path: 'account',
+    canActivate: [authGuard],
+    loadChildren: () => import('./features/account/account.module').then(m => m.AccountModule)
+  },
+  {
     path: 'dashboard',
     canActivate: [authGuard],
     loadChildren: () => import('./features/user dashboard/user-dashboard.module').then(m => m.UserDashboardModule)

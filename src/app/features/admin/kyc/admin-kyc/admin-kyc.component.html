@@ -1,0 +1,256 @@
+<section class="kyc-center">
+  
+  <!-- Modern Header -->
+  <header class="kyc-header">
+    <div class="header-left">
+      <h1 class="title-serif">Identity Verification</h1>
+    </div>
+    
+    <div class="header-stats">
+      <div class="stat-box">
+        <span class="label">PENDING</span>
+        <span class="value gold">{{ kycStats.pending }}</span>
+      </div>
+      <div class="stat-box">
+        <span class="label">APPROVED</span>
+        <span class="value white">{{ kycStats.approved }}</span>
+      </div>
+      <div class="stat-box">
+        <span class="label">REJECTED</span>
+        <span class="value red">{{ kycStats.rejected }}</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <div class="split-layout">
+    
+    <!-- Left Pane: Users List -->
+    <aside class="users-list-pane">
+      <div class="search-container">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" 
+               placeholder="Search identities..." 
+               (input)="onSearch($event)"
+               [value]="filters.search" />
+      </div>
+
+      <div class="filter-tabs">
+        <button [class.active]="filters.status === 'pending'" (click)="setTab('pending')">
+          Pending ({{ kycStats.pending }})
+        </button>
+        <button [class.active]="filters.status === 'approved'" (click)="setTab('approved')">
+          Approved ({{ kycStats.approved }})
+        </button>
+        <button [class.active]="filters.status === 'rejected'" (click)="setTab('rejected')">
+          Rejected ({{ kycStats.rejected }})
+        </button>
+      </div>
+
+      <div class="list-scroll">
+        <!-- User Cards -->
+        <div class="modern-user-card" 
+             *ngFor="let user of kycUsers" 
+             [class.active]="selectedUser?._id === user._id"
+             (click)="onReviewUser(user)">
+          <div class="card-header">
+            <h3 class="name">{{ user.name }}</h3>
+            <span class="doc-badge">{{ (user.kycDocuments && user.kycDocuments.length > 0 ? user.kycDocuments[0].type : 'PENDING') | uppercase }}</span>
+          </div>
+          <div class="card-footer">
+            <span class="date">{{ (user.kycSubmittedAt || user.kycApprovedAt || user.createdAt) | date:'MMM d, y' | uppercase }}</span>
+            <i class="fa-solid fa-arrow-right-long arrow"></i>
+          </div>
+        </div>
+
+        <div class="empty-list" *ngIf="kycUsers.length === 0 && !isLoading">
+          <p>No identities found</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Right Pane: Details View -->
+    <main class="details-view">
+      <ng-container *ngIf="selectedUser; else noSelection">
+        
+        <div class="detail-content-scroll">
+          
+          <!-- Identity Hero Section -->
+          <div class="identity-hero">
+            <div class="hero-info">
+              <h1 class="large-name-serif">{{ selectedUser.name }}</h1>
+              <div class="tags">
+                <span class="tag">HIGH NET WORTH</span>
+                <span class="tag">TIER 1 ASSESSMENT</span>
+                <span class="tag gold" *ngIf="selectedUser.kycVersion">VERSION {{ selectedUser.kycVersion }}</span>
+              </div>
+            </div>
+            
+            <div class="risk-profile">
+              <span class="risk-label">RISK PROFILE</span>
+              <div class="risk-badge low">
+                <span class="dot"></span>
+                LOW RISK ASSESSMENT
+              </div>
+            </div>
+          </div>
+
+          <!-- Document Scans Section -->
+          <div class="section-container">
+            <h4 class="section-title">DOCUMENT SCANS</h4>
+            <div class="scans-grid" *ngFor="let doc of selectedUser.kycDocuments">
+              <div class="scan-item">
+                <span class="scan-label">FRONT SIDE</span>
+                <div class="image-box" (click)="openImage(doc.frontImage)">
+                  <img [src]="getOptimizedImageUrl(doc.frontImage)" 
+                       (error)="$any($event.target).src = 'assets/images/id-placeholder.png'"
+                       alt="Front Scan" />
+                  <div class="overlay"><i class="fa-solid fa-expand"></i></div>
+                </div>
+              </div>
+              
+              <div class="scan-item" *ngIf="doc.backImage">
+                <span class="scan-label">REVERSE SIDE</span>
+                <div class="image-box" (click)="openImage(doc.backImage)">
+                  <img [src]="getOptimizedImageUrl(doc.backImage)" 
+                       (error)="$any($event.target).src = 'assets/images/id-placeholder.png'"
+                       alt="Back Scan" />
+                  <div class="overlay"><i class="fa-solid fa-expand"></i></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Extracted Information -->
+          <div class="section-container">
+            <h4 class="section-title">EXTRACTED INFORMATION</h4>
+            <div class="info-grid">
+              <div class="info-card">
+                <span class="field-label">FULL LEGAL NAME</span>
+                <p class="field-value">{{ selectedUser.name }}</p>
+              </div>
+              <div class="info-card">
+                <span class="field-label">NATIONALITY</span>
+                <div class="field-value-with-icon">
+                  <i class="fa-solid fa-globe icon"></i>
+                  <span>GLOBAL CITIZEN</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ownership Docs (if any) -->
+          <div class="section-container" *ngIf="selectedUser.ownershipDocuments?.length">
+            <h4 class="section-title">OWNERSHIP VERIFICATION DOCUMENTS</h4>
+            <div class="ownership-grid">
+              <div class="own-doc-card" *ngFor="let own of selectedUser.ownershipDocuments" (click)="openFile(own.fileUrl || own.imageUrl)">
+                
+                <div class="doc-preview-wrap">
+                  <!-- Image Preview -->
+                  <ng-container *ngIf="own.fileType === 'image' || !own.fileType">
+                    <img [src]="getOptimizedImageUrl(own.fileUrl || own.imageUrl)" 
+                         (error)="$any($event.target).src = 'assets/images/doc-placeholder.png'" />
+                  </ng-container>
+
+                  <!-- Icon for PDFs/Docs -->
+                  <ng-container *ngIf="own.fileType && own.fileType !== 'image'">
+                    <i class="fa-solid" [ngClass]="getFileIcon(own.fileType)" [style.color]="getFileIconColor(own.fileType)"></i>
+                  </ng-container>
+
+                  <div class="doc-overlay">
+                    <i class="fa-solid fa-up-right-from-square"></i>
+                  </div>
+                </div>
+
+                <div class="doc-meta">
+                  <span class="doc-name">{{ own.fileName || 'Verification Document' }}</span>
+                  <span class="doc-type">{{ own.fileType || 'Document' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rejection Info -->
+          <div class="section-container" *ngIf="selectedUser.kycStatus === 'rejected'">
+            <div class="rejection-box">
+              <h4 class="section-title red">REJECTION REASON</h4>
+              <p class="reason">{{ selectedUser.kycRejectionReason }}</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Bottom Action Bar -->
+        <footer class="action-bar">
+          <div class="flag-option">
+            <span>REFERENCE ID</span>
+            <p class="id-ref">#{{ selectedUser._id.slice(-8).toUpperCase() }}</p>
+          </div>
+          
+          <div class="main-actions">
+            <!-- PENDING STATUS ACTIONS -->
+            <ng-container *ngIf="selectedUser.kycStatus === 'pending'">
+              <button class="btn-ghost-red" (click)="openRejectModal()" [disabled]="isSubmitting">
+                REJECT APPLICATION
+              </button>
+              <button class="gold-btn" (click)="approveKyc()" [disabled]="isSubmitting">
+                <span *ngIf="!isSubmitting">APPROVE & VERIFY</span>
+                <span *ngIf="isSubmitting" class="spinner-small"></span>
+              </button>
+            </ng-container>
+
+            <!-- APPROVED STATUS ACTIONS -->
+            <ng-container *ngIf="selectedUser.kycStatus === 'approved'">
+              <button class="btn-outline-white" (click)="revertToPending()" [disabled]="isSubmitting">
+                <i class="fa-solid fa-rotate-left"></i> SET TO PENDING
+              </button>
+              <button class="btn-ghost-red" (click)="openRejectModal()" [disabled]="isSubmitting">
+                REJECT AFTER APPROVAL
+              </button>
+            </ng-container>
+
+            <!-- REJECTED STATUS ACTIONS -->
+            <ng-container *ngIf="selectedUser.kycStatus === 'rejected'">
+              <button class="btn-outline-white" (click)="revertToPending()" [disabled]="isSubmitting">
+                <i class="fa-solid fa-rotate-left"></i> RE-EVALUATE
+              </button>
+              <button class="gold-btn" (click)="approveKyc()" [disabled]="isSubmitting">
+                <span *ngIf="!isSubmitting">APPROVE REGARDLESS</span>
+                <span *ngIf="isSubmitting" class="spinner-small"></span>
+              </button>
+            </ng-container>
+          </div>
+        </footer>
+
+      </ng-container>
+
+      <ng-template #noSelection>
+        <div class="empty-state">
+          <i class="fa-solid fa-fingerprint"></i>
+          <h2 class="serif">Select an identity to verify</h2>
+          <p>Choose a user from the list to begin the assessment process.</p>
+        </div>
+      </ng-template>
+    </main>
+
+  </div>
+
+  <!-- Modern Reject Modal -->
+  <div class="modern-modal-overlay" *ngIf="showRejectModal">
+    <div class="modern-modal">
+      <div class="modal-header">
+        <h3 class="serif">Rejection Protocol</h3>
+        <button class="close-btn" (click)="cancelReject()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="instruction">Please specify the reason for declining this verification request. This will be visible to the user.</p>
+        <textarea [(ngModel)]="rejectionReason" placeholder="Enter reason for rejection..."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-text" (click)="cancelReject()">CANCEL</button>
+        <button class="btn-confirm-red" (click)="submitReject()">CONFIRM REJECTION</button>
+      </div>
+    </div>
+  </div>
+
+</section>

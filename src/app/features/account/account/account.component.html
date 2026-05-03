@@ -1,0 +1,27 @@
+<section class="account-section">
+  <div class="container">
+    
+    <div class="dashboard-body">
+      <!-- Identity Sidebar -->
+      <aside class="sidebar-nav">
+        <div class="sidebar-header">
+          <h2>Identity & Access</h2>
+          <p>Manage your core profile</p>
+        </div>
+        
+        <button routerLink="overview" routerLinkActive="active">
+          <i class="fa-solid fa-user-gear"></i> Account Overview
+        </button>
+        <button routerLink="security" routerLinkActive="active">
+          <i class="fa-solid fa-shield-lock"></i> Security & Password
+        </button>
+      </aside>
+
+      <!-- Router Outlet for Account Sub-pages -->
+      <main class="content-area">
+        <router-outlet></router-outlet>
+      </main>
+    </div>
+    
+  </div>
+</section>

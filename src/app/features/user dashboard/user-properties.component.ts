@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { UserDashboardService } from './user-dashboard.service';
+import { PropertiesService } from '../properties/services/properties.service';
 
 @Component({
   selector: 'app-user-properties',
@@ -9,11 +9,11 @@ export class UserPropertiesComponent implements OnInit {
   properties: any[] = [];
   isLoading = false;
 
-  constructor(private userService: UserDashboardService) {}
+  constructor(private propertiesService: PropertiesService) {}
 
   ngOnInit(): void {
     this.isLoading = true;
-    this.userService.getMyProperties().subscribe({
+    this.propertiesService.getMyProperties().subscribe({
       next: (data) => { this.properties = data; this.isLoading = false; },
       error: () => { this.isLoading = false; }
     });

@@ -1,25 +1,54 @@
-<section class="admin-shell">
+<div class="admin-layout">
   <aside class="admin-sidebar">
-    <div class="brand">
-      <span>LUXE</span>
-      <span>ADMIN</span>
+    <div class="sidebar-brand" *ngIf="auth.currentUser$ | async as user">
+      <ng-container *ngIf="user.photo; else brandLogoFallback">
+        <img [src]="user.photo" alt="Brand Logo" class="brand-logo-avatar" />
+      </ng-container>
+      <ng-template #brandLogoFallback>
+        <div class="brand-logo-fallback" style="display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: #111;">
+          {{ user.name.substring(0, 1) | uppercase }}
+        </div>
+      </ng-template>
+      <span class="brand-text">LUXE ESTATES</span>
     </div>
 
     <nav class="admin-nav">
-      <a routerLink="overview" routerLinkActive="active">Overview</a>
-      <a routerLink="users" routerLinkActive="active">Users</a>
-      <a routerLink="properties" routerLinkActive="active">Properties</a>
-      <a routerLink="bookings" routerLinkActive="active">Bookings</a>
+      <div class="nav-section">MAIN</div>
+      <a routerLink="overview" routerLinkActive="active" class="nav-item">
+        <i class="fa-solid fa-chart-line"></i> Dashboard
+      </a>
+      <a routerLink="users" routerLinkActive="active" class="nav-item">
+        <i class="fa-solid fa-users"></i> Users
+      </a>
+      <a routerLink="kyc" routerLinkActive="active" class="nav-item">
+        <i class="fa-solid fa-id-card-clip"></i> KYC Center
+      </a>
+      <a routerLink="properties" routerLinkActive="active" class="nav-item">
+        <i class="fa-solid fa-building"></i> Properties
+      </a>
+      <a routerLink="bookings" routerLinkActive="active" class="nav-item">
+        <i class="fa-solid fa-calendar-check"></i> Bookings
+      </a>
     </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-profile" *ngIf="auth.currentUser$ | async as user">
+        <ng-container *ngIf="user.photo; else textAvatarAdmin">
+          <img [src]="user.photo" alt="Admin Profile" class="avatar user-avatar-img" />
+        </ng-container>
+        <ng-template #textAvatarAdmin>
+          <div class="avatar">{{ user.name.substring(0, 2) | uppercase }}</div>
+        </ng-template>
+        <div class="info">
+          <span class="name">{{ user.name }}</span>
+          <span class="role">{{ user.role === 'admin' ? 'System Administrator' : user.role }}</span>
+        </div>
+      </div>
+      <a routerLink="/" class="logout-link"><i class="fa-solid fa-arrow-right-from-bracket"></i> Exit Admin</a>
+    </div>
   </aside>
 
-  <main class="admin-content">
-    <div class="admin-topbar">
-      <div class="section-eyebrow">Admin Portal</div>
-      <h1>Admin Dashboard</h1>
-      <p>Manage users, properties, and bookings from a single control panel.</p>
-    </div>
-
+  <main class="admin-main">
     <router-outlet></router-outlet>
   </main>
-</section>
+</div>

@@ -1,38 +1,164 @@
-<section class="admin-panel-card">
-  <h2>Users</h2>
-  <p>View registered users and manage their access permissions.</p>
+<section class="users-page">
 
-  <div class="table-actions">
-    <div *ngIf="isLoading" class="loading-label">Loading users...</div>
+  <!-- ── Header ─────────────────────────────────── -->
+  <div class="page-header">
+    <div class="header-left">
+      <h1 class="page-title">User Directory</h1>
+      <p class="page-subtitle">Manage client access, agent roles, and system permissions.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-secondary" title="Export users as CSV">
+        <i class="fa-solid fa-download"></i> Export CSV
+      </button>
+    </div>
   </div>
 
-  <div class="table-wrapper">
-    <table>
+  <!-- ── Filters Bar ─────────────────────────────── -->
+  <div class="filters-bar">
+    <div class="search-field">
+      <i class="fa-solid fa-magnifying-glass search-icon"></i>
+      <input
+        id="user-search"
+        type="text"
+        placeholder="Search by name, email..."
+        [value]="searchValue"
+        (input)="onSearch($any($event.target).value)"
+        autocomplete="off"
+      />
+      <button class="clear-search" *ngIf="searchValue" (click)="onSearch('')">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <select id="role-filter" class="filter-select" [value]="roleValue" (change)="onRoleChange($any($event.target).value)">
+      <option *ngFor="let r of ROLES" [value]="r.value">{{ r.label }}</option>
+    </select>
+
+    <select id="status-filter" class="filter-select" [value]="statusValue" (change)="onStatusChange($any($event.target).value)">
+      <option *ngFor="let s of STATUSES" [value]="s.value">{{ s.label }}</option>
+    </select>
+
+    <button class="btn-clear-filters" *ngIf="hasActiveFilters" (click)="clearFilters()">
+      <i class="fa-solid fa-filter-circle-xmark"></i> Clear
+    </button>
+  </div>
+
+  <!-- ── Loading State ───────────────────────────── -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="loading-pulse">
+      <div class="pulse-row" *ngFor="let i of [1,2,3,4,5]"></div>
+    </div>
+  </div>
+
+  <!-- ── Empty State ─────────────────────────────── -->
+  <div class="empty-state" *ngIf="!isLoading && users.length === 0">
+    <div class="empty-icon">
+      <i class="fa-solid fa-users-slash"></i>
+    </div>
+    <p class="empty-title">No users found</p>
+    <p class="empty-sub" *ngIf="hasActiveFilters">Try adjusting your filters or search term.</p>
+    <button class="btn-secondary" *ngIf="hasActiveFilters" (click)="clearFilters()">Clear Filters</button>
+  </div>
+
+  <!-- ── Users Table ─────────────────────────────── -->
+  <div class="table-container" *ngIf="!isLoading && users.length > 0">
+    <table class="users-table">
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Role</th>
-          <th>Status</th>
-          <th>Actions</th>
+          <th class="col-user">User</th>
+          <th class="col-role">Role &amp; Access</th>
+          <th class="col-kyc">KYC</th>
+          <th class="col-joined">Registration</th>
+          <th class="col-status">Status</th>
+          <th class="col-actions">Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let user of users">
-          <td>{{ user.name }}</td>
-          <td>{{ user.email }}</td>
-          <td>{{ user.role | uppercase }}</td>
-          <td>{{ user.isVerified ? 'Verified' : 'Pending' }}</td>
-          <td>
-            <button
-              class="action-btn"
-              [disabled]="activeUserId === user._id"
-              (click)="toggleAdmin(user)">
-              {{ user.role === 'admin' ? 'Revoke Admin' : 'Make Admin' }}
-            </button>
+        <tr
+          *ngFor="let user of users; trackBy: trackById"
+          class="user-row"
+          [class.banned-row]="user.isBanned"
+        >
+          <!-- Avatar + Name + Email -->
+          <td class="cell-user">
+            <div class="user-identity">
+              <div class="avatar" [style.background]="getAvatarColor(user.name)">
+                <img *ngIf="user.photo" [src]="user.photo" [alt]="user.name" (error)="$any($event.target).style.display='none'" />
+                <span *ngIf="!user.photo">{{ getUserInitials(user.name) }}</span>
+              </div>
+              <div class="user-info">
+                <span class="user-name">{{ user.name }}</span>
+                <span class="user-email">{{ user.email }}</span>
+              </div>
+            </div>
+          </td>
+
+          <!-- Role Badge -->
+          <td class="cell-role">
+            <app-role-badge [role]="user.role"></app-role-badge>
+          </td>
+
+          <!-- KYC Status -->
+          <td class="cell-kyc">
+            <span class="kyc-badge" [ngClass]="user.kycStatus">
+              {{ kycLabel(user.kycStatus) }}
+            </span>
+          </td>
+
+          <!-- Registration Date -->
+          <td class="cell-joined">
+            <span class="joined-date">{{ user.createdAt | date:'MMM dd, yyyy' }}</span>
+          </td>
+
+          <!-- Status -->
+          <td class="cell-status">
+            <div class="status-indicator" [class.active]="!user.isBanned" [class.banned]="user.isBanned">
+              <span class="status-dot"></span>
+              {{ user.isBanned ? 'Banned' : 'Active' }}
+            </div>
+          </td>
+
+          <!-- Actions Dropdown -->
+          <td class="cell-actions">
+            <app-user-actions
+              [user]="user"
+              [loading]="activeUserId === user._id"
+              (roleChanged)="onRoleChange_action(user, $event)"
+              (banToggled)="onBanToggle(user)">
+            </app-user-actions>
           </td>
         </tr>
       </tbody>
     </table>
+
+    <!-- ── Table Footer: Count + Pagination ─────── -->
+    <div class="table-footer">
+      <!-- Pagination Context -->
+      <div class="pagination-info" *ngIf="totalUsers > 0">
+        Showing {{ showingStart }}–{{ showingEnd }} of {{ totalUsers }} users
+      </div>
+
+      <!-- Pagination Buttons -->
+      <nav class="pagination" *ngIf="totalPages > 1">
+        <button class="page-btn nav" [disabled]="currentPage === 1" (click)="onPageChange(currentPage - 1)">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+
+        <ng-container *ngFor="let page of getVisiblePages(); let i = index">
+          <span class="ellipsis" *ngIf="isEllipsis(getVisiblePages(), i)">…</span>
+          <button
+            class="page-btn"
+            [class.active]="page === currentPage"
+            (click)="onPageChange(page)">
+            {{ page }}
+          </button>
+        </ng-container>
+
+        <button class="page-btn nav" [disabled]="currentPage === totalPages" (click)="onPageChange(currentPage + 1)">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </nav>
+    </div>
   </div>
+
 </section>
