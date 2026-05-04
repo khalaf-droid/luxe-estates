@@ -78,24 +78,86 @@
     </div>
   </ng-container>
 
-  <!-- ── Buyer stats ─────────────────────────────────────────── -->
-  <ng-container *ngIf="!isLoading && isBuyer && buyerDash">
-    <div class="stats-grid">
+  <!-- ── Buyer / Personal stats ─────────────────────────────────── -->
+  <ng-container *ngIf="!isLoading && !isOwnerOrAgent">
+    <div class="stats-grid" *ngIf="stats">
+      <article class="stat-card">
+        <span class="stat-label">Total Bookings</span>
+        <span class="stat-value">{{ stats.totalBookings }}</span>
+        <span class="stat-note">All your reservations.</span>
+      </article>
+      <article class="stat-card">
+        <span class="stat-label">Active Bookings</span>
+        <span class="stat-value">{{ stats.activeBookings }}</span>
+        <span class="stat-note">Pending or approved.</span>
+      </article>
+      <article class="stat-card">
+        <span class="stat-label">Total Spent</span>
+        <span class="stat-value">{{ stats.totalSpent | currency:'EGP':'symbol':'1.0-0' }}</span>
+        <span class="stat-note">Paid transactions only.</span>
+      </article>
       <article class="stat-card">
         <span class="stat-label">Saved Properties</span>
-        <span class="stat-value">{{ buyerDash.savedPropertiesCount }}</span>
+        <span class="stat-value">{{ stats.savedProperties }}</span>
         <span class="stat-note">On your wishlist.</span>
       </article>
-      <article class="stat-card">
-        <span class="stat-label">My Bookings</span>
-        <span class="stat-value">{{ buyerDash.myBookings.length }}</span>
-        <span class="stat-note">Total reservation history.</span>
-      </article>
-      <article class="stat-card">
-        <span class="stat-label">Viewing Requests</span>
-        <span class="stat-value">{{ buyerDash.viewingRequests.length }}</span>
-        <span class="stat-note">Site visits requested.</span>
-      </article>
+    </div>
+    <div class="empty-state" *ngIf="!stats">
+      <strong>Stats unavailable</strong>
+      <p>We couldn't load your statistics right now. Your bookings and payments are still accessible below.</p>
+    </div>
+
+    <!-- Recent personal bookings -->
+    <div class="panel-card" *ngIf="buyerDash?.myBookings?.length || adminDash?.myBookings?.length">
+      <h2>Recent Bookings</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Property</th>
+              <th>Period</th>
+              <th>Status</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let b of (buyerDash?.myBookings || adminDash?.myBookings)">
+              <td>{{ b.property_id?.title || 'Unknown' }}</td>
+              <td>{{ b.start_date | date:'shortDate' }} - {{ b.end_date | date:'shortDate' }}</td>
+              <td><span class="status-badge {{ b.status }}">{{ b.status }}</span></td>
+              <td>{{ b.amount | currency:'EGP':'symbol':'1.0-0' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ── Admin Stats Summary ─────────────────────────────────── -->
+  <ng-container *ngIf="!isLoading && isAdmin && adminDash">
+    <div class="panel-card admin-summary">
+      <div class="admin-header">
+        <h2>System Management</h2>
+        <a routerLink="/admin" class="action-btn outline">Go to Admin Center →</a>
+      </div>
+      <div class="stats-grid mini">
+        <div class="mini-stat">
+          <span class="val">{{ adminDash.totalUsers || 0 }}</span>
+          <span class="lbl">Total Users</span>
+        </div>
+        <div class="mini-stat">
+          <span class="val">{{ adminDash.totalProperties || 0 }}</span>
+          <span class="lbl">Properties</span>
+        </div>
+        <div class="mini-stat">
+          <span class="val">{{ adminDash.totalBookings || 0 }}</span>
+          <span class="lbl">Bookings</span>
+        </div>
+        <div class="mini-stat warning" *ngIf="adminDash.pendingVerifications > 0">
+          <span class="val">{{ adminDash.pendingVerifications }}</span>
+          <span class="lbl">Pending KYC</span>
+        </div>
+      </div>
     </div>
   </ng-container>
 
@@ -111,7 +173,7 @@
         <i class="ph ph-buildings"></i>
         My Properties
       </a>
-      <a routerLink="../saved" class="quick-card" *ngIf="isBuyer">
+      <a routerLink="../saved" class="quick-card" *ngIf="isBuyer || isAdmin">
         <i class="ph ph-heart"></i>
         Saved
       </a>

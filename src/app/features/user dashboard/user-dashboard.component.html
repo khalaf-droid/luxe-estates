@@ -59,6 +59,15 @@
         <i class="ph ph-user"></i>
         Profile
       </a>
+
+      <!-- Admin Specific -->
+      <ng-container *ngIf="user.role === 'admin'">
+        <span class="nav-section">Management</span>
+        <a routerLink="/admin" class="nav-item admin-link">
+          <i class="ph ph-shield-check"></i>
+          Admin Center
+        </a>
+      </ng-container>
     </nav>
     </ng-container>
 

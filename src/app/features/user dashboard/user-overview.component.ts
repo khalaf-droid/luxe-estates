@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subject, forkJoin, of } from 'rxjs';
+import { takeUntil, catchError } from 'rxjs/operators';
 import {
   UserDashboardService,
   UserProfile,
@@ -17,18 +17,22 @@ import {
 export class UserOverviewComponent implements OnInit, OnDestroy {
   user: UserProfile | null = null;
   dashboard: DashboardData | null = null;
+  stats: any = null;
   isLoading = true;
   private destroy$ = new Subject<void>();
 
   constructor(private userService: UserDashboardService) {}
 
   ngOnInit(): void {
-    this.userService.getMe()
-      .pipe(takeUntil(this.destroy$))
+    forkJoin({
+      me: this.userService.getMe(),
+      stats: this.userService.getMyStats().pipe(catchError(() => of(null)))
+    }).pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: ({ user, dashboard }) => {
-          this.user = user;
-          this.dashboard = dashboard;
+        next: ({ me, stats }) => {
+          this.user = me.user;
+          this.dashboard = me.dashboard;
+          this.stats = stats;
           this.isLoading = false;
         },
         error: () => { this.isLoading = false; },
@@ -45,11 +49,19 @@ export class UserOverviewComponent implements OnInit, OnDestroy {
     return this.user?.role === 'buyer';
   }
 
+  get isAdmin(): boolean {
+    return this.user?.role === 'admin';
+  }
+
   get ownerDash(): OwnerAgentDashboard {
     return this.dashboard as OwnerAgentDashboard;
   }
 
   get buyerDash(): BuyerDashboard {
     return this.dashboard as BuyerDashboard;
+  }
+
+  get adminDash(): any {
+    return this.dashboard;
   }
 }

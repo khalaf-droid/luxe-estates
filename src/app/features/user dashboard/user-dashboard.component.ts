@@ -59,9 +59,9 @@ export class UserDashboardComponent implements OnInit, OnDestroy {
     return user?.role === 'owner' || user?.role === 'agent';
   }
 
-  // Show "Saved" nav link for buyers only
+  // Show "Saved" nav link for buyers and admins
   canViewSaved(user: User | null): boolean {
-    return user?.role === 'buyer';
+    return user?.role === 'buyer' || user?.role === 'admin';
   }
 
   logout(): void {

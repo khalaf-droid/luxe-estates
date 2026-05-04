@@ -21,7 +21,13 @@
 
     <div *ngIf="isLoading" class="loading-state">Loading bookings...</div>
 
-    <div *ngIf="!isLoading && filtered.length === 0" class="empty-state">
+    <div *ngIf="!isLoading && hasError" class="empty-state">
+      <strong>Something went wrong</strong>
+      <p>Failed to load your bookings.</p>
+      <button class="action-btn primary" (click)="load()">Retry</button>
+    </div>
+
+    <div *ngIf="!isLoading && !hasError && filtered.length === 0" class="empty-state">
       <strong>No bookings found</strong>
       <p>Browse properties and make your first reservation.</p>
     </div>
@@ -33,17 +39,24 @@
             <th>Property</th>
             <th>Check-in</th>
             <th>Check-out</th>
-            <th>Total</th>
+            <th>Amount</th>
             <th>Status</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let b of filtered">
-            <td>{{ propertyTitle(b) }}</td>
-            <td>{{ b.checkInDate | date:'mediumDate' }}</td>
-            <td>{{ b.checkOutDate | date:'mediumDate' }}</td>
-            <td>{{ (b.totalPrice || b.price) | currency:'USD':'symbol':'1.0-0' }}</td>
+            <td>
+              <div class="property-cell">
+                <img *ngIf="b.property_id?.images?.[0]"
+                     [src]="b.property_id.images[0]"
+                     alt="property" class="property-thumb">
+                <span>{{ propertyTitle(b) }}</span>
+              </div>
+            </td>
+            <td>{{ b.start_date | date:'mediumDate' }}</td>
+            <td>{{ b.end_date | date:'mediumDate' }}</td>
+            <td>{{ b.amount | currency:'EGP':'symbol':'1.0-0' }}</td>
             <td><span class="status-badge {{ b.status }}">{{ b.status | uppercase }}</span></td>
             <td>
               <div class="action-group">

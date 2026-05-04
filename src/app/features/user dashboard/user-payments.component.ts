@@ -16,7 +16,11 @@ export class UserPaymentsComponent implements OnInit, OnDestroy {
 
   constructor(private userService: UserDashboardService) {}
 
-  ngOnInit(): void {
+  ngOnInit(): void { this.load(); }
+
+  ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
+
+  load(): void {
     this.isLoading = true;
     this.hasError = false;
     this.userService.getPayments()
@@ -27,19 +31,17 @@ export class UserPaymentsComponent implements OnInit, OnDestroy {
       });
   }
 
-  ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
-
   get totalPaid(): number {
     return this.payments
-      .filter((p) => p.status === 'completed')
-      .reduce((sum, p) => sum + (p.amount ?? 0), 0);
+      .filter((p) => p.status === 'paid')
+      .reduce((sum, p) => sum + (p.totalAmount ?? 0), 0);
   }
 
   get completedCount(): number {
-    return this.payments.filter((p) => p.status === 'completed').length;
+    return this.payments.filter((p) => p.status === 'paid').length;
   }
 
   propertyTitle(p: any): string {
-    return p.property?.title ?? p.booking?.property_id?.title ?? p.booking?.property?.title ?? 'N/A';
+    return p.booking?.property_id?.title ?? p.property?.title ?? 'Unknown Property';
   }
 }

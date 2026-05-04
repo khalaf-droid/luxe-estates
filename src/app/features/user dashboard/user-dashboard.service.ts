@@ -179,6 +179,14 @@ export class UserDashboardService {
     );
   }
 
+  // ── Stats ── GET /dashboard/me/stats ───────────────────────────────
+  getMyStats(): Observable<any> {
+    return this.http.get<ApiResponse<any>>(`${this.base}/dashboard/me/stats`).pipe(
+      map((res) => res.data),
+      catchError(this.handleError('Failed to load stats'))
+    );
+  }
+
   // ── Logout ─────────────────────────────────────────────────────────────────
   logout(): Observable<any> {
     this.authService.logout();

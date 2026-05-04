@@ -8,8 +8,8 @@
   <div class="stats-grid" style="grid-template-columns: repeat(3,1fr);margin-bottom:1.5rem">
     <article class="stat-card">
       <span class="stat-label">Total Paid</span>
-      <span class="stat-value">{{ totalPaid | currency:'USD':'symbol':'1.0-0' }}</span>
-      <span class="stat-note">Completed transactions only.</span>
+      <span class="stat-value">{{ totalPaid | currency:'EGP':'symbol':'1.0-0' }}</span>
+      <span class="stat-note">Paid transactions only.</span>
     </article>
     <article class="stat-card">
       <span class="stat-label">Completed</span>
@@ -25,7 +25,12 @@
 
   <div class="panel-card">
     <div *ngIf="isLoading" class="loading-state">Loading payments...</div>
-    <div *ngIf="!isLoading && payments.length === 0" class="empty-state">
+    <div *ngIf="!isLoading && hasError" class="empty-state">
+      <strong>Something went wrong</strong>
+      <p>Failed to load your payments.</p>
+      <button class="action-btn primary" (click)="load()">Retry</button>
+    </div>
+    <div *ngIf="!isLoading && !hasError && payments.length === 0" class="empty-state">
       <strong>No payment records</strong>
       <p>Completed bookings and transactions will appear here.</p>
     </div>
@@ -35,6 +40,7 @@
           <tr>
             <th>Date</th>
             <th>Property</th>
+            <th>Booking</th>
             <th>Method</th>
             <th>Amount</th>
             <th>Status</th>
@@ -44,11 +50,17 @@
           <tr *ngFor="let p of payments">
             <td>{{ p.createdAt | date:'mediumDate' }}</td>
             <td>{{ propertyTitle(p) }}</td>
-            <td>{{ p.method || p.paymentMethod || 'Card' }}</td>
-            <td>{{ p.amount | currency:(p.currency || 'USD'):'symbol':'1.0-0' }}</td>
             <td>
-              <span class="status-badge {{ p.status || 'completed' }}">
-                {{ (p.status || 'completed') | uppercase }}
+              <span *ngIf="p.booking" class="booking-dates">
+                {{ p.booking.start_date | date:'shortDate' }} — {{ p.booking.end_date | date:'shortDate' }}
+              </span>
+              <span *ngIf="!p.booking" class="text-muted">—</span>
+            </td>
+            <td>{{ p.method || p.paymentMethod || 'Card' }}</td>
+            <td>{{ p.totalAmount | currency:(p.currency || 'EGP'):'symbol':'1.0-0' }}</td>
+            <td>
+              <span class="status-badge {{ p.status }}">
+                {{ p.status | uppercase }}
               </span>
             </td>
           </tr>
