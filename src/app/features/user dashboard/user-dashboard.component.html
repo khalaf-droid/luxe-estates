@@ -1,32 +1,80 @@
-<section class="user-shell">
+<div class="user-layout">
+
+  <!-- ── Sidebar ──────────────────────────────────────────────── -->
   <aside class="user-sidebar">
-    <div class="brand">
-      <span>LUXE</span>
-      <span>DASHBOARD</span>
+
+    <div class="sidebar-brand">
+      <div class="brand-logo-fallback"></div>
+      <span class="brand-text">LUXE</span>
     </div>
 
-    <div class="user-avatar" *ngIf="user">
-      <div class="avatar-circle">{{ initials }}</div>
-      <div class="avatar-info">
-        <span class="avatar-name">{{ user.name }}</span>
-        <span class="avatar-role">{{ user.role | titlecase }}</span>
+    <!-- User Context -->
+    <ng-container *ngIf="user$ | async as user">
+    <div class="user-profile">
+      <div class="avatar" *ngIf="!user.photo">{{ getInitials(user) }}</div>
+      <img class="user-avatar-img" *ngIf="user.photo" [src]="user.photo" [alt]="user.name" />
+      <div class="info">
+        <span class="name">{{ user.name }}</span>
+        <span class="role">{{ getRoleLabel(user) }}</span>
       </div>
     </div>
 
+    <!-- KYC warning banner -->
+    <div class="kyc-banner" *ngIf="!user.isVerified">
+      <i class="ph ph-warning"></i>
+      <span>Identity not verified</span>
+    </div>
+
+    <!-- Nav -->
     <nav class="user-nav">
-      <a *ngFor="let tab of dashboardTabs" [routerLink]="tab.link" routerLinkActive="active">
-        <i [class]="tab.icon"></i>
-        {{ tab.label }}
+      <span class="nav-section">My Account</span>
+
+      <a routerLink="overview" routerLinkActive="active" class="nav-item">
+        <i class="ph ph-squares-four"></i>
+        Overview
+      </a>
+
+      <a routerLink="bookings" routerLinkActive="active" class="nav-item">
+        <i class="ph ph-calendar-check"></i>
+        My Bookings
+      </a>
+
+      <a routerLink="properties" routerLinkActive="active" class="nav-item"
+         *ngIf="canListProperties(user)">
+        <i class="ph ph-buildings"></i>
+        My Properties
+      </a>
+
+      <a routerLink="saved" routerLinkActive="active" class="nav-item" *ngIf="canViewSaved(user)">
+        <i class="ph ph-heart"></i>
+        Saved
+      </a>
+
+      <a routerLink="payments" routerLinkActive="active" class="nav-item">
+        <i class="ph ph-credit-card"></i>
+        Payments
+      </a>
+
+      <a routerLink="profile" routerLinkActive="active" class="nav-item">
+        <i class="ph ph-user"></i>
+        Profile
       </a>
     </nav>
+    </ng-container>
 
-    <a routerLink="/" class="back-link">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
-      Back to site
-    </a>
+    <!-- Sidebar footer -->
+    <div class="sidebar-footer">
+      <button class="logout-link" (click)="logout()" [disabled]="isLoggingOut">
+        <i class="ph ph-sign-out"></i>
+        {{ isLoggingOut ? 'Logging out...' : 'Log out' }}
+      </button>
+    </div>
+
   </aside>
 
-  <main class="user-content">
+  <!-- ── Main content ─────────────────────────────────────────── -->
+  <main class="user-main">
     <router-outlet></router-outlet>
   </main>
-</section>
+
+</div>

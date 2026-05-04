@@ -1,49 +1,97 @@
 <div>
-  <div class="dash-eyebrow">Account</div>
-  <h1 class="dash-title">My Profile</h1>
-  <p class="dash-sub">Update your personal information and account details.</p>
+  <div class="page-header">
+    <div class="section-eyebrow">Account</div>
+    <h1>My Profile</h1>
+    <p>Update your personal information and account security settings.</p>
+  </div>
 
   <div *ngIf="isLoading" class="loading-state">Loading profile...</div>
 
-  <div *ngIf="!isLoading && user" class="profile-layout">
-    <div class="dash-panel profile-card">
-      <div class="profile-avatar">
-        <div class="avatar-lg">{{ initials }}</div>
+  <ng-container *ngIf="!isLoading && user">
+    <!-- ── Profile info card ────────────────────────────────── -->
+    <div class="panel-card profile-info-card">
+      <div class="profile-avatar-row">
+        <div class="avatar-lg" *ngIf="!user.photo">{{ initials }}</div>
+        <img class="avatar-lg-img" *ngIf="user.photo" [src]="user.photo" [alt]="user.name" />
         <div>
-          <p class="profile-name">{{ user.name }}</p>
-          <span class="badge {{ user.role }}">{{ user.role | titlecase }}</span>
-          <p class="profile-since">Member since {{ user.createdAt | date:'MMMM y' }}</p>
+          <h2 style="margin:0 0 0.3rem">{{ user.name }}</h2>
+          <span class="status-badge {{ user.kycStatus }}">
+            KYC: {{ user.kycStatus | uppercase }}
+          </span>
+          <p style="margin:0.5rem 0 0;font-size:0.8rem;color:rgba(250,250,248,0.45);font-family:var(--font-mono)">
+            Member since {{ user.createdAt | date:'MMMM y' }}
+          </p>
         </div>
       </div>
-      <div class="profile-meta">
+      <div class="meta-table">
         <div class="meta-row">
-          <span class="meta-label">Email</span>
+          <span class="meta-key">Email</span>
           <span>{{ user.email }}</span>
         </div>
         <div class="meta-row">
-          <span class="meta-label">Verified</span>
-          <span class="badge {{ user.isVerified ? 'approved' : 'pending' }}">
-            {{ user.isVerified ? 'Verified' : 'Pending' }}
+          <span class="meta-key">Role</span>
+          <span>{{ user.role | titlecase }}</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-key">Verified</span>
+          <span class="status-badge {{ user.isVerified ? 'approved' : 'pending' }}">
+            {{ user.isVerified ? 'Yes' : 'No' }}
+          </span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-key">Status</span>
+          <span class="status-badge {{ user.isBanned ? 'rejected' : 'approved' }}">
+            {{ user.isBanned ? 'Banned' : 'Active' }}
           </span>
         </div>
       </div>
     </div>
 
-    <div class="dash-panel">
+    <!-- ── Edit info form ─────────────────────────────────────── -->
+    <div class="panel-card" [formGroup]="profileForm">
       <h2>Edit Information</h2>
-      <div class="form-row">
+      <div class="form-grid">
         <div class="form-group">
           <label>Full Name</label>
-          <input type="text" [(ngModel)]="form.name" placeholder="Your full name" />
+          <input type="text" formControlName="name" placeholder="Your full name" />
         </div>
         <div class="form-group">
           <label>Phone</label>
-          <input type="tel" [(ngModel)]="form.phone" placeholder="+1 555 000 0000" />
+          <input type="tel" formControlName="phone" placeholder="+971 50 000 0000" />
         </div>
       </div>
-      <button class="btn primary" [disabled]="isSaving" (click)="save()">
-        {{ isSaving ? 'Saving...' : 'Save Changes' }}
-      </button>
+      <div class="form-group" style="margin-top:0.5rem">
+        <label>Bio</label>
+        <textarea formControlName="bio" placeholder="A short bio..."></textarea>
+      </div>
+      <div style="margin-top:1rem">
+        <button class="action-btn primary" (click)="saveProfile()" [disabled]="isSavingProfile">
+          {{ isSavingProfile ? 'Saving...' : 'Save Changes' }}
+        </button>
+      </div>
     </div>
-  </div>
+
+    <!-- ── Change password form ────────────────────────────────── -->
+    <div class="panel-card" [formGroup]="passwordForm">
+      <h2>Change Password</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Current Password</label>
+          <input [type]="showCurrentPw ? 'text' : 'password'" formControlName="currentPassword" placeholder="••••••••" />
+        </div>
+        <div class="form-group">
+          <label>New Password</label>
+          <input [type]="showNewPw ? 'text' : 'password'" formControlName="newPassword" placeholder="Min. 8 characters" />
+        </div>
+      </div>
+      <div style="margin-top:1rem;display:flex;gap:0.75rem;align-items:center">
+        <button class="action-btn primary" (click)="savePassword()" [disabled]="isSavingPassword">
+          {{ isSavingPassword ? 'Saving...' : 'Update Password' }}
+        </button>
+        <span style="font-size:12px;color:rgba(250,250,248,0.4);font-family:var(--font-mono)">
+          You will be logged out after changing your password.
+        </span>
+      </div>
+    </div>
+  </ng-container>
 </div>

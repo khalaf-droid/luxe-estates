@@ -1,33 +1,35 @@
-import { Component, OnInit } from '@angular/core';
-import { BookingsService } from '../bookings/bookings.service';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { UserDashboardService } from './user-dashboard.service';
 
 @Component({
   selector: 'app-user-bookings',
-  templateUrl: './user-bookings.component.html'
+  templateUrl: './user-bookings.component.html',
+  styleUrls: ['./user-bookings.component.scss']
 })
-export class UserBookingsComponent implements OnInit {
+export class UserBookingsComponent implements OnInit, OnDestroy {
   bookings: any[] = [];
-  isLoading = false;
+  isLoading = true;
+  hasError = false;
   activeId: string | null = null;
   filter = 'all';
+  private destroy$ = new Subject<void>();
 
-  constructor(
-    private bookingsService: BookingsService,
-    private paymentService: UserDashboardService // Keep this for payments for now
-  ) {}
+  constructor(private userService: UserDashboardService) {}
 
   ngOnInit(): void { this.load(); }
+  ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
 
   load(): void {
     this.isLoading = true;
-    this.bookingsService.getMyBookings().subscribe({
-      next: (res) => { 
-        this.bookings = res.data?.bookings || res.bookings || res; 
-        this.isLoading = false; 
-      },
-      error: () => { this.isLoading = false; }
-    });
+    this.hasError = false;
+    this.userService.getMyBookings()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => { this.bookings = data; this.isLoading = false; },
+        error: () => { this.isLoading = false; this.hasError = true; },
+      });
   }
 
   get filtered(): any[] {
@@ -36,26 +38,23 @@ export class UserBookingsComponent implements OnInit {
       : this.bookings.filter((b) => b.status === this.filter);
   }
 
-  pay(booking: any): void {
-    if (!booking?._id) return;
-    this.paymentService.initiatePayment(booking._id).subscribe({
-      next: (res) => {
-        if (res.paymentUrl) {
-          window.location.href = res.paymentUrl;
-        } else {
-          this.load();
-        }
-      },
-      error: () => {}
-    });
+  // Property title — handles both populated and flat structures
+  propertyTitle(b: any): string {
+    return b.property?.title ?? b.property_id?.title ?? 'N/A';
   }
 
   cancel(booking: any): void {
-    if (!booking?._id) return;
+    if (!booking?._id || this.activeId) return;
     this.activeId = booking._id;
-    this.bookingsService.cancelBooking(booking._id).subscribe({
-      next: () => { this.activeId = null; this.load(); },
-      error: () => { this.activeId = null; }
-    });
+    this.userService.cancelBooking(booking._id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => { this.activeId = null; this.load(); },
+        error: () => { this.activeId = null; },
+      });
+  }
+
+  canCancel(b: any): boolean {
+    return b.status !== 'cancelled' && b.status !== 'rejected';
   }
 }

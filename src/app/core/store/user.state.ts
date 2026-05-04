@@ -20,7 +20,7 @@ export class UserState {
   private auth = inject(AuthService);
 
   /** Observable stream — subscribe for reactive updates */
-  readonly currentUser$: Observable<User | null> = this.auth.currentUser$.asObservable();
+  readonly currentUser$: Observable<User | null> = this.auth.currentUser$;
 
   /** Sync snapshot — use when you just need the current value once */
   get currentUser(): User | null {

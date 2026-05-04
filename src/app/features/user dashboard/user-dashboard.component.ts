@@ -1,59 +1,74 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { UserDashboardService, UserProfile } from './user-dashboard.service';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { UserDashboardService, UserProfile, UserRole } from './user-dashboard.service';
 
-export const DASHBOARD_CONFIG = {
-  buyer: [
-    { id: 'overview', label: 'Overview', icon: 'fa-solid fa-chart-line', link: 'overview' },
-    { id: 'bookings', label: 'My Bookings', icon: 'fa-solid fa-calendar-check', link: 'bookings' },
-    { id: 'favorites', label: 'Favorites', icon: 'fa-solid fa-heart', link: 'favorites' }
-  ],
-  owner: [
-    { id: 'overview', label: 'Overview', icon: 'fa-solid fa-chart-line', link: 'overview' },
-    { id: 'properties', label: 'My Properties', icon: 'fa-solid fa-building', link: 'properties' },
-    { id: 'bookings', label: 'Property Bookings', icon: 'fa-solid fa-book-open', link: 'bookings' },
-    { id: 'earnings', label: 'Earnings', icon: 'fa-solid fa-wallet', link: 'payments' }
-  ],
-  agent: [
-    { id: 'overview', label: 'Overview', icon: 'fa-solid fa-chart-line', link: 'overview' },
-    { id: 'properties', label: 'Managed Properties', icon: 'fa-solid fa-building', link: 'properties' },
-    { id: 'leads', label: 'Leads', icon: 'fa-solid fa-users', link: 'leads' }
-  ]
-};
+import { AuthService, User } from '../../core/auth/auth.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-user-dashboard',
   templateUrl: './user-dashboard.component.html',
-  styleUrls: ['./user-dashboard.component.scss'],
-  encapsulation: ViewEncapsulation.None
+  styleUrls: ['./user-dashboard.component.scss']
 })
-export class UserDashboardComponent implements OnInit {
-  user: UserProfile | null = null;
-  dashboardTabs: any[] = [];
+export class UserDashboardComponent implements OnInit, OnDestroy {
+  user$: Observable<User | null>;
+  isLoggingOut = false;
+  private destroy$ = new Subject<void>();
 
-  constructor(private userService: UserDashboardService) {}
+  constructor(
+    private userService: UserDashboardService,
+    private authService: AuthService
+  ) {
+    this.user$ = this.authService.currentUser$;
+  }
 
   ngOnInit(): void {
-    this.userService.getProfile().subscribe({
-      next: (profile) => {
-        this.user = profile;
-        this.setupDashboardTabs();
-      },
-      error: () => {}
-    });
+    // Load profile if not already in memory
+    if (!this.authService.currentUser) {
+      this.userService.getMe().pipe(takeUntil(this.destroy$)).subscribe();
+    }
   }
 
-  setupDashboardTabs(): void {
-    if (!this.user) return;
-    const role = this.user.role as keyof typeof DASHBOARD_CONFIG;
-    this.dashboardTabs = DASHBOARD_CONFIG[role] || DASHBOARD_CONFIG['buyer'];
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  get initials(): string {
-    if (!this.user?.name) return '?';
-    return this.user.name
+  getInitials(user: User | null): string {
+    if (!user?.name) return '?';
+    return user.name
       .split(' ')
       .slice(0, 2)
       .map((n) => n[0].toUpperCase())
       .join('');
+  }
+
+  getRoleLabel(user: User | null): string {
+    const map: Record<string, string> = {
+      buyer: 'Buyer',
+      owner: 'Owner',
+      agent: 'Agent',
+      admin: 'Admin',
+    };
+    return user?.role ? map[user.role] : '';
+  }
+
+  // Show "My Properties" nav link for owners and agents only
+  canListProperties(user: User | null): boolean {
+    return user?.role === 'owner' || user?.role === 'agent';
+  }
+
+  // Show "Saved" nav link for buyers only
+  canViewSaved(user: User | null): boolean {
+    return user?.role === 'buyer';
+  }
+
+  logout(): void {
+    if (this.isLoggingOut) return;
+    this.isLoggingOut = true;
+    this.userService.logout().subscribe({
+      error: () => (this.isLoggingOut = false),
+    });
   }
 }

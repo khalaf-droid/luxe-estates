@@ -34,7 +34,7 @@ export class AccountService {
       const currentUser = this.authService.getCurrentUser<any>();
       if (currentUser) {
         // Update the photo and name without touching sensitive data like tokens
-        this.authService.currentUser$.next({
+        this.authService.setCurrentUser({
           ...currentUser,
           photo: user.photo,
           name: user.name

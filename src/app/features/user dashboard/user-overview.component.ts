@@ -1,38 +1,55 @@
-import { Component, OnInit } from '@angular/core';
-import { Observable, Subject, of } from 'rxjs';
-import { catchError, map, startWith, switchMap } from 'rxjs/operators';
-import { UserDashboardService, UserStats, UserProfile } from './user-dashboard.service';
-
-interface StatsState {
-  loading: boolean;
-  error: boolean;
-  data: UserStats | null;
-}
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import {
+  UserDashboardService,
+  UserProfile,
+  DashboardData,
+  OwnerAgentDashboard,
+  BuyerDashboard,
+} from './user-dashboard.service';
 
 @Component({
   selector: 'app-user-overview',
-  templateUrl: './user-overview.component.html'
+  templateUrl: './user-overview.component.html',
+  styleUrls: ['./user-overview.component.scss']
 })
-export class UserOverviewComponent implements OnInit {
-  state$!: Observable<StatsState>;
+export class UserOverviewComponent implements OnInit, OnDestroy {
   user: UserProfile | null = null;
-  private retry$ = new Subject<void>();
+  dashboard: DashboardData | null = null;
+  isLoading = true;
+  private destroy$ = new Subject<void>();
 
   constructor(private userService: UserDashboardService) {}
 
   ngOnInit(): void {
-    this.state$ = this.retry$.pipe(
-      startWith(null),
-      switchMap(() => this.userService.getStats().pipe(
-        map(data => ({ loading: false, error: false, data })),
-        catchError(() => of({ loading: false, error: true, data: null })),
-        startWith({ loading: true, error: false, data: null })
-      ))
-    );
-    this.userService.getProfile().subscribe({ next: (u) => (this.user = u), error: () => {} });
+    this.userService.getMe()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: ({ user, dashboard }) => {
+          this.user = user;
+          this.dashboard = dashboard;
+          this.isLoading = false;
+        },
+        error: () => { this.isLoading = false; },
+      });
   }
 
-  retry(): void {
-    this.retry$.next();
+  ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
+
+  get isOwnerOrAgent(): boolean {
+    return this.user?.role === 'owner' || this.user?.role === 'agent';
+  }
+
+  get isBuyer(): boolean {
+    return this.user?.role === 'buyer';
+  }
+
+  get ownerDash(): OwnerAgentDashboard {
+    return this.dashboard as OwnerAgentDashboard;
+  }
+
+  get buyerDash(): BuyerDashboard {
+    return this.dashboard as BuyerDashboard;
   }
 }

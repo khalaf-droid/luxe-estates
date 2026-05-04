@@ -1,71 +1,127 @@
 <div>
-  <div class="dash-eyebrow">My Account</div>
-  <h1 class="dash-title">Welcome back<span *ngIf="user">, {{ user.name.split(' ')[0] }}</span></h1>
-  <p class="dash-sub">Here's a snapshot of your activity on the platform.</p>
+  <div class="page-header">
+    <div class="section-eyebrow">My Account</div>
+    <h1>Welcome back<span *ngIf="user">, {{ user.name.split(' ')[0] }}</span></h1>
+    <p>Here's a live overview of your activity on LUXE.</p>
+  </div>
 
-  <ng-container *ngIf="state$ | async as state">
-    <!-- Loading State -->
-    <div class="stat-grid" *ngIf="state.loading">
-      <div class="stat-card skeleton" *ngFor="let i of [1,2,3,4]">
-        <div class="skeleton-line" style="width: 40%"></div>
-        <div class="skeleton-line" style="width: 70%; height: 2rem; margin: 0.5rem 0"></div>
-        <div class="skeleton-line" style="width: 60%"></div>
-      </div>
+  <!-- KYC alerts -->
+  <div class="kyc-alert warning" *ngIf="user && dashboard?.kycPending">
+    <i class="ph ph-clock"></i>
+    <div>
+      <strong>KYC under review.</strong> Your identity documents are being verified. This usually takes 1–2 business days.
     </div>
-
-    <!-- Error State -->
-    <div class="dash-panel error-panel" *ngIf="state.error">
-      <div class="error-content">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <h3>Failed to load statistics</h3>
-        <p>There was a problem connecting to the server. Please check your connection and try again.</p>
-        <button (click)="retry()" class="btn-retry">Retry Now</button>
-      </div>
+  </div>
+  <div class="kyc-alert error" *ngIf="user && dashboard?.kycRejected">
+    <i class="ph ph-x-circle"></i>
+    <div>
+      <strong>KYC rejected.</strong>
+      {{ dashboard?.kycRejectionReason || 'Your documents were not accepted.' }}
+      <a routerLink="../profile">Re-submit documents →</a>
     </div>
+  </div>
+  <div class="kyc-alert success" *ngIf="user && dashboard?.kycApproved">
+    <i class="ph ph-check-circle"></i>
+    <div><strong>Identity verified.</strong> Your account is fully activated.</div>
+  </div>
 
-    <!-- Success State -->
-    <div class="stat-grid" *ngIf="state.data as stats">
+  <div *ngIf="isLoading" class="loading-state">Loading dashboard...</div>
+
+  <!-- ── Owner / Agent stats ─────────────────────────────────── -->
+  <ng-container *ngIf="!isLoading && isOwnerOrAgent && ownerDash">
+    <div class="stats-grid">
       <article class="stat-card">
-        <span class="stat-label">Total Bookings</span>
-        <span class="stat-value">{{ stats.totalBookings }}</span>
-        <span class="stat-note">All reservations made.</span>
+        <span class="stat-label">Total Properties</span>
+        <span class="stat-value">{{ ownerDash.totalProperties }}</span>
+        <span class="stat-note">All your listed properties.</span>
       </article>
       <article class="stat-card">
-        <span class="stat-label">Active Bookings</span>
-        <span class="stat-value">{{ stats.activeBookings }}</span>
-        <span class="stat-note">Currently approved stays.</span>
+        <span class="stat-label">Active Listings</span>
+        <span class="stat-value">{{ ownerDash.activeListings }}</span>
+        <span class="stat-note">Currently available.</span>
       </article>
+      <article class="stat-card">
+        <span class="stat-label">Booking Requests</span>
+        <span class="stat-value">{{ ownerDash.bookingRequests }}</span>
+        <span class="stat-note">Pending your review.</span>
+      </article>
+      <article class="stat-card">
+        <span class="stat-label">Upcoming Viewings</span>
+        <span class="stat-value">{{ ownerDash.upcomingViewings }}</span>
+        <span class="stat-note">Scheduled site visits.</span>
+      </article>
+    </div>
+
+    <!-- Recent properties preview -->
+    <div class="panel-card" *ngIf="ownerDash.properties?.length">
+      <h2>Recent Listings</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Price</th>
+              <th>Beds</th>
+              <th>Area</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of ownerDash.properties">
+              <td>{{ p.title }}</td>
+              <td>{{ p.price | currency:'USD':'symbol':'1.0-0' }}</td>
+              <td>{{ p.bedrooms ?? '—' }}</td>
+              <td>{{ p.area ? (p.area + ' m²') : '—' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ── Buyer stats ─────────────────────────────────────────── -->
+  <ng-container *ngIf="!isLoading && isBuyer && buyerDash">
+    <div class="stats-grid">
       <article class="stat-card">
         <span class="stat-label">Saved Properties</span>
-        <span class="stat-value">{{ stats.savedProperties }}</span>
-        <span class="stat-note">Properties on your wishlist.</span>
+        <span class="stat-value">{{ buyerDash.savedPropertiesCount }}</span>
+        <span class="stat-note">On your wishlist.</span>
       </article>
       <article class="stat-card">
-        <span class="stat-label">Total Spent</span>
-        <span class="stat-value">{{ stats.totalSpent | currency:'USD':'symbol':'1.0-0' }}</span>
-        <span class="stat-note">Completed payments to date.</span>
+        <span class="stat-label">My Bookings</span>
+        <span class="stat-value">{{ buyerDash.myBookings.length }}</span>
+        <span class="stat-note">Total reservation history.</span>
+      </article>
+      <article class="stat-card">
+        <span class="stat-label">Viewing Requests</span>
+        <span class="stat-value">{{ buyerDash.viewingRequests.length }}</span>
+        <span class="stat-note">Site visits requested.</span>
       </article>
     </div>
   </ng-container>
 
-  <div class="dash-panel">
+  <!-- Quick actions -->
+  <div class="panel-card" *ngIf="!isLoading">
     <h2>Quick Actions</h2>
     <div class="quick-actions">
       <a routerLink="../bookings" class="quick-card">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-        <span>View Bookings</span>
+        <i class="ph ph-calendar-check"></i>
+        My Bookings
       </a>
-      <a routerLink="../saved" class="quick-card">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-        <span>Saved Properties</span>
+      <a routerLink="../properties" class="quick-card" *ngIf="isOwnerOrAgent">
+        <i class="ph ph-buildings"></i>
+        My Properties
+      </a>
+      <a routerLink="../saved" class="quick-card" *ngIf="isBuyer">
+        <i class="ph ph-heart"></i>
+        Saved
       </a>
       <a routerLink="../payments" class="quick-card">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>
-        <span>Payment History</span>
+        <i class="ph ph-credit-card"></i>
+        Payments
       </a>
       <a routerLink="../profile" class="quick-card">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <span>Edit Profile</span>
+        <i class="ph ph-user"></i>
+        Edit Profile
       </a>
     </div>
   </div>

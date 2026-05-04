@@ -33,7 +33,7 @@ export class NavComponent {
 
   // إسلام: دالة ذكية للتحكم في زر إضافة العقار بناءً على الصلاحيات
   onListPropertyClick(): void {
-    const currentUser = this.auth.currentUser$.getValue();
+    const currentUser = this.auth.currentUser;
 
     if (!currentUser) {
       // لو مفيش يوزر مسجل دخول، افتح مودال اللوجين

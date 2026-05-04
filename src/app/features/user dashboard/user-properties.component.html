@@ -1,21 +1,95 @@
 <div>
-  <div class="dash-eyebrow">Host Panel</div>
-  <h1 class="dash-title">My Properties</h1>
-  <p class="dash-sub">Manage your listed properties and track their approval status.</p>
+  <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+    <div>
+      <div class="section-eyebrow">Host Panel</div>
+      <h1>My Properties</h1>
+      <p>Manage your listings and submit new properties for review.</p>
+    </div>
+    <button class="action-btn primary" (click)="showAddForm = !showAddForm">
+      <i class="ph" [ngClass]="showAddForm ? 'ph-x' : 'ph-plus'"></i>
+      {{ showAddForm ? 'Cancel' : 'Add Property' }}
+    </button>
+  </div>
 
-  <div class="dash-panel">
+  <!-- ── Add property form ────────────────────────────────────── -->
+  <div class="panel-card" *ngIf="showAddForm" [formGroup]="form">
+    <h2>New Property Listing</h2>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Title *</label>
+        <input type="text" formControlName="title" placeholder="e.g. Luxury Penthouse in Dubai Marina" />
+      </div>
+      <div class="form-group">
+        <label>Type *</label>
+        <select formControlName="type">
+          <option value="apartment">Apartment</option>
+          <option value="villa">Villa</option>
+          <option value="townhouse">Townhouse</option>
+          <option value="studio">Studio</option>
+          <option value="office">Office</option>
+          <option value="land">Land</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>City *</label>
+        <input type="text" formControlName="city" placeholder="Dubai" />
+      </div>
+      <div class="form-group">
+        <label>Address</label>
+        <input type="text" formControlName="address" placeholder="Marina Walk, Tower 3" />
+      </div>
+      <div class="form-group">
+        <label>Price (USD) *</label>
+        <input type="number" formControlName="price" placeholder="500000" />
+      </div>
+      <div class="form-group">
+        <label>Area (m²)</label>
+        <input type="number" formControlName="area" placeholder="120" />
+      </div>
+      <div class="form-group">
+        <label>Bedrooms</label>
+        <input type="number" formControlName="bedrooms" placeholder="3" />
+      </div>
+      <div class="form-group">
+        <label>Bathrooms</label>
+        <input type="number" formControlName="bathrooms" placeholder="2" />
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-top:0.5rem">
+      <label>Description *</label>
+      <textarea formControlName="description" placeholder="Describe the property in detail..."></textarea>
+    </div>
+
+    <div class="form-group" style="margin-top:0.5rem">
+      <label>Main Photo</label>
+      <input type="file" accept="image/*" (change)="onFileChange($event)" style="padding:0.5rem" />
+    </div>
+
+    <div style="margin-top:1.25rem;display:flex;gap:0.75rem">
+      <button class="action-btn primary" (click)="submitProperty()" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'Submitting...' : 'Submit for Review' }}
+      </button>
+      <button class="action-btn" (click)="showAddForm = false">Cancel</button>
+    </div>
+  </div>
+
+  <!-- ── Properties table ───────────────────────────────────────── -->
+  <div class="panel-card">
     <div *ngIf="isLoading" class="loading-state">Loading properties...</div>
     <div *ngIf="!isLoading && properties.length === 0" class="empty-state">
       <strong>No listings yet</strong>
-      Add your first property to start hosting.
+      <p>Add your first property to start hosting.</p>
     </div>
     <div class="table-wrap" *ngIf="!isLoading && properties.length > 0">
       <table>
         <thead>
           <tr>
             <th>Title</th>
-            <th>Location</th>
+            <th>City</th>
             <th>Price</th>
+            <th>Type</th>
             <th>Status</th>
             <th>Approval</th>
           </tr>
@@ -23,10 +97,11 @@
         <tbody>
           <tr *ngFor="let p of properties">
             <td>{{ p.title }}</td>
-            <td>{{ p.city || p.location || 'N/A' }}</td>
-            <td>{{ p.price | currency:(p.currency || 'USD'):'symbol':'1.0-0' }}</td>
-            <td><span class="badge {{ p.status || 'active' }}">{{ (p.status || 'active') | uppercase }}</span></td>
-            <td><span class="badge {{ getApproval(p) }}">{{ getApproval(p) | uppercase }}</span></td>
+            <td>{{ p.city || p.location || '—' }}</td>
+            <td>{{ p.price | currency:'USD':'symbol':'1.0-0' }}</td>
+            <td>{{ p.type | titlecase }}</td>
+            <td><span class="status-badge {{ p.status || 'active' }}">{{ (p.status || 'active') | uppercase }}</span></td>
+            <td><span class="status-badge {{ getApproval(p) }}">{{ getApproval(p) | uppercase }}</span></td>
           </tr>
         </tbody>
       </table>

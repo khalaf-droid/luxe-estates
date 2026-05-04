@@ -95,7 +95,6 @@
           </td>
           <td class="id-cell">#{{ booking._id.slice(-7).toUpperCase() }} <span *ngIf="booking.isPriority" class="priority-star">★</span></td>
           <td class="user-cell">
-            <img [src]="booking.user_id?.photo || 'assets/images/default-avatar.png'" alt="User">
             <div class="user-info">
               <span class="name">{{ booking.user_id?.name }}</span>
               <span class="email">{{ booking.user_id?.email }}</span>

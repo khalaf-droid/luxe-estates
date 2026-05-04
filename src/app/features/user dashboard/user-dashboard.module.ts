@@ -1,25 +1,28 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
-import { UserDashboardComponent } from './user-dashboard.component';
-import { UserOverviewComponent } from './user-overview.component';
-import { UserBookingsComponent } from './user-bookings.component';
+
+import { UserDashboardComponent }  from './user-dashboard.component';
+import { UserOverviewComponent }   from './user-overview.component';
+import { UserBookingsComponent }   from './user-bookings.component';
 import { UserPropertiesComponent } from './user-properties.component';
-import { UserProfileComponent } from './user-profile.component';
-import { UserPaymentsComponent } from './user-payments.component';
+import { UserSavedComponent }      from './user-saved.component';
+import { UserPaymentsComponent }   from './user-payments.component';
+import { UserProfileComponent }    from './user-profile.component';
 
 const routes: Routes = [
   {
     path: '',
     component: UserDashboardComponent,
     children: [
-      { path: '', redirectTo: 'overview', pathMatch: 'full' },
-      { path: 'overview', component: UserOverviewComponent },
-      { path: 'bookings', component: UserBookingsComponent },
+      { path: '',           redirectTo: 'overview', pathMatch: 'full' },
+      { path: 'overview',   component: UserOverviewComponent   },
+      { path: 'bookings',   component: UserBookingsComponent   },
       { path: 'properties', component: UserPropertiesComponent },
-      { path: 'profile', component: UserProfileComponent },
-      { path: 'payments', component: UserPaymentsComponent },
+      { path: 'saved',      component: UserSavedComponent      },
+      { path: 'payments',   component: UserPaymentsComponent   },
+      { path: 'profile',    component: UserProfileComponent    },
     ],
   },
 ];
@@ -30,9 +33,15 @@ const routes: Routes = [
     UserOverviewComponent,
     UserBookingsComponent,
     UserPropertiesComponent,
-    UserProfileComponent,
+    UserSavedComponent,
     UserPaymentsComponent,
+    UserProfileComponent,
   ],
-  imports: [CommonModule, FormsModule, RouterModule.forChild(routes)],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    RouterModule.forChild(routes),
+  ],
 })
 export class UserDashboardModule {}

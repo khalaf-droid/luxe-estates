@@ -38,10 +38,15 @@ export class AuthService {
   private readonly DB_KEY = 'luxe_all_users';
 
   // ── Global User State ────────────────────────────────────────────────────
-  currentUser$ = new BehaviorSubject<User | null>(null);
+  private _currentUser$ = new BehaviorSubject<User | null>(null);
+  currentUser$ = this._currentUser$.asObservable();
 
   get currentUser(): User | null {
-    return this.currentUser$.value;
+    return this._currentUser$.value;
+  }
+
+  setCurrentUser(user: User | null): void {
+    this._currentUser$.next(user);
   }
 
   // Team Compatibility: Observable for auth status
@@ -66,7 +71,7 @@ export class AuthService {
     if (token && userJson) {
       try {
         const user: User = JSON.parse(userJson);
-        this.currentUser$.next(user);
+        this._currentUser$.next(user);
         this._isAuthenticated$.next(true);
       } catch {
         this.clearStorage();
@@ -77,7 +82,7 @@ export class AuthService {
   // ── Team Expected Interfaces (Task 05 constraints) ───────────────────────
 
   isAuthenticated(): boolean {
-    return !!localStorage.getItem(this.TOKEN_KEY) && !!this.currentUser$.value;
+    return !!localStorage.getItem(this.TOKEN_KEY) && !!this._currentUser$.value;
   }
 
   getToken(): string | null {
@@ -156,13 +161,13 @@ export class AuthService {
       next: () => {
         this.socketService.disconnect();
         this.clearStorage();
-        this.currentUser$.next(null);
+        this._currentUser$.next(null);
       },
       error: () => {
         // Even if the backend fails, clear the local state to ensure security
         this.socketService.disconnect();
         this.clearStorage();
-        this.currentUser$.next(null);
+        this._currentUser$.next(null);
       }
     });
   }
@@ -182,7 +187,7 @@ export class AuthService {
     localStorage.setItem(this.TOKEN_KEY, token);
     localStorage.setItem(this.USER_KEY, JSON.stringify(fullUser));
 
-    this.currentUser$.next(fullUser);
+    this._currentUser$.next(fullUser);
     this._isAuthenticated$.next(true); // Notify the team's observable
 
     return fullUser;

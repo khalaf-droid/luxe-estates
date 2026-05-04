@@ -1,10 +1,12 @@
 <div>
-  <div class="dash-eyebrow">Reservations</div>
-  <h1 class="dash-title">My Bookings</h1>
-  <p class="dash-sub">Manage all your property reservations and their statuses.</p>
+  <div class="page-header">
+    <div class="section-eyebrow">Reservations</div>
+    <h1>My Bookings</h1>
+    <p>Manage all your property reservations and their statuses.</p>
+  </div>
 
-  <div class="dash-panel">
-    <div class="panel-toolbar">
+  <div class="panel-card">
+    <div class="table-toolbar">
       <label>
         Filter:
         <select [(ngModel)]="filter">
@@ -21,7 +23,7 @@
 
     <div *ngIf="!isLoading && filtered.length === 0" class="empty-state">
       <strong>No bookings found</strong>
-      Browse properties and make your first reservation.
+      <p>Browse properties and make your first reservation.</p>
     </div>
 
     <div class="table-wrap" *ngIf="!isLoading && filtered.length > 0">
@@ -31,27 +33,25 @@
             <th>Property</th>
             <th>Check-in</th>
             <th>Check-out</th>
-            <th>Amount</th>
+            <th>Total</th>
             <th>Status</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let b of filtered">
-            <td>{{ b.property_id?.title || b.property?.title || 'N/A' }}</td>
-            <td>{{ b.start_date | date:'mediumDate' }}</td>
-            <td>{{ b.end_date | date:'mediumDate' }}</td>
-            <td>{{ b.amount | currency:'USD':'symbol':'1.0-0' }}</td>
-            <td><span class="badge {{ b.status }}">{{ b.status | uppercase }}</span></td>
+            <td>{{ propertyTitle(b) }}</td>
+            <td>{{ b.checkInDate | date:'mediumDate' }}</td>
+            <td>{{ b.checkOutDate | date:'mediumDate' }}</td>
+            <td>{{ (b.totalPrice || b.price) | currency:'USD':'symbol':'1.0-0' }}</td>
+            <td><span class="status-badge {{ b.status }}">{{ b.status | uppercase }}</span></td>
             <td>
-              <div style="display: flex; gap: 0.5rem;">
-                <button *ngIf="b.status === 'approved'" class="btn primary sm" (click)="pay(b)">
-                  Pay Now
-                </button>
-                <button class="btn danger sm"
-                  [disabled]="activeId === b._id || b.status === 'cancelled' || b.status === 'rejected'"
+              <div class="action-group">
+                <button
+                  class="action-btn danger"
+                  [disabled]="activeId === b._id || !canCancel(b)"
                   (click)="cancel(b)">
-                  Cancel
+                  {{ activeId === b._id ? '...' : 'Cancel' }}
                 </button>
               </div>
             </td>
