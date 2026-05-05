@@ -8,7 +8,7 @@ import {
   debounceTime, distinctUntilChanged, switchMap, catchError
 } from 'rxjs/operators';
 
-import { AdminService, AdminUser, PaginatedUsers, UserFilters } from './admin.service';
+import { AdminService, AdminUser, PaginatedUsers, UserFilters, AVAILABLE_PERMISSIONS, Permission } from './admin.service';
 import { NotificationService } from '../../shared/services/notification.service';
 
 @Component({
@@ -35,6 +35,7 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
   totalPages   = 1;
   pageSize     = 20;
   activeUserId: string | null = null;
+  permissionsConfig = AVAILABLE_PERMISSIONS;
 
   // ── Filter Subjects ───────────────────────────────────────
   private searchSubject = new BehaviorSubject<string>('');
@@ -200,6 +201,37 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
         user.isBanned = oldStatus;
         this.activeUserId = null;
       },
+    });
+  }
+
+  onPermissionToggle(user: AdminUser, permission: Permission, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const isChecked = input.checked;
+    
+    // Ensure permissions array exists
+    if (!user.permissions) {
+      user.permissions = [];
+    }
+    
+    const oldPermissions = [...user.permissions];
+    
+    // Optimistic Update
+    if (isChecked && !user.permissions.includes(permission)) {
+      user.permissions.push(permission);
+    } else if (!isChecked && user.permissions.includes(permission)) {
+      user.permissions = user.permissions.filter(p => p !== permission);
+    }
+    
+    this.adminService.updateUserPermissions(user._id, user.permissions).subscribe({
+      next: () => {
+        this.notificationService.show('Permissions updated successfully', 'success');
+      },
+      error: () => {
+        // Rollback on error
+        user.permissions = oldPermissions;
+        // Revert the UI checkbox
+        input.checked = !isChecked;
+      }
     });
   }
 

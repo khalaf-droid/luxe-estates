@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, throwError, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
@@ -31,11 +31,25 @@ export interface UserProfile {
 // Dashboard data shapes — matched to getMe() controller response
 export interface OwnerAgentDashboard {
   role: 'owner' | 'agent';
+  // ── Hosting stats ──
   properties: any[];
   totalProperties: number;
   activeListings: number;
   bookingRequests: number;
   upcomingViewings: number;
+  // ── Personal consumer data (owner is ALSO a buyer) ──
+  savedPropertiesCount: number;
+  myBookings: any[];
+  personalViewings: any[];
+  // ── Subscription ──
+  subscription: {
+    plan: string;
+    status: string;
+    listingsUsed: number;
+    listingsLimit: number;
+    endDate: string;
+  } | null;
+  // ── KYC ──
   isVerified: boolean;
   kycStatus: KycStatus;
   kycApproved: boolean;
@@ -78,20 +92,26 @@ export class UserDashboardService {
   private authService = inject(AuthService);
   private readonly base = environment.apiUrl;
 
+  private dashboardDataSubject = new BehaviorSubject<DashboardData | null>(null);
+  public dashboardData$ = this.dashboardDataSubject.asObservable();
+
+  // ── GET /users/me (Enhanced dashboard data) ─────────────────────────────────
+  getMe(): Observable<MeResponse> {
+    return this.http.get<ApiResponse<MeResponse>>(`${this.base}/users/me`).pipe(
+      tap((res) => {
+        this.authService.setCurrentUser(res.data.user as any);
+        this.dashboardDataSubject.next(res.data.dashboard);
+      }),
+      map((res) => res.data),
+      catchError(this.handleError('Failed to load profile data'))
+    );
+  }
+
   private handleError(message: string) {
     return (err: any) => {
       this.notif.show(message, 'error');
       return throwError(() => err);
     };
-  }
-
-  // ── GET /users/me — returns user + role-specific dashboard ─────────────────
-  getMe(): Observable<MeResponse> {
-    return this.http.get<ApiResponse<MeResponse>>(`${this.base}/users/me`).pipe(
-      map((res) => res.data),
-      tap((data) => this.authService.setCurrentUser(data.user as any)),
-      catchError(this.handleError('Failed to load profile'))
-    );
   }
 
   // ── PATCH /users/me ────────────────────────────────────────────────────────
@@ -162,9 +182,38 @@ export class UserDashboardService {
   }
 
   unsaveProperty(propertyId: string): Observable<any> {
-    return this.http.delete<ApiResponse<any>>(`${this.base}/favourites/${propertyId}`).pipe(
+    return this.http.delete<ApiResponse<any>>(`${this.base}/favorites/${propertyId}`).pipe(
       map((res) => res.data),
       catchError(this.handleError('Failed to remove saved property'))
+    );
+  }
+
+  // ── Subscription ── GET /subscriptions/plans | POST /subscriptions/subscribe ──
+  getPlans(): Observable<any[]> {
+    return this.http.get<ApiResponse<any>>(`${this.base}/subscriptions/plans`).pipe(
+      map((res) => res.data?.plans ?? []),
+      catchError(this.handleError('Failed to load subscription plans'))
+    );
+  }
+
+  getMySubscription(): Observable<any | null> {
+    return this.http.get<ApiResponse<any>>(`${this.base}/subscriptions/my`).pipe(
+      map((res) => res.data),
+      catchError((_) => of(null))
+    );
+  }
+
+  subscribe(plan: string): Observable<any> {
+    return this.http.post<ApiResponse<any>>(`${this.base}/subscriptions/subscribe`, { plan }).pipe(
+      map((res) => res.data),
+      catchError(this.handleError('Failed to subscribe'))
+    );
+  }
+
+  cancelSubscription(): Observable<any> {
+    return this.http.post<ApiResponse<any>>(`${this.base}/subscriptions/cancel`, {}).pipe(
+      map((res) => res.data),
+      catchError(this.handleError('Failed to cancel subscription'))
     );
   }
 

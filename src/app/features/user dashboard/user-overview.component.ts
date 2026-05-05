@@ -61,6 +61,18 @@ export class UserOverviewComponent implements OnInit, OnDestroy {
     return this.dashboard as BuyerDashboard;
   }
 
+  getUsagePercent(sub: any): number {
+    if (!sub || sub.listingsLimit === -1) return 0;
+    return (sub.listingsUsed / sub.listingsLimit) * 100;
+  }
+
+  getUsageClass(sub: any): string {
+    const pct = this.getUsagePercent(sub);
+    if (pct >= 100) return 'at-limit';
+    if (pct >= 80) return 'near-limit';
+    return '';
+  }
+
   get adminDash(): any {
     return this.dashboard;
   }

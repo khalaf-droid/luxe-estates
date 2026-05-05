@@ -17,6 +17,13 @@ export class UserPropertiesComponent implements OnInit, OnDestroy {
   isSubmitting = false;
   selectedFile: File | null = null;
   form!: FormGroup;
+
+  // ── Subscription State ──
+  plans: any[] = [];
+  activeSub: any = null;
+  isSubscribed = false;
+  isAtLimit = false;
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -28,9 +35,29 @@ export class UserPropertiesComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.buildForm();
     this.load();
+    this.loadSubscriptionContext();
   }
 
   ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
+
+  loadSubscriptionContext(): void {
+    this.userService.dashboardData$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((dash: any) => {
+        if (dash) {
+          const ownerDash = dash as any;
+          this.activeSub = ownerDash.subscription;
+          this.isSubscribed = !!this.activeSub;
+          this.isAtLimit = this.activeSub && 
+                          this.activeSub.listingsLimit !== -1 && 
+                          this.activeSub.listingsUsed >= this.activeSub.listingsLimit;
+        }
+      });
+
+    this.userService.getPlans()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(plans => this.plans = plans);
+  }
 
   buildForm(): void {
     this.form = this.fb.group({
@@ -56,6 +83,18 @@ export class UserPropertiesComponent implements OnInit, OnDestroy {
       });
   }
 
+  onSubscribe(planId: string): void {
+    this.userService.subscribe(planId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.notif.show('Subscription activated!', 'success');
+          // Refresh everything
+          this.userService.getMe().subscribe();
+        }
+      });
+  }
+
   onFileChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.selectedFile = input.files?.[0] ?? null;
@@ -69,7 +108,17 @@ export class UserPropertiesComponent implements OnInit, OnDestroy {
     this.isSubmitting = true;
 
     const fd = new FormData();
-    Object.entries(this.form.value).forEach(([k, v]) => {
+    const formValue = { ...this.form.value };
+
+    // Map flat form fields to Property model's nested location structure
+    if (formValue.city || formValue.address) {
+      fd.append('location[city]', formValue.city || '');
+      fd.append('location[street]', formValue.address || '');
+      delete formValue.city;
+      delete formValue.address;
+    }
+
+    Object.entries(formValue).forEach(([k, v]) => {
       if (v !== null && v !== '') fd.append(k, String(v));
     });
     if (this.selectedFile) fd.append('photo', this.selectedFile);

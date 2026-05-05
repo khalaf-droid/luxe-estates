@@ -1,0 +1,398 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+// ── Tokens ───────────────────────────────────────────────────
+$gold:       #c9a84c;
+$gold-light: #e8c97a;
+$bg:         #0a0a0f;
+$surface:    #12121a;
+$surface2:   #1a1a26;
+$border:     rgba(255,255,255,0.07);
+$text:       #e8e8f0;
+$muted:      rgba(232,232,240,0.5);
+
+// ── Page shell ───────────────────────────────────────────────
+.audit-page {
+  font-family: 'Inter', sans-serif;
+  color: $text;
+  padding: 2rem;
+  min-height: 100vh;
+  background: $bg;
+
+  @media (max-width: 768px) { padding: 1rem; }
+}
+
+// ── Header ───────────────────────────────────────────────────
+.audit-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.75rem;
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .header-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba($gold, 0.15), rgba($gold, 0.05));
+    border: 1px solid rgba($gold, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    svg { width: 24px; height: 24px; color: $gold; }
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #fff 0%, $gold-light 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0 0 0.25rem;
+  }
+
+  p { margin: 0; color: $muted; font-size: 0.875rem; }
+}
+
+// ── Filters ──────────────────────────────────────────────────
+.audit-filters {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+
+  .filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-end;
+  }
+
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    flex: 1;
+    min-width: 140px;
+
+    label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: $muted;
+    }
+
+    select, input[type="date"] {
+      background: $surface2;
+      border: 1px solid $border;
+      border-radius: 8px;
+      color: $text;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+      cursor: pointer;
+
+      &:focus { border-color: rgba($gold, 0.5); }
+      option { background: $surface2; }
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(0.7);
+      cursor: pointer;
+    }
+  }
+}
+
+.btn-reset {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid $border;
+  border-radius: 8px;
+  color: $muted;
+  font-size: 0.875rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  align-self: flex-end;
+  white-space: nowrap;
+
+  svg { width: 14px; height: 14px; }
+
+  &:hover {
+    background: rgba(255,255,255,0.1);
+    color: $text;
+    border-color: rgba(255,255,255,0.15);
+  }
+}
+
+// ── States ───────────────────────────────────────────────────
+.loading-state, .error-state, .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  gap: 1rem;
+  color: $muted;
+
+  svg { width: 48px; height: 48px; opacity: 0.4; }
+  p   { margin: 0; font-size: 0.9rem; }
+}
+
+.error-state { color: #f87171; svg { color: #f87171; opacity: 0.7; } }
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba($gold, 0.2);
+  border-top-color: $gold;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+// ── Table ────────────────────────────────────────────────────
+.audit-table-wrapper {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 14px;
+  overflow: hidden;
+  overflow-x: auto;
+}
+
+.audit-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead tr {
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid $border;
+  }
+
+  th {
+    padding: 0.85rem 1.25rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: $muted;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 0.9rem 1.25rem;
+    vertical-align: middle;
+  }
+
+  .log-row {
+    border-bottom: 1px solid $border;
+    transition: background 0.15s;
+
+    &:hover { background: rgba(255,255,255,0.02); }
+    &.expanded { background: rgba($gold, 0.04); border-bottom-color: rgba($gold, 0.15); }
+  }
+}
+
+// ── Actor Cell ───────────────────────────────────────────────
+.actor-cell .actor-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.actor-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba($gold,0.3), rgba($gold,0.1));
+  border: 1px solid rgba($gold, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: $gold;
+  flex-shrink: 0;
+  overflow: hidden;
+
+  img { width: 100%; height: 100%; object-fit: cover; }
+}
+
+.actor-name  { display: block; font-size: 0.875rem; font-weight: 500; color: $text; }
+.actor-email { display: block; font-size: 0.75rem; color: $muted; }
+
+// ── Action Badge ─────────────────────────────────────────────
+.action-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+
+  $colors: (
+    emerald: (#064e3b, #34d399, rgba(52,211,153,0.15)),
+    rose:    (#4c0519, #fb7185, rgba(251,113,133,0.15)),
+    amber:   (#451a03, #fbbf24, rgba(251,191,36,0.15)),
+    sky:     (#0c4a6e, #38bdf8, rgba(56,189,248,0.15)),
+    violet:  (#2e1065, #a78bfa, rgba(167,139,250,0.15)),
+    orange:  (#431407, #fb923c, rgba(251,146,60,0.15)),
+    slate:   (#1e293b, #94a3b8, rgba(148,163,184,0.15)),
+  );
+
+  @each $name, $vals in $colors {
+    &[data-color="#{$name}"] {
+      background: nth($vals, 3);
+      color: nth($vals, 2);
+      border: 1px solid rgba(nth($vals, 2), 0.25);
+    }
+  }
+}
+
+// ── Resource Cell ────────────────────────────────────────────
+.resource-cell {
+  .resource-type {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: $text;
+  }
+  .resource-id {
+    display: block;
+    font-size: 0.72rem;
+    color: $muted;
+    font-family: 'Courier New', monospace;
+  }
+}
+
+// ── Date Cell ────────────────────────────────────────────────
+.date-cell {
+  .date { display: block; font-size: 0.8rem; font-weight: 500; color: $text; }
+  .time { display: block; font-size: 0.72rem; color: $muted; }
+}
+
+// ── Expand Button ────────────────────────────────────────────
+.btn-expand {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid $border;
+  color: $muted;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+
+  svg { width: 14px; height: 14px; transition: transform 0.2s; }
+
+  &:hover { background: rgba(255,255,255,0.1); color: $text; }
+  &.active { background: rgba($gold, 0.1); border-color: rgba($gold,0.3); color: $gold; }
+}
+
+// ── Detail Panel ─────────────────────────────────────────────
+.detail-row td { padding: 0; }
+
+.detail-panel {
+  padding: 1.25rem 1.5rem;
+  background: rgba($gold, 0.03);
+  border-bottom: 1px solid rgba($gold, 0.12);
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+
+  @media (max-width: 600px) { grid-template-columns: 1fr; }
+}
+
+.detail-block h4 {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: $muted;
+  margin: 0 0 0.5rem;
+}
+
+.code-block {
+  background: $surface2;
+  border: 1px solid $border;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-size: 0.8rem;
+  font-family: 'Courier New', monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin: 0;
+  max-height: 160px;
+  overflow-y: auto;
+
+  &.before { border-color: rgba(251,113,133,0.2); color: #fca5a5; }
+  &.after  { border-color: rgba(52,211,153,0.2);  color: #6ee7b7; }
+}
+
+.meta-row {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  color: $muted;
+
+  strong { color: $text; }
+}
+
+// ── Pagination ───────────────────────────────────────────────
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+
+  .page-btn {
+    padding: 0.5rem 1.25rem;
+    background: $surface;
+    border: 1px solid $border;
+    border-radius: 8px;
+    color: $text;
+    font-size: 0.875rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover:not(:disabled) {
+      background: rgba($gold, 0.1);
+      border-color: rgba($gold, 0.3);
+      color: $gold;
+    }
+    &:disabled { opacity: 0.4; cursor: not-allowed; }
+  }
+
+  .page-info { font-size: 0.875rem; color: $muted; }
+}

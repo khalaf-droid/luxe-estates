@@ -93,9 +93,25 @@
             </div>
           </td>
 
-          <!-- Role Badge -->
+          <!-- Role Badge & Permissions -->
           <td class="cell-role">
             <app-role-badge [role]="user.role"></app-role-badge>
+            
+            <!-- Permissions Expandable Section for Admins -->
+            <div class="permissions-container" *ngIf="user.role === 'admin'">
+              <details class="permissions-details">
+                <summary class="permissions-summary">Manage Permissions</summary>
+                <div class="permissions-grid">
+                  <label class="permission-toggle" *ngFor="let p of permissionsConfig">
+                    <input 
+                      type="checkbox" 
+                      [checked]="user.permissions.includes(p)"
+                      (change)="onPermissionToggle(user, p, $event)">
+                    <span class="permission-label">{{ p.replace('_', ' ') }}</span>
+                  </label>
+                </div>
+              </details>
+            </div>
           </td>
 
           <!-- KYC Status -->

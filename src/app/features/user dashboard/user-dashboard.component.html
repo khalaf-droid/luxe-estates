@@ -42,7 +42,20 @@
       <a routerLink="properties" routerLinkActive="active" class="nav-item"
          *ngIf="canListProperties(user)">
         <i class="ph ph-buildings"></i>
-        My Properties
+        <span>My Properties</span>
+        
+        <!-- Subscription Badge -->
+        <ng-container *ngIf="dashboard$ | async as dash">
+          <span class="sub-badge warning" *ngIf="!dash.subscription" title="No active subscription">
+            <i class="ph ph-warning-circle"></i>
+          </span>
+          <span class="sub-badge expiring" *ngIf="dash.subscription && isSubscriptionExpiring(dash.subscription)" title="Expiring soon">
+            <i class="ph ph-clock"></i>
+          </span>
+          <span class="sub-badge expired" *ngIf="dash.subscription && isSubscriptionExpired(dash.subscription)" title="Expired">
+            <i class="ph ph-x-circle"></i>
+          </span>
+        </ng-container>
       </a>
 
       <a routerLink="saved" routerLinkActive="active" class="nav-item" *ngIf="canViewSaved(user)">
@@ -53,11 +66,6 @@
       <a routerLink="payments" routerLinkActive="active" class="nav-item">
         <i class="ph ph-credit-card"></i>
         Payments
-      </a>
-
-      <a routerLink="profile" routerLinkActive="active" class="nav-item">
-        <i class="ph ph-user"></i>
-        Profile
       </a>
 
       <!-- Admin Specific -->

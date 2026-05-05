@@ -59,9 +59,26 @@ export class UserDashboardComponent implements OnInit, OnDestroy {
     return user?.role === 'owner' || user?.role === 'agent';
   }
 
-  // Show "Saved" nav link for buyers and admins
+  get dashboard$(): Observable<any> {
+    return this.userService.dashboardData$;
+  }
+
+  isSubscriptionExpiring(sub: any): boolean {
+    if (!sub || !sub.endDate) return false;
+    const end = new Date(sub.endDate).getTime();
+    const now = Date.now();
+    const daysLeft = (end - now) / (1000 * 60 * 60 * 24);
+    return daysLeft > 0 && daysLeft <= 3;
+  }
+
+  isSubscriptionExpired(sub: any): boolean {
+    if (!sub) return false;
+    return sub.status === 'expired' || (sub.endDate && new Date(sub.endDate).getTime() < Date.now());
+  }
+
+  // Show "Saved" for ALL roles — owners can also save other properties
   canViewSaved(user: User | null): boolean {
-    return user?.role === 'buyer' || user?.role === 'admin';
+    return !!user;
   }
 
   logout(): void {

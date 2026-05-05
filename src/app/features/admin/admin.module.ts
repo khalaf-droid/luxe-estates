@@ -9,6 +9,7 @@ import { AdminUsersComponent }       from './admin-users.component';
 import { AdminPropertiesComponent }  from './admin-properties.component';
 import { AdminBookingsComponent }    from './admin-bookings.component';
 import { AdminKycComponent }         from './kyc/admin-kyc/admin-kyc.component';
+import { AdminAuditComponent }       from './admin-audit.component';
 
 // Shared sub-components
 import { KpiCardComponent }          from './components/kpi-card/kpi-card.component';
@@ -32,6 +33,7 @@ const routes: Routes = [
       { path: 'properties', component: AdminPropertiesComponent },
       { path: 'bookings',   component: AdminBookingsComponent   },
       { path: 'kyc',        component: AdminKycComponent        },
+      { path: 'audit',      component: AdminAuditComponent      },
     ],
   },
 ];
@@ -43,6 +45,7 @@ const routes: Routes = [
     AdminUsersComponent,
     AdminPropertiesComponent,
     AdminBookingsComponent,
+    AdminAuditComponent,
   ],
   imports: [
     CommonModule,
@@ -50,6 +53,7 @@ const routes: Routes = [
     ReactiveFormsModule,
     RouterModule.forChild(routes),
     // Dashboard overview sub-components (standalone)
+    AdminKycComponent,
     KpiCardComponent,
     RevenueChartComponent,
     TransactionsTableComponent,

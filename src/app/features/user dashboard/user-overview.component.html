@@ -27,50 +27,103 @@
 
   <div *ngIf="isLoading" class="loading-state">Loading dashboard...</div>
 
-  <!-- ── Owner / Agent stats ─────────────────────────────────── -->
+  <!-- ── Owner / Agent Dashboard ─────────────────────────────────── -->
   <ng-container *ngIf="!isLoading && isOwnerOrAgent && ownerDash">
+    
+    <!-- Subscription Card -->
+    <div class="panel-card subscription-details" *ngIf="ownerDash.subscription">
+      <div class="sub-header">
+        <span class="plan-name">{{ ownerDash.subscription.plan }} Plan</span>
+        <span class="status-badge active" *ngIf="ownerDash.subscription.status === 'active'">Active</span>
+      </div>
+
+      <div class="sub-meta">
+        <div class="meta-item">
+          <span class="label">Renew Date</span>
+          <span class="value">{{ ownerDash.subscription.endDate | date:'mediumDate' }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="label">Billing Cycle</span>
+          <span class="value">Monthly</span>
+        </div>
+      </div>
+
+      <div class="usage-bar-wrap" *ngIf="ownerDash.subscription.listingsLimit !== -1">
+        <div class="bar-info">
+          <span>Monthly Listings Used</span>
+          <span>{{ ownerDash.subscription.listingsUsed }} / {{ ownerDash.subscription.listingsLimit }}</span>
+        </div>
+        <div class="bar-bg">
+          <div class="bar-fill" 
+               [style.width.%]="getUsagePercent(ownerDash.subscription)"
+               [ngClass]="getUsageClass(ownerDash.subscription)"></div>
+        </div>
+      </div>
+      <div class="usage-bar-wrap" *ngIf="ownerDash.subscription.listingsLimit === -1">
+        <div class="bar-info">
+          <span>Monthly Listings Used</span>
+          <span>{{ ownerDash.subscription.listingsUsed }} / Unlimited</span>
+        </div>
+        <div class="bar-bg">
+          <div class="bar-fill" style="width: 10%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Subscription Call-to-action -->
+    <div class="kyc-alert warning" *ngIf="!ownerDash.subscription">
+      <i class="ph ph-shield-warning"></i>
+      <div>
+        <strong>No active subscription.</strong> You need a plan to list properties.
+        <a routerLink="../properties" style="color: inherit; text-decoration: underline; margin-left: 8px;">View Plans →</a>
+      </div>
+    </div>
+
     <div class="stats-grid">
+      <!-- Hosting Stats -->
       <article class="stat-card">
         <span class="stat-label">Total Properties</span>
         <span class="stat-value">{{ ownerDash.totalProperties }}</span>
         <span class="stat-note">All your listed properties.</span>
       </article>
       <article class="stat-card">
-        <span class="stat-label">Active Listings</span>
-        <span class="stat-value">{{ ownerDash.activeListings }}</span>
-        <span class="stat-note">Currently available.</span>
-      </article>
-      <article class="stat-card">
         <span class="stat-label">Booking Requests</span>
         <span class="stat-value">{{ ownerDash.bookingRequests }}</span>
-        <span class="stat-note">Pending your review.</span>
+        <span class="stat-note">Pending guest approvals.</span>
+      </article>
+
+      <!-- Personal Stats (Unification) -->
+      <article class="stat-card">
+        <span class="stat-label">Saved Properties</span>
+        <span class="stat-value">{{ ownerDash.savedPropertiesCount }}</span>
+        <span class="stat-note">Properties you're watching.</span>
       </article>
       <article class="stat-card">
-        <span class="stat-label">Upcoming Viewings</span>
-        <span class="stat-value">{{ ownerDash.upcomingViewings }}</span>
-        <span class="stat-note">Scheduled site visits.</span>
+        <span class="stat-label">My Bookings</span>
+        <span class="stat-value">{{ ownerDash.myBookings.length || 0 }}</span>
+        <span class="stat-note">Stays you've booked.</span>
       </article>
     </div>
 
-    <!-- Recent properties preview -->
+    <!-- Recent hosting preview -->
     <div class="panel-card" *ngIf="ownerDash.properties?.length">
-      <h2>Recent Listings</h2>
+      <h2>Recent Hosting Activity</h2>
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
-              <th>Title</th>
+              <th>Property</th>
               <th>Price</th>
               <th>Beds</th>
-              <th>Area</th>
+              <th>City</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let p of ownerDash.properties">
               <td>{{ p.title }}</td>
-              <td>{{ p.price | currency:'USD':'symbol':'1.0-0' }}</td>
+              <td>{{ p.price | currency:'EGP':'symbol':'1.0-0' }}</td>
               <td>{{ p.bedrooms ?? '—' }}</td>
-              <td>{{ p.area ? (p.area + ' m²') : '—' }}</td>
+              <td>{{ p.location?.city || '—' }}</td>
             </tr>
           </tbody>
         </table>

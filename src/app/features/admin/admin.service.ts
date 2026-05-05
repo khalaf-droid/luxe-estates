@@ -36,9 +36,46 @@ export interface AdminUser {
   isBanned: boolean;
   isVerified: boolean;
   kycStatus: 'not_submitted' | 'pending' | 'approved' | 'rejected';
+  permissions: string[];
   createdAt: string;
   photo: string | null;
 }
+
+export type AuditAction =
+  | 'APPROVE_PROPERTY' | 'REJECT_PROPERTY'
+  | 'APPROVE_BOOKING'  | 'REJECT_BOOKING' | 'BULK_UPDATE_BOOKINGS'
+  | 'BAN_USER' | 'UNBAN_USER' | 'CHANGE_ROLE' | 'UPDATE_PERMISSIONS'
+  | 'APPROVE_KYC' | 'REJECT_KYC' | 'REVERT_KYC' | 'RESET_KYC'
+  | 'DELETE_REVIEW' | 'APPROVE_AUCTION';
+
+export interface AuditLog {
+  _id: string;
+  actor: { _id: string; name: string; email: string; role: string; photo?: string };
+  action: AuditAction;
+  targetType: 'Property' | 'Booking' | 'User' | 'Review' | 'Auction';
+  targetId: string;
+  changes: { before?: any; after?: any };
+  metadata: { ip?: string; userAgent?: string; reason?: string };
+  createdAt: string;
+}
+
+export interface PaginatedAuditLogs {
+  logs: AuditLog[];
+  total: number;
+  page: number;
+  pages: number;
+}
+
+export const AVAILABLE_PERMISSIONS = [
+  'approve_property', 'reject_property',
+  'approve_booking',  'reject_booking',
+  'ban_user',         'change_role',      'update_permissions',
+  'approve_kyc',      'reject_kyc',
+  'delete_review',    'view_audit_logs',
+  'manage_auctions',  'export_data',      'bulk_actions',
+] as const;
+
+export type Permission = typeof AVAILABLE_PERMISSIONS[number];
 
 export interface PaginatedUsers {
   users: AdminUser[];
@@ -112,7 +149,11 @@ export class AdminService {
 
   private handleError(defaultMessage: string) {
     return (err: any) => {
-      const message = err.error?.message || defaultMessage;
+      const raw = err.error?.message || defaultMessage;
+      // Surface conflict-of-interest errors with a clear prefix
+      const message = err.error?.code === 'CONFLICT_OF_INTEREST'
+        ? `⚠️ Conflict of Interest: ${raw}`
+        : raw;
       this.notificationService.show(message, 'error');
       return throwError(() => err);
     };
@@ -203,6 +244,31 @@ export class AdminService {
     return this.http.patch<ApiResponse<any>>(`${this.base}/dashboard/admin/users/${userId}/ban`, {}).pipe(
       map(res => res.data),
       catchError(this.handleError('Failed to toggle user ban status'))
+    );
+  }
+
+  updateUserPermissions(userId: string, permissions: string[]): Observable<any> {
+    return this.http.patch<ApiResponse<any>>(`${this.base}/dashboard/admin/users/${userId}/permissions`, { permissions }).pipe(
+      map(res => res.data),
+      catchError(this.handleError('Failed to update permissions'))
+    );
+  }
+
+  // ── Audit Logs ─────────────────────────────────────────────
+
+  getAuditLogs(filters: any = {}): Observable<PaginatedAuditLogs> {
+    const params: Record<string, any> = { limit: 20, ...filters };
+    Object.keys(params).forEach(k => {
+      if (params[k] === '' || params[k] === null || params[k] === undefined) delete params[k];
+    });
+    return this.http.get<any>(`${this.base}/dashboard/admin/audit-logs`, { params }).pipe(
+      map((res) => ({
+        logs:  res.data?.logs || [],
+        total: res.total      || 0,
+        page:  res.page       || 1,
+        pages: res.pages      || 1,
+      })),
+      catchError(this.handleError('Failed to load audit logs'))
     );
   }
 

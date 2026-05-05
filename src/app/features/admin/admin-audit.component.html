@@ -1,0 +1,165 @@
+<div class="audit-page">
+  <!-- ── Header ─────────────────────────────────────────────── -->
+  <div class="audit-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Audit Trail</h1>
+        <p>{{ total | number }} administrative actions recorded</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Filters ────────────────────────────────────────────── -->
+  <div class="audit-filters">
+    <div class="filter-row">
+      <div class="filter-group">
+        <label>Action Type</label>
+        <select [(ngModel)]="actionFilter" (change)="applyFilters()">
+          <option value="">All Actions</option>
+          <option *ngFor="let a of ACTION_TYPES" [value]="a">{{ a | titlecase }}</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Resource Type</label>
+        <select [(ngModel)]="targetTypeFilter" (change)="applyFilters()">
+          <option value="">All Resources</option>
+          <option *ngFor="let t of TARGET_TYPES" [value]="t">{{ t }}</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>From Date</label>
+        <input type="date" [(ngModel)]="dateFrom" (change)="applyFilters()" />
+      </div>
+      <div class="filter-group">
+        <label>To Date</label>
+        <input type="date" [(ngModel)]="dateTo" (change)="applyFilters()" />
+      </div>
+      <button class="btn-reset" (click)="resetFilters()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/>
+        </svg>
+        Reset
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Loading ────────────────────────────────────────────── -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading audit records…</p>
+  </div>
+
+  <!-- ── Error ──────────────────────────────────────────────── -->
+  <div class="error-state" *ngIf="error && !loading">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
+    </svg>
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- ── Empty ──────────────────────────────────────────────── -->
+  <div class="empty-state" *ngIf="!loading && !error && logs.length === 0">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+    </svg>
+    <p>No audit records found</p>
+  </div>
+
+  <!-- ── Log Table ──────────────────────────────────────────── -->
+  <div class="audit-table-wrapper" *ngIf="!loading && logs.length > 0">
+    <table class="audit-table">
+      <thead>
+        <tr>
+          <th>Actor</th>
+          <th>Action</th>
+          <th>Resource</th>
+          <th>Date & Time</th>
+          <th>Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let log of logs">
+          <!-- Main Row -->
+          <tr class="log-row" [class.expanded]="expandedLogId === log._id">
+            <td class="actor-cell">
+              <div class="actor-info">
+                <div class="actor-avatar">
+                  <img *ngIf="log.actor.photo" [src]="log.actor.photo" [alt]="log.actor.name" />
+                  <span *ngIf="!log.actor.photo">{{ log.actor.name.charAt(0) | uppercase }}</span>
+                </div>
+                <div>
+                  <span class="actor-name">{{ log.actor.name || 'Unknown' }}</span>
+                  <span class="actor-email">{{ log.actor.email }}</span>
+                </div>
+              </div>
+            </td>
+            <td class="action-cell">
+              <span class="action-badge" [attr.data-color]="getActionColor(log.action)">
+                {{ log.action }}
+              </span>
+            </td>
+            <td class="resource-cell">
+              <span class="resource-type">{{ log.targetType }}</span>
+              <span class="resource-id">{{ log.targetId | slice:0:8 }}…</span>
+            </td>
+            <td class="date-cell">
+              <span class="date">{{ log.createdAt | date:'dd MMM yyyy' }}</span>
+              <span class="time">{{ log.createdAt | date:'HH:mm:ss' }}</span>
+            </td>
+            <td class="actions-cell">
+              <button class="btn-expand" (click)="toggleExpand(log._id)"
+                      [class.active]="expandedLogId === log._id"
+                      [title]="expandedLogId === log._id ? 'Collapse' : 'View Changes'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    [attr.d]="expandedLogId === log._id
+                      ? 'M4.5 15.75l7.5-7.5 7.5 7.5'
+                      : 'M19.5 8.25l-7.5 7.5-7.5-7.5'"/>
+                </svg>
+              </button>
+            </td>
+          </tr>
+
+          <!-- Expanded Detail Row -->
+          <tr class="detail-row" *ngIf="expandedLogId === log._id">
+            <td colspan="5">
+              <div class="detail-panel">
+                <div class="detail-grid">
+                  <div class="detail-block" *ngIf="log.changes?.before !== undefined">
+                    <h4>Before</h4>
+                    <pre class="code-block before">{{ formatChanges(log.changes.before) }}</pre>
+                  </div>
+                  <div class="detail-block" *ngIf="log.changes?.after !== undefined">
+                    <h4>After</h4>
+                    <pre class="code-block after">{{ formatChanges(log.changes.after) }}</pre>
+                  </div>
+                </div>
+                <div class="meta-row" *ngIf="log.metadata?.ip || log.metadata?.reason">
+                  <span *ngIf="log.metadata?.ip">
+                    <strong>IP:</strong> {{ log.metadata.ip }}
+                  </span>
+                  <span *ngIf="log.metadata?.reason">
+                    <strong>Reason:</strong> {{ log.metadata.reason }}
+                  </span>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── Pagination ─────────────────────────────────────────── -->
+  <div class="pagination" *ngIf="pages > 1">
+    <button class="page-btn" (click)="goToPage(page - 1)" [disabled]="page <= 1">‹ Prev</button>
+    <span class="page-info">Page {{ page }} of {{ pages }}</span>
+    <button class="page-btn" (click)="goToPage(page + 1)" [disabled]="page >= pages">Next ›</button>
+  </div>
+</div>

@@ -464,3 +464,43 @@
 
   .page-header { flex-direction: column; align-items: flex-start; }
 }
+
+// ── Permissions UI ──────────────────────────────────────────
+
+.permissions-container {
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+.permissions-details {
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 6px;
+  background: #1a1a1a;
+}
+
+.permissions-summary {
+  cursor: pointer;
+  color: #c9a96e;
+  font-weight: 500;
+}
+
+.permissions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.permission-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #aaa;
+  cursor: pointer;
+  text-transform: capitalize;
+}
+
+.permission-toggle input[type='checkbox'] {
+  accent-color: #c9a96e;
+}

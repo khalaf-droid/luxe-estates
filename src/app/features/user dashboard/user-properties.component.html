@@ -5,10 +5,52 @@
       <h1>My Properties</h1>
       <p>Manage your listings and submit new properties for review.</p>
     </div>
-    <button class="action-btn primary" (click)="showAddForm = !showAddForm">
-      <i class="ph" [ngClass]="showAddForm ? 'ph-x' : 'ph-plus'"></i>
-      {{ showAddForm ? 'Cancel' : 'Add Property' }}
-    </button>
+    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:0.5rem">
+      <button class="action-btn primary" 
+              (click)="showAddForm = !showAddForm" 
+              [disabled]="!isSubscribed || isAtLimit">
+        <i class="ph" [ngClass]="showAddForm ? 'ph-x' : 'ph-plus'"></i>
+        {{ showAddForm ? 'Cancel' : 'Add Property' }}
+      </button>
+      <!-- Usage Counter -->
+      <span class="text-muted" style="font-size: 11px; font-family: var(--font-mono)" *ngIf="isSubscribed">
+        USAGE: {{ activeSub.listingsUsed }} / {{ activeSub.listingsLimit === -1 ? '∞' : activeSub.listingsLimit }}
+      </span>
+    </div>
+  </div>
+
+  <!-- ── Subscription Guard: Plan Selector ────────────────────── -->
+  <div class="panel-card" *ngIf="!isSubscribed && !isLoading">
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Choose Your Listing Plan</h2>
+      <p class="text-muted">You need an active subscription to start listing properties on LUXE.</p>
+    </div>
+
+    <div class="plans-grid">
+      <div class="plan-card" *ngFor="let plan of plans" [ngClass]="{'featured': plan.id === 'pro'}">
+        <h3>{{ plan.name }}</h3>
+        <div class="price">
+          <span class="amount">{{ plan.price }}</span>
+          <span class="period">{{ plan.currency }} / month</span>
+        </div>
+        <ul class="features-list">
+          <li *ngFor="let feature of plan.features">
+            <i class="ph ph-check-circle"></i>
+            {{ feature }}
+          </li>
+        </ul>
+        <button class="action-btn primary" (click)="onSubscribe(plan.id)">Subscribe Now</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Limit Reached Warning ────────────────────────────────── -->
+  <div class="kyc-alert warning" *ngIf="isSubscribed && isAtLimit && !showAddForm">
+    <i class="ph ph-info"></i>
+    <div>
+      <strong>Listing limit reached.</strong> You have used all {{ activeSub.listingsLimit }} listings in your current plan.
+      Upgrade to a higher plan to list more properties.
+    </div>
   </div>
 
   <!-- ── Add property form ────────────────────────────────────── -->
@@ -97,7 +139,7 @@
         <tbody>
           <tr *ngFor="let p of properties">
             <td>{{ p.title }}</td>
-            <td>{{ p.city || p.location || '—' }}</td>
+            <td>{{ p.location?.city || p.city || '—' }}</td>
             <td>{{ p.price | currency:'USD':'symbol':'1.0-0' }}</td>
             <td>{{ p.type | titlecase }}</td>
             <td><span class="status-badge {{ p.status || 'active' }}">{{ (p.status || 'active') | uppercase }}</span></td>

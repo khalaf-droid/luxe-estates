@@ -30,7 +30,7 @@ export class UserSavedComponent implements OnInit, OnDestroy {
   }
 
   remove(item: any): void {
-    const id = item.property?._id ?? item.propertyId ?? item._id;
+    const id = item.property_id?._id ?? item.property?._id ?? item.propertyId ?? item._id;
     if (!id || this.activeId) return;
     this.activeId = id;
     this.userService.unsaveProperty(id)
@@ -42,14 +42,15 @@ export class UserSavedComponent implements OnInit, OnDestroy {
   }
 
   propertyTitle(item: any): string {
-    return item.property?.title ?? item.title ?? 'N/A';
+    return item.property_id?.title ?? item.property?.title ?? item.title ?? 'N/A';
   }
 
   propertyCity(item: any): string {
-    return item.property?.city ?? item.city ?? '—';
+    const prop = item.property_id ?? item.property;
+    return prop?.location?.city ?? prop?.city ?? '—';
   }
 
   propertyPrice(item: any): number {
-    return item.property?.price ?? item.price ?? 0;
+    return item.property_id?.price ?? item.property?.price ?? item.price ?? 0;
   }
 }
