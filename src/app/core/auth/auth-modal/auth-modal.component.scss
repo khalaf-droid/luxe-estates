@@ -1,87 +1,86 @@
-/* ========================================================================== */
-/* LUXE ESTATES — Auth Modal Styles                                           */
-/* Dark theme • Gold accents • Matches project design system                  */
-/* ========================================================================== */
-
-// Design tokens (mirror project's CSS custom props)
-$gold: #C9A96E;
-$gold-light: #E8D5B0;
-$obsidian: #0A0A0F;
-$obsidian-2: #111118;
-$obsidian-3: #1A1A24;
-$obsidian-4: #22222E;
-$mist: #8A8AA0;
-$white: #FAFAF8;
-$red: #C0392B;
+@use 'variables' as *;
 
 // ─── Overlay ────────────────────────────────────────────────────────────────
 .auth-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
+  z-index: var(--z-notification);
   padding: 16px;
-  animation: fadeIn 0.2s ease;
+  animation: fadeIn 0.3s ease;
+  transition: var(--transition-theme);
+
+  [data-theme="light"] & {
+    background: rgba(244, 241, 235, 0.6);
+  }
 }
 
 // ─── Modal Card ──────────────────────────────────────────────────────────────
 .auth-modal {
   position: relative;
   width: 100%;
-  max-width: 420px;
-  background: $obsidian-2;
-  border: 1px solid rgba($gold, 0.3);
-  padding: 40px 36px;
-  border-radius: 2px;
-  min-height: 620px; // Stabilizes height during tab switching
+  max-width: 440px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  padding: 48px 40px;
+  border-radius: 4px;
+  min-height: 620px;
   display: flex;
   flex-direction: column;
-  animation: slideUp 0.25s ease;
+  animation: slideUp 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.4);
+  transition: var(--transition-theme);
+
+  [data-theme="light"] & {
+    box-shadow: 0 30px 90px rgba(139, 105, 20, 0.15);
+  }
 
   @media (max-width: 480px) {
-    padding: 28px 20px;
+    padding: 32px 24px;
   }
 }
 
 // ─── Close Button ────────────────────────────────────────────────────────────
 .auth-close {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: 24px;
+  right: 24px;
   background: none;
   border: none;
-  color: $mist;
+  color: var(--text-muted);
   font-size: 18px;
   cursor: pointer;
   line-height: 1;
-  padding: 4px 8px;
-  transition: color 0.2s;
+  padding: 8px;
+  transition: var(--transition-theme);
 
   &:hover {
-    color: $gold;
+    color: var(--brand-gold);
+    transform: rotate(90deg);
   }
 }
 
 // ─── Branding ────────────────────────────────────────────────────────────────
 .auth-brand {
   text-align: center;
-  margin-bottom: 28px;
+  margin-bottom: 32px;
 
   &-name {
-    font-family: 'Cormorant Garamond', 'Georgia', serif;
-    font-size: 22px;
+    font-family: var(--font-display);
+    font-size: 24px;
     font-weight: 700;
     letter-spacing: 4px;
-    color: $white;
+    color: var(--text-main);
     text-transform: uppercase;
+    transition: var(--transition-theme);
 
     .gold {
-      color: $gold;
+      color: var(--brand-gold);
     }
   }
 }
@@ -89,58 +88,58 @@ $red: #C0392B;
 // ─── Tabs ────────────────────────────────────────────────────────────────────
 .auth-tabs {
   display: flex;
-  border-bottom: 1px solid rgba($gold, 0.2);
-  margin-bottom: 28px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 32px;
+  transition: var(--transition-theme);
 }
 
 .auth-tab {
   flex: 1;
   background: none;
   border: none;
-  padding: 10px 0;
-  font-family: 'DM Sans', 'Space Mono', monospace;
+  padding: 12px 0;
+  font-family: var(--font-body);
   font-size: 11px;
   letter-spacing: 2px;
-  color: $mist;
+  color: var(--text-muted);
   cursor: pointer;
   text-transform: uppercase;
-  transition: color 0.2s;
+  transition: var(--transition-theme);
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
 
   &.active {
-    color: $gold;
-    border-bottom-color: $gold;
+    color: var(--brand-gold);
+    border-bottom-color: var(--brand-gold);
   }
 
   &:hover:not(.active) {
-    color: $white;
+    color: var(--text-main);
   }
 }
 
 // ─── Scrollable Container ──────────────────────────────────────────────────
 .auth-scroll-container {
-  max-height: 65vh;
+  max-height: 60vh;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-right: 6px; // Space for scrollbar
+  padding-right: 8px;
   margin-top: 10px;
 
-  /* Custom Premium Scrollbar */
   &::-webkit-scrollbar {
     width: 4px;
   }
 
   &::-webkit-scrollbar-track {
-    background: $obsidian;
+    background: transparent;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgba($gold, 0.4);
+    background: var(--border-color);
     border-radius: 10px;
 
     &:hover {
-      background: $gold;
+      background: var(--brand-gold);
     }
   }
 }
@@ -149,119 +148,121 @@ $red: #C0392B;
 .auth-form {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 20px;
 }
 
 .auth-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .auth-label {
+  font-family: var(--font-body);
   font-size: 11px;
+  font-weight: 500;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: $mist;
+  color: var(--text-muted);
+  transition: var(--transition-theme);
 }
 
-// ✅ ستايل زرار "نسيت الباسورد"
 .forgot-password {
-  color: $gold;
+  color: var(--brand-gold);
   font-size: 11px;
   letter-spacing: 0.5px;
   text-decoration: none;
-  transition: color 0.3s ease;
+  transition: var(--transition-theme);
 
   &:hover {
-    color: $white;
+    color: var(--text-main);
     text-decoration: underline;
   }
 }
 
 .auth-input {
-  background: $obsidian-3;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: $white;
-  padding: 12px 16px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 14px 18px;
   font-size: 14px;
-  border-radius: 2px;
+  border-radius: 4px;
   outline: none;
   width: 100%;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  font-family: 'DM Sans', sans-serif;
+  transition: var(--transition-theme), box-shadow 0.2s;
+  font-family: var(--font-body);
 
-  // ★ Gold border on focus
   &:focus {
-    border-color: $gold;
-    box-shadow: 0 0 0 2px rgba($gold, 0.15);
+    border-color: var(--brand-gold);
+    box-shadow: 0 0 0 2px rgba(139, 105, 20, 0.1);
   }
 
   &.invalid {
-    border-color: $red;
+    border-color: var(--crimson);
   }
 
   &::placeholder {
-    color: rgba($mist, 0.5);
+    color: var(--text-muted);
+    opacity: 0.5;
   }
 }
 
-// Select variant
 .auth-select {
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23C9A96E' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 14px center;
-  padding-right: 36px;
+  background-position: right 18px center;
+  padding-right: 44px;
 
   option {
-    background: $obsidian-3;
-    color: $white;
+    background: var(--bg-surface);
+    color: var(--text-main);
   }
 }
 
 // ─── Validation Messages ──────────────────────────────────────────────────────
 .auth-validation {
   font-size: 11px;
-  color: $red;
+  color: var(--crimson);
   letter-spacing: 0.5px;
 }
 
 // ─── Error Banner ─────────────────────────────────────────────────────────────
 .auth-error {
-  background: rgba($red, 0.1);
-  border: 1px solid rgba($red, 0.3);
-  color: #e74c3c;
+  background: rgba(192, 57, 43, 0.1);
+  border: 1px solid rgba(192, 57, 43, 0.3);
+  color: var(--crimson);
   font-size: 13px;
-  padding: 10px 14px;
-  border-radius: 2px;
-  margin-bottom: 4px;
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin-bottom: 8px;
 }
 
 // ─── Submit Button ────────────────────────────────────────────────────────────
 .auth-submit {
-  background: $gold;
-  color: $obsidian;
+  background: var(--brand-gold);
+  color: #FFFFFF;
   border: none;
-  padding: 14px;
-  font-family: 'DM Sans', 'Space Mono', monospace;
+  padding: 16px;
+  font-family: var(--font-body);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
   cursor: pointer;
-  border-radius: 2px;
-  margin-top: 6px;
-  transition: background 0.2s, opacity 0.2s;
+  border-radius: 4px;
+  margin-top: 8px;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 48px;
+  min-height: 52px;
 
   &:hover:not(:disabled) {
-    background: $gold-light;
+    filter: brightness(1.1);
+    box-shadow: 0 10px 25px rgba(139, 105, 20, 0.3);
   }
 
   &:disabled {
@@ -272,156 +273,124 @@ $red: #C0392B;
 
 .auth-google-btn {
   background: transparent;
-  border: 1px solid rgba($gold, 0.35);
-  color: $white;
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
   padding: 14px 18px;
-  font-family: 'Space Mono', monospace;
-  font-size: 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
   cursor: pointer;
-  border-radius: 2px;
-  transition: border-color 0.25s ease, color 0.25s ease, background 0.25s ease;
+  border-radius: 4px;
+  transition: var(--transition-theme);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
-}
 
-.auth-google-btn:hover:not(:disabled) {
-  border-color: $gold;
-  color: $gold;
-  background: rgba($gold, 0.08);
-}
+  &:hover:not(:disabled) {
+    border-color: var(--brand-gold);
+    color: var(--brand-gold);
+    background: rgba(139, 105, 20, 0.05);
+  }
 
-.auth-google-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
 // ─── Loading Spinner ──────────────────────────────────────────────────────────
 .auth-spinner {
   display: inline-block;
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba($obsidian, 0.3);
-  border-top-color: $obsidian;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #FFFFFF;
   border-radius: 50%;
-  animation: spin 0.7s linear infinite;
+  animation: spin 0.8s linear infinite;
 }
 
 // ─── Switch Tab Link ──────────────────────────────────────────────────────────
 .auth-switch {
   text-align: center;
   font-size: 13px;
-  color: $mist;
+  color: var(--text-muted);
+  transition: var(--transition-theme);
 
   &-btn {
     background: none;
     border: none;
-    color: $gold;
+    color: var(--brand-gold);
     cursor: pointer;
     font-size: 13px;
     padding: 0;
     text-decoration: underline;
     text-underline-offset: 2px;
+    transition: var(--transition-theme);
 
     &:hover {
-      color: $gold-light;
+      filter: brightness(1.2);
     }
   }
 }
 
 // ─── Animations ───────────────────────────────────────────────────────────────
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
-// ✅ أنيميشن الإشعار (Toast) الجديد
 @keyframes slideInRight {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes fadeOutRight {
-  from {
-    transform: translateX(0);
-    opacity: 1;
-  }
-
-  to {
-    transform: translateX(20px);
-    opacity: 0;
-  }
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
 }
 
 // ─── Global Toast (Notification) ──────────────────────────────────────────────
-// تم التعديل لتتناسب مع تصميم الصورة (Top Right)
 ::ng-deep .luxe-toast {
   position: fixed;
-  top: 20px !important;
-  right: 20px !important;
+  top: 40px !important;
+  right: 40px !important;
   left: auto !important;
   transform: none !important;
-  background: rgba($obsidian-3, 0.98) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: $white !important;
-  padding: 16px 20px !important;
-  font-family: 'DM Sans', sans-serif;
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-main) !important;
+  padding: 20px 24px !important;
+  font-family: var(--font-body);
   font-size: 14px;
-  border-radius: 2px;
-  z-index: 100000;
+  border-radius: 4px;
+  z-index: var(--z-notification);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-width: 320px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-  animation: slideInRight 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
+  min-width: 360px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideInRight 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
+  transition: var(--transition-theme) !important;
 
   .toast-close-btn {
     background: none;
     border: none;
-    color: $mist;
+    color: var(--text-muted);
     font-size: 16px;
     cursor: pointer;
-    transition: color 0.2s;
-    margin-left: 15px;
+    transition: var(--transition-theme);
+    margin-left: 20px;
 
     &:hover {
-      color: $white;
+      color: var(--text-main);
     }
   }
 }
@@ -434,19 +403,19 @@ $red: #C0392B;
 
   .eye-icon {
     position: absolute;
-    right: 12px;
+    right: 14px;
     background: none;
     border: none;
-    color: $mist;
+    color: var(--text-muted);
     cursor: pointer;
     padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: color 0.2s;
+    transition: var(--transition-theme);
 
     &:hover {
-      color: $gold;
+      color: var(--brand-gold);
     }
   }
 }
@@ -455,93 +424,67 @@ $red: #C0392B;
 .strength-bars {
   display: flex;
   gap: 4px;
-  margin-top: 2px;
+  margin-top: 4px;
 
   .bar {
     flex: 1;
     height: 4px;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--border-color);
     border-radius: 2px;
     transition: background-color 0.3s ease;
 
-    &.red {
-      background: #e74c3c;
-    }
-
-    &.orange {
-      background: #e67e22;
-    }
-
-    &.yellow {
-      background: #f1c40f;
-    }
-
-    &.green {
-      background: #2ecc71;
-    }
+    &.red { background: #e74c3c; }
+    &.orange { background: #e67e22; }
+    &.yellow { background: #f1c40f; }
+    &.green { background: #2ecc71; }
   }
 }
 
 .strength-label {
   display: block;
-  font-size: 12px;
-  font-family: 'DM Sans', sans-serif;
-  font-weight: bold;
-  margin-top: 4px;
-  text-align: left;
-  transition: color 0.3s ease;
-  min-height: 18px; // reserve space to prevent layout jump
+  font-size: 11px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  margin-top: 6px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  min-height: 18px;
 
-  &.text-red {
-    color: #e74c3c;
-  }
-
-  &.text-orange {
-    color: #e67e22;
-  }
-
-  &.text-yellow {
-    color: #f1c40f;
-  }
-
-  &.text-green {
-    color: #2ecc71;
-  }
+  &.text-red { color: #e74c3c; }
+  &.text-orange { color: #e67e22; }
+  &.text-yellow { color: #f1c40f; }
+  &.text-green { color: #2ecc71; }
 }
 
-// ─── Password Requirements Accordion (Task 3: No Input-Box Look) ──────────────
+// ─── Password Requirements Accordion ──────────────────────────────────────────
 .password-accordion {
-  margin-top: 12px;
+  margin-top: 16px;
   background: transparent;
-  border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.05); // Very subtle line to separate from meter
+  border-top: 1px solid var(--border-color);
   padding-top: 8px;
 
   .accordion-header {
-    padding: 10px 12px;
-    font-size: 11px;
-    color: $mist;
+    padding: 12px;
+    font-size: 10px;
+    color: var(--text-muted);
     cursor: pointer;
     display: flex;
     justify-content: space-between;
     align-items: center;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
     user-select: none;
-    transition: color 0.2s, background 0.2s;
+    transition: var(--transition-theme);
 
     &:hover {
-      color: $gold-light;
-      background: rgba($obsidian-3, 0.8);
+      color: var(--brand-gold);
     }
 
     .arrow {
       font-size: 8px;
       transition: transform 0.3s ease;
 
-      &.open {
-        transform: rotate(180deg);
-      }
+      &.open { transform: rotate(180deg); }
     }
   }
 
@@ -552,45 +495,61 @@ $red: #C0392B;
     opacity: 0;
 
     &.expanded {
-      max-height: 150px;
+      max-height: 200px;
       opacity: 1;
     }
 
     ul {
       margin: 0;
-      padding: 0 12px 12px 28px;
-      list-style-type: disc;
-      color: rgba($mist, 0.7);
+      padding: 0 12px 12px 24px;
+      list-style-type: none;
+      color: var(--text-muted);
       font-size: 11px;
 
       li {
-        margin-bottom: 4px;
+        margin-bottom: 6px;
         transition: color 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        &::before {
+          content: '•';
+          color: var(--border-color);
+        }
 
         &.met {
-          color: $gold;
+          color: var(--brand-gold);
+          &::before { content: '✓'; color: var(--brand-gold); }
         }
       }
     }
   }
 }
 
-// ─── OTP 6-Box Container ───────────────────────────────────────────────────────
+// ─── OTP ─────────────────────────────────────────────────────────────────────
 .otp-container {
   display: flex;
   justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
 
   .otp-box {
     text-align: center;
-    font-size: 20px;
-    font-weight: bold;
-    padding: 10px 0;
+    font-size: 22px;
+    font-weight: 700;
+    padding: 12px 0;
     border-radius: 4px;
-    /* overriding width to flex properly */
     width: 100%;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    transition: var(--transition-theme);
 
-    // Hide number spin buttons
+    &:focus {
+      border-color: var(--brand-gold);
+      box-shadow: 0 0 0 2px rgba(139, 105, 20, 0.1);
+    }
+
     &::-webkit-outer-spin-button,
     &::-webkit-inner-spin-button {
       -webkit-appearance: none;

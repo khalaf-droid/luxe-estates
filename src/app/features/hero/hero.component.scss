@@ -1,7 +1,3 @@
-// ============================================================
-// LUXE ESTATES — Hero Component
-// Based on reference design: index.html
-// ============================================================
 @use 'variables' as *;
 
 .hero {
@@ -11,8 +7,10 @@
   display: flex;
   align-items: center;
   box-sizing: border-box;
-  padding-bottom: 120px; // Shifts center UP to prevent overlap with the bottom search bar
+  padding-bottom: 120px;
   overflow: hidden;
+  background: var(--bg-base);
+  transition: var(--transition-theme);
 
   @media (max-width: 1024px) {
     height: auto;
@@ -20,117 +18,135 @@
     flex-direction: column;
     justify-content: center;
     align-items: flex-start;
-    padding-top: 140px; // Accounts for navbar room
+    padding-top: 140px;
     padding-bottom: 40px;
+  }
+
+  // Noise texture overlay
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+    opacity: var(--noise-opacity);
+    pointer-events: none;
+    z-index: 5;
+    transition: opacity 0.4s ease;
   }
 }
 
-// ---- Layer 1: Gradient Background --------------------------
-// Exact stops from reference design — #0F0F1A and #1A1020 are
-// intermediate values not mapped to a CSS variable; use them as-is
-// per the template spec. --obsidian (#0A0A0F) is used at 0%.
 .hero-bg {
   position: absolute;
   inset: 0;
   background: linear-gradient(
     135deg,
-    var(--obsidian)    0%,   // #0A0A0F — mapped token
-    #0F0F1A           40%,  // intermediate — no token exists
-    #1A1020          100%   // intermediate — no token exists
+    var(--bg-base) 0%,
+    var(--bg-surface) 40%,
+    var(--bg-elevated) 100%
   );
   z-index: 0;
+  transition: var(--transition-theme);
+
+  [data-theme="light"] & {
+    background: linear-gradient(
+      135deg,
+      #F4F1EB 0%,
+      #FAF9F6 40%,
+      #FFFFFF 100%
+    );
+  }
 }
 
-// ---- Layer 2: Perspective Grid -----------------------------
-// Exact match to reference: 1px gold lines at 4% opacity,
-// 80x80px cells, 3D perspective tilt from bottom-center.
 .hero-grid {
   position: absolute;
   inset: 0;
-  top: -100px; // pulls grid up so bottom vanishing point stays in frame
+  top: -100px;
   background-image:
-    linear-gradient(rgba(201, 169, 110, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(201, 169, 110, 0.04) 1px, transparent 1px);
+    linear-gradient(var(--border-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-color) 1px, transparent 1px);
   background-size: 80px 80px;
   transform: perspective(1000px) rotateX(60deg) scale(2);
   transform-origin: 50% 100%;
   z-index: 1;
   pointer-events: none;
+  opacity: 0.6;
+  transition: var(--transition-theme);
+
+  [data-theme="light"] & {
+    opacity: 0.3;
+    background-image:
+      linear-gradient(rgba(139, 105, 20, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(139, 105, 20, 0.1) 1px, transparent 1px);
+  }
 }
 
-// ---- Layer 3: Floating Orbs --------------------------------
-// orbFloat keyframe lives in src/styles/_animations.scss (shared).
-// Do NOT redefine it here.
 .hero-orb {
   position: absolute;
   border-radius: 50%;
   filter: blur(80px);
-  // 8s ease-in-out infinite — exact match to reference
   animation: orbFloat 8s ease-in-out infinite;
   z-index: 2;
   pointer-events: none;
+  transition: var(--transition-theme);
 }
 
-// Orb 1: Gold — top-right, 500×500px
 .hero-orb-1 {
   width: 500px;
   height: 500px;
-  // Gold tint at 15% opacity — matches reference rgba(201,169,110,0.15)
   background: radial-gradient(circle, rgba(201, 169, 110, 0.15) 0%, transparent 70%);
   top: -100px;
   right: -100px;
+
+  [data-theme="light"] & {
+    background: radial-gradient(circle, rgba(139, 105, 20, 0.08) 0%, transparent 70%);
+  }
 }
 
-// Orb 2: Sapphire — bottom-left, 400×400px, -4s phase offset
 .hero-orb-2 {
   width: 400px;
   height: 400px;
-  // Sapphire tint at 10% opacity — matches reference rgba(41,128,185,0.1)
   background: radial-gradient(circle, rgba(41, 128, 185, 0.10) 0%, transparent 70%);
   bottom: 0;
   left: -50px;
-  animation-delay: -4s; // phase-offset so orbs move independently
+  animation-delay: -4s;
+
+  [data-theme="light"] & {
+    background: radial-gradient(circle, rgba(41, 128, 185, 0.05) 0%, transparent 70%);
+  }
 }
 
-// ---- Hero Content ------------------------------------------
 .hero-content {
   position: relative;
   z-index: 10;
   max-width: 900px;
   padding: 0 60px;
 
-  @media (max-width: 1024px) {
-    padding: 0 30px;
-  }
-
-  @media (max-width: 768px) {
-    padding: 0 20px;
-  }
+  @media (max-width: 1024px) { padding: 0 30px; }
+  @media (max-width: 768px) { padding: 0 20px; }
 }
 
-// Eyebrow: gold line left + mono text
 .hero-eyebrow {
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 4px;
-  color: var(--gold);
+  color: var(--brand-gold);
   text-transform: uppercase;
   margin-bottom: 24px;
   display: flex;
   align-items: center;
   gap: 16px;
+  transition: var(--transition-theme);
 
-  // The horizontal gold line (::before from reference design)
   &::before {
     content: '';
     width: 40px;
     height: 1px;
-    background: var(--gold);
+    background: var(--brand-gold);
     flex-shrink: 0;
+    transition: var(--transition-theme);
   }
 }
 
-// Headline: "Find Your" weight 300 + "Perfect Home" italic gold
 .hero-headline {
   font-family: var(--font-display);
   font-size: clamp(56px, 8vw, 120px);
@@ -143,29 +159,30 @@
 
   .headline-light {
     font-weight: 300;
-    color: var(--white);
+    color: var(--text-main);
     display: block;
+    transition: var(--transition-theme);
   }
 
-  // em element — italic gold (reference: .hero-headline em)
   .headline-gold {
     font-style: italic;
-    color: var(--gold);
+    color: var(--brand-gold);
     font-weight: 300;
     display: block;
+    transition: var(--transition-theme);
   }
 }
 
 .hero-sub {
   font-size: 16px;
-  color: var(--mist);
+  color: var(--text-muted);
   line-height: 1.7;
   max-width: 480px;
   margin-bottom: 48px;
   font-weight: 300;
+  transition: var(--transition-theme);
 }
 
-// CTA Buttons
 .hero-actions {
   display: flex;
   gap: 20px;
@@ -173,67 +190,64 @@
   flex-wrap: wrap;
 }
 
-// btn-primary: gold fill, shine sweep on hover
-// font-mono REQUIRED — coding-rules §3.2: never use font-family on a button
-// without var(--font-mono)
 .btn-primary {
-  font-family: var(--font-mono); // ✅ rule §3.2
+  font-family: var(--font-mono);
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--obsidian);
-  background: var(--gold);
+  color: #FFFFFF;
+  background: var(--brand-gold);
   border: none;
   padding: 16px 40px;
   cursor: none;
   position: relative;
   overflow: hidden;
-  transition: transform 0.3s var(--transition-bounce), box-shadow 0.3s var(--transition);
+  transition: transform 0.3s var(--transition-bounce), box-shadow 0.3s var(--transition), background-color 0.4s ease;
 
-  // Shine sweep (::before) — exact from reference template
   &::before {
     content: '';
     position: absolute;
     inset: 0;
     background: rgba(255, 255, 255, 0.2);
     transform: translateX(-100%) skewX(-20deg);
-    transition: transform 0.5s var(--transition);
+    transition: transform 0.5s var(--transition-curve);
   }
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 20px 60px rgba(201, 169, 110, 0.3);
+    box-shadow: 0 20px 60px rgba(139, 105, 20, 0.3);
 
     &::before {
       transform: translateX(100%) skewX(-20deg);
     }
   }
+
+  [data-theme="light"] & {
+    color: #FFFFFF;
+  }
 }
 
-// btn-secondary: ghost/outline
 .btn-secondary {
-  font-family: var(--font-mono); // ✅ rule §3.2
+  font-family: var(--font-mono);
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--white);
+  color: var(--text-main);
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--border-color);
   padding: 16px 40px;
   cursor: none;
-  transition: border-color 0.3s var(--transition), color 0.3s var(--transition);
+  transition: var(--transition-theme);
 
   &:hover {
-    border-color: var(--gold);
-    color: var(--gold);
+    border-color: var(--brand-gold);
+    color: var(--brand-gold);
+    background: rgba(139, 105, 20, 0.05);
   }
 }
 
-// ---- Search Bar Wrapper ------------------------------------
-// Sits at the bottom of .hero; translateY(50%) makes it overlap
-// onto the next section — mirrors reference margin-top: -60px.
 .hero-search-wrap {
   position: absolute;
   bottom: 0;
@@ -251,14 +265,9 @@
     width: 100%;
   }
 
-  @media (max-width: 768px) {
-    padding: 0 20px;
-  }
+  @media (max-width: 768px) { padding: 0 20px; }
 }
 
-
-// ---- Stats Row ---------------------------------------------
-// Design: position absolute, bottom-right corner
 .hero-stats {
   position: absolute;
   bottom: 60px;
@@ -267,29 +276,24 @@
   display: flex;
   gap: 60px;
 
-  @media (max-width: 1024px) {
-    right: 30px;
-  }
-
-  @media (max-width: 768px) {
-    display: none;
-  }
+  @media (max-width: 1024px) { right: 30px; }
+  @media (max-width: 768px) { display: none; }
 }
 
-.hero-stat {
-  text-align: right;
-}
+.hero-stat { text-align: right; }
 
 .stat-number {
   font-family: var(--font-display);
   font-size: 48px;
   font-weight: 300;
-  color: var(--white);
+  color: var(--text-main);
   line-height: 1;
+  transition: var(--transition-theme);
 
   .stat-suffix {
     font-size: 28px;
-    color: var(--gold);
+    color: var(--brand-gold);
+    transition: var(--transition-theme);
   }
 }
 
@@ -297,16 +301,11 @@
   font-size: 10px;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: var(--mist);
+  color: var(--text-muted);
   margin-top: 6px;
+  transition: var(--transition-theme);
 }
 
-.stat-divider {
-  display: none; // not in reference design
-}
-
-// ---- Scroll Indicator --------------------------------------
-// Design: .hero-scroll — text above line, writing-mode vertical-lr rotate(180deg)
 .hero-scroll-indicator {
   position: absolute;
   bottom: 60px;
@@ -325,15 +324,16 @@
   font-size: 9px;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: var(--mist);
+  color: var(--text-muted);
   writing-mode: vertical-lr;
   transform: rotate(180deg);
+  transition: var(--transition-theme);
 }
 
 .scroll-line {
   width: 1px;
   height: 60px;
-  background: linear-gradient(to bottom, var(--gold), transparent);
+  background: linear-gradient(to bottom, var(--brand-gold), transparent);
   animation: scrollLine 2s ease-in-out infinite;
 }
 
@@ -344,27 +344,27 @@
   100% { transform: scaleY(0); transform-origin: bottom; }
 }
 
-// ---- Market Ticker Strip (Task 05) ----------------------------
 .ticker-wrap {
   width: 100%;
-  background: rgba(10, 10, 15, 0.9);
+  background: var(--bg-surface);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-top: 1px solid rgba(201, 169, 110, 0.12);
-  border-bottom: 1px solid rgba(201, 169, 110, 0.12);
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
   overflow: hidden;
   position: relative;
   z-index: 20;
+  transition: var(--transition-theme);
 
-  // Noise Overlay
   &::after {
     content: '';
     position: absolute;
     inset: 0;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-    opacity: 0.015;
+    opacity: var(--noise-opacity);
     pointer-events: none;
     z-index: 1;
+    transition: opacity 0.4s ease;
   }
 }
 
@@ -372,7 +372,6 @@
   display: flex;
   align-items: center;
   width: max-content;
-  // Use shared keyframe tickerScroll if available, or define local marquee
   animation: marquee 35s linear infinite;
   padding: 12px 0;
 
@@ -397,8 +396,9 @@
   font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 2px;
-  color: rgba(250, 250, 248, 0.5);
+  color: var(--text-muted);
   text-transform: uppercase;
+  transition: var(--transition-theme);
 }
 
 .ticker-change {
@@ -407,16 +407,16 @@
   letter-spacing: 1px;
   font-weight: 700;
 
-  &.positive { color: #27AE60; } // emerald
-  &.negative { color: #C0392B; } // crimson
+  &.positive { color: var(--emerald); }
+  &.negative { color: var(--crimson); }
 }
 
 .ticker-sep {
-  color: rgba(201, 169, 110, 0.25);
+  color: var(--border-color);
   font-size: 10px;
+  transition: var(--transition-theme);
 }
 
-// ---- Responsive --------------------------------------------
 @media (max-width: 1024px) {
   .hero-stat { gap: 40px; }
 }
@@ -431,6 +431,6 @@
     .btn-primary,
     .btn-secondary { width: 100%; text-align: center; }
   }
-  .hero-stats { display: none; } // hidden on mobile per reference
+  .hero-stats { display: none; }
   .stat-number { font-size: 36px; }
 }

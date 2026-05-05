@@ -13,11 +13,12 @@ html {
 
 body {
   font-family: var(--font-body);
-  background: var(--obsidian);
-  color: var(--white);
+  background: var(--bg-base);
+  color: var(--text-main);
   cursor: none; /* Custom cursor */
   overflow-x: hidden;
   line-height: 1.7;
+  transition: var(--transition-theme);
 
   @media (hover: none) {
     cursor: auto;
@@ -29,11 +30,20 @@ body {
   width: 4px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--obsidian);
+  background: var(--bg-base);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--gold-dark);
+  background: var(--brand-gold);
   border-radius: 2px;
+}
+
+/* Interactive elements transitions */
+a,
+button,
+.btn,
+.property-card,
+.nav-link {
+  transition: var(--transition-theme);
 }
 
 /* Force cursor: none on interactive elements (desktop only) */

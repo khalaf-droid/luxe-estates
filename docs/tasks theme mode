@@ -1,0 +1,33 @@
+# Dual Theme System Implementation Tasks
+
+- [ ] Implement `ThemeService` (`src/app/core/services/theme.service.ts`)
+    - [ ] Create service with `BehaviorSubject`
+    - [ ] Implement persistence and system preference detection
+    - [ ] Add cross-tab synchronization
+- [ ] Refactor `_variables.scss`
+    - [ ] Define semantic tokens
+    - [ ] Define Dark and Light theme blocks
+    - [ ] Map old variables to semantic tokens for migration
+    - [ ] Add specific transitions
+- [ ] Update `index.html`
+    - [ ] Add anti-flicker inline script
+- [ ] Update `styles.scss`
+    - [ ] Use semantic tokens for body and scrollbars
+    - [ ] Ensure cursor visibility
+- [ ] Refactor `NavbarComponent`
+    - [ ] Update HTML with toggle button
+    - [ ] Update TS with toggle logic
+    - [ ] Update SCSS with semantic tokens and toggle animations
+- [ ] Refactor `HeroComponent`
+    - [ ] Update SCSS with semantic tokens
+    - [ ] Add light mode grid tint and noise texture adjustment
+- [ ] Refactor `PropertyCardComponent`
+    - [ ] Update SCSS with semantic tokens
+    - [ ] Implement light mode shadows and overlays
+- [ ] Refactor `AuthModalComponent`
+    - [ ] Update SCSS with semantic tokens
+- [ ] Verification
+    - [ ] Test theme switching and persistence
+    - [ ] Test cross-tab sync
+    - [ ] Check for flicker
+    - [ ] Verify accessibility

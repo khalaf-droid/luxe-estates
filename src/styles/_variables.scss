@@ -6,35 +6,53 @@
 
 // ---- CSS Custom Properties --------------------------------
 :root {
-  // Colors — exact match to reference design
-  --gold:        #C9A96E;
+  // --- 1. SEMANTIC TOKENS (Dark Mode Default) ---
+  --bg-base:        #0A0A0F; // Obsidian
+  --bg-surface:     #111118; // Obsidian-2
+  --bg-elevated:    #1A1A24; // Obsidian-3
+  --text-main:      #FAFAF8; // White
+  --text-muted:     #8A8AA0; // Mist
+  --border-color:   rgba(201, 169, 110, 0.2); // Gold with opacity
+  --overlay-color:  rgba(10, 10, 15, 0.85);
+  --brand-gold:     #C9A96E;
+  --noise-opacity:  0.018;
+
+  // --- 2. LEGACY TOKENS (For Migration) ---
+  --gold:        var(--brand-gold);
   --gold-light:  #E8D5B0;
   --gold-dark:   #8B6914;
-  --obsidian:    #0A0A0F;
-  --obsidian-2:  #111118;
-  --obsidian-3:  #1A1A24;
+  --obsidian:    var(--bg-base);
+  --obsidian-2:  var(--bg-surface);
+  --obsidian-3:  var(--bg-elevated);
   --obsidian-4:  #22222E;
   --slate:       #2E2E3E;
-  --mist:        #8A8AA0;
+  --mist:        var(--text-muted);
   --pearl:       #F4F1EB;
-  --white:       #FAFAF8;
+  --white:       var(--text-main);
   --crimson:     #C0392B;
   --emerald:     #27AE60;
   --sapphire:    #2980B9;
 
-  // Typography
+  // --- 3. TYPOGRAPHY ---
   --font-display: 'Cormorant Garamond', Georgia, serif;
   --font-body:    'DM Sans', 'Helvetica Neue', sans-serif;
   --font-mono:    'Space Mono', 'Courier New', monospace;
 
-  // Easing curves — from reference design
-  --transition:        cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  // --- 4. ANIMATIONS & TRANSITIONS ---
+  --transition-curve: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --transition-theme: 
+    background-color 0.4s var(--transition-curve),
+    color 0.4s var(--transition-curve),
+    border-color 0.4s var(--transition-curve),
+    box-shadow 0.4s var(--transition-curve),
+    opacity 0.4s var(--transition-curve);
+  
   --transition-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --transition-fast:   all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  --transition-base:   all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  --transition-slow:   all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --transition-fast:   all 0.2s var(--transition-curve);
+  --transition-base:   all 0.3s var(--transition-curve);
+  --transition-slow:   all 0.5s var(--transition-curve);
 
-  // Spacing scale
+  // --- 5. SPACING & LAYOUT ---
   --space-xs:  4px;
   --space-sm:  8px;
   --space-md:  16px;
@@ -43,7 +61,6 @@
   --space-2xl: 60px;
   --space-3xl: 96px;
 
-  // Z-index layers
   --z-base:         1;
   --z-overlay:      100;
   --z-modal:        500;
@@ -52,9 +69,27 @@
   --z-noise:        9999;
   --z-cursor:       99999;
 
-  // Container
   --container-max: 1400px;
   --container-pad: 60px;
+}
+
+[data-theme="light"] {
+  // --- LUXURY LIGHT MODE (Marble / Pearl Aesthetic) ---
+  --bg-base:        #F4F1EB; // Pearl
+  --bg-surface:     #FFFFFF; // White
+  --bg-elevated:    #FFFFFF;
+  --text-main:      #0A0A0F; // Obsidian
+  --text-muted:     #2E2E3E; // Slate
+  --border-color:   rgba(139, 105, 20, 0.15); // Gold dark with low opacity
+  --overlay-color:  rgba(244, 241, 235, 0.85);
+  --brand-gold:     #8B6914; // Deeper gold for contrast
+  --noise-opacity:  0.025;
+
+  // Update legacy mapping for consistency
+  --gold:       var(--brand-gold);
+  --obsidian:   var(--bg-base);
+  --white:      var(--text-main);
+  --mist:       var(--text-muted);
 }
 
 // ---- SCSS Variables (compile-time) -------------------------

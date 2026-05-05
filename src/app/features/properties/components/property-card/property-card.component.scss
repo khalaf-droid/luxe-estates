@@ -1,110 +1,118 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// LUXE ESTATES — Property Card Styles
-// Visual reference: Template/index.html lines 407–531
-// All values copied EXACTLY from the template — no deviations
-// Colors via CSS variables only — no hardcoded hex
-// ─────────────────────────────────────────────────────────────────────────────
+@use 'variables' as *;
 
 :host {
-  display: contents; // let the card participate directly in the parent grid
+  display: contents;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// CARD — Template lines 418–428
-// ─────────────────────────────────────────────────────────────────────────────
 .property-card {
   position: relative;
   overflow: hidden;
   aspect-ratio: 3 / 4;
-  background: var(--obsidian-3);
-  // cursor: none — handled globally by styles.scss
+  background: var(--bg-elevated);
+  transition: var(--transition-theme), transform 0.4s var(--transition-curve);
+  
+  [data-theme="light"] & {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border-color);
+  }
 
-  // ── First card — spans 2 columns at 16:9 (Template line 425–428) ─────────
   &--first {
     grid-column: span 2;
     aspect-ratio: 16 / 9;
   }
+
+  &:hover {
+    [data-theme="light"] & {
+      box-shadow: 0 20px 40px rgba(139, 105, 20, 0.1);
+      transform: translateY(-4px);
+    }
+  }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// IMAGE — Template lines 429–438
-// ─────────────────────────────────────────────────────────────────────────────
 .property-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.8s var(--transition), filter 0.8s var(--transition);
-  filter: brightness(0.7);        // template line 433
+  transition: transform 0.8s var(--transition-curve), filter 0.8s var(--transition-curve);
+  filter: brightness(0.8);
+
+  [data-theme="light"] & {
+    filter: brightness(0.95);
+  }
 
   .property-card:hover & {
-    transform: scale(1.08);       // template line 436
-    filter: brightness(0.5);     // template line 437
+    transform: scale(1.08);
+    filter: brightness(0.6);
+    
+    [data-theme="light"] & {
+      filter: brightness(0.85);
+    }
   }
 }
 
-// Placeholder — shown when image is missing or errored
 .property-img-placeholder {
   width: 100%;
   height: 100%;
-  background: var(--obsidian-3);
-  transition: filter 0.8s var(--transition);
-
-  .property-card:hover & {
-    filter: brightness(0.7);
-  }
+  background: var(--bg-elevated);
+  transition: var(--transition-theme);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// OVERLAY GRADIENT — Template lines 439–444
-// ─────────────────────────────────────────────────────────────────────────────
 .property-overlay {
   position: absolute;
   inset: 0;
   background: linear-gradient(
     to top,
-    rgba(10, 10, 15, 0.95) 0%,
-    rgba(10, 10, 15, 0.3) 50%,
+    rgba(10, 10, 15, 0.9) 0%,
+    rgba(10, 10, 15, 0.2) 50%,
     transparent 100%
   );
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   padding: 32px;
+  transition: var(--transition-theme);
+
+  [data-theme="light"] & {
+    background: linear-gradient(
+      to top,
+      rgba(244, 241, 235, 0.95) 0%,
+      rgba(244, 241, 235, 0.4) 50%,
+      transparent 100%
+    );
+  }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// BADGE (property-tag) — Template lines 445–457
-// ─────────────────────────────────────────────────────────────────────────────
 .property-tag {
   position: absolute;
   top: 24px;
-  inset-inline-start: 24px;      // RTL-safe — template uses left: 24px
+  inset-inline-start: 24px;
   padding: 6px 16px;
-  background: var(--gold);       // default = for-sale (gold)
-  color: var(--obsidian);
+  background: var(--brand-gold);
+  color: #FFFFFF;
   font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 2px;
   text-transform: uppercase;
   font-weight: 700;
+  z-index: 5;
+  transition: var(--transition-theme);
 
-  // For Rent variant — Template line 456
   &.rent {
     background: var(--sapphire);
-    color: var(--white);
+  }
+
+  [data-theme="light"] & {
+    color: #FFFFFF;
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// FAVORITE BUTTON — Template lines 458–470
-// ─────────────────────────────────────────────────────────────────────────────
 .property-favorite {
   position: absolute;
   top: 24px;
   inset-inline-end: 24px;
   width: 40px;
   height: 40px;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -112,82 +120,95 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  // cursor: none — handled globally by styles.scss
-  transition: background 0.3s var(--transition), border-color 0.3s var(--transition), color 0.3s;
+  transition: var(--transition-theme);
   font-size: 16px;
-  color: var(--white);
+  color: #FFFFFF;
+  z-index: 5;
 
-  // Hover state — Template line 470
   &:hover {
     background: rgba(201, 169, 110, 0.3);
-    border-color: var(--gold);
+    border-color: var(--brand-gold);
   }
 
-  // Active / favorited state — ♥ red
   &--active {
     color: var(--crimson);
     border-color: var(--crimson);
     background: rgba(192, 57, 43, 0.15);
   }
+
+  [data-theme="light"] & {
+    background: rgba(255, 255, 255, 0.6);
+    border-color: rgba(139, 105, 20, 0.2);
+    color: var(--text-main);
+
+    &:hover {
+      background: rgba(139, 105, 20, 0.1);
+      border-color: var(--brand-gold);
+    }
+
+    &--active {
+      color: var(--crimson);
+      border-color: var(--crimson);
+    }
+  }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// LOCATION — Template lines 471–478
-// ─────────────────────────────────────────────────────────────────────────────
 .property-location {
   font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 2px;
-  color: var(--gold);
+  color: var(--brand-gold);
   text-transform: uppercase;
   margin-bottom: 8px;
+  transition: var(--transition-theme);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// TITLE — Template lines 479–486
-// ─────────────────────────────────────────────────────────────────────────────
 .property-name {
   font-family: var(--font-display);
   font-size: clamp(20px, 2.5vw, 32px);
   font-weight: 400;
-  color: var(--white);
+  color: var(--text-main);
   line-height: 1.2;
   margin-bottom: 16px;
+  transition: var(--transition-theme);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PRICE — Template lines 487–494
-// ─────────────────────────────────────────────────────────────────────────────
 .property-price {
   font-family: var(--font-display);
   font-size: clamp(22px, 2.5vw, 36px);
   font-weight: 600;
-  color: var(--gold);
+  color: var(--brand-gold);
   margin-bottom: 16px;
+  transition: var(--transition-theme);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// FEATURES (beds / baths / area) — Template lines 495–505
-// ─────────────────────────────────────────────────────────────────────────────
 .property-features {
   display: flex;
   gap: 20px;
   padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--border-color);
+  transition: var(--transition-theme);
 }
 
 .property-feature {
   font-family: var(--font-mono);
   font-size: 10px;
-  color: var(--mist);
+  color: var(--text-muted);
   display: flex;
   align-items: center;
   gap: 6px;
+  transition: var(--transition-theme);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// HOVER ACTION BUTTONS — Template lines 506–531
-// ─────────────────────────────────────────────────────────────────────────────
+.feature-icon {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--brand-gold);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: var(--transition-theme);
+}
+
 .property-actions {
   position: absolute;
   inset: 0;
@@ -196,7 +217,8 @@
   justify-content: center;
   gap: 12px;
   opacity: 0;
-  transition: opacity 0.4s var(--transition);
+  transition: opacity 0.4s var(--transition-curve);
+  z-index: 10;
 
   .property-card:hover & {
     opacity: 1;
@@ -205,41 +227,35 @@
 
 .property-action-btn {
   padding: 12px 24px;
-  background: var(--gold);
-  color: var(--obsidian);
+  background: var(--brand-gold);
+  color: #FFFFFF;
   font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 2px;
   text-transform: uppercase;
   font-weight: 700;
   border: none;
-  // cursor: none — handled globally by styles.scss
-  transition: transform 0.3s var(--transition-bounce);
+  transition: transform 0.3s var(--transition-bounce), filter 0.3s ease;
 
   &:hover {
     transform: scale(1.05);
+    filter: brightness(1.1);
   }
 
-  // Outline variant — Template line 527–531
   &--outline {
     background: transparent;
-    color: var(--white);
+    color: #FFFFFF;
     border: 1px solid rgba(255, 255, 255, 0.5);
+
+    [data-theme="light"] & {
+      color: var(--text-main);
+      border-color: var(--border-color);
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(4px);
+    }
   }
 }
 
-// Feature icon text labels — replaces emojis
-.feature-icon {
-  font-family: var(--font-mono);
-  font-size: 8px;
-  color: var(--gold);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// RESPONSIVE — Template lines 1337–1338, 1355–1356
-// ─────────────────────────────────────────────────────────────────────────────
 @media (max-width: 1024px) {
   .property-card--first {
     grid-column: span 2;

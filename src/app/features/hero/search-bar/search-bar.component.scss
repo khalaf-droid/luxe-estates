@@ -1,20 +1,24 @@
-// ============================================================
-// LUXE ESTATES — Search Bar Component
-// Matches reference design search bar
-// ============================================================
+@use 'variables' as *;
 
 .search-card {
-  background: rgba(17, 17, 24, 0.94);
-  border: 1px solid rgba(201, 169, 110, 0.2);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  transition: var(--transition-theme);
+
+  [data-theme="light"] & {
+    box-shadow: 0 20px 60px rgba(139, 105, 20, 0.1);
+  }
 }
 
-// ---- Filter Chips Row --------------------------------------
+// ── Filter Chips Row ─────────────────────────────────────────
 .chips-row {
   display: flex;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--border-color);
+  transition: var(--transition-theme);
 }
 
 .chip {
@@ -22,16 +26,15 @@
   font-size: 9px;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--mist);
+  color: var(--text-muted);
   background: transparent;
   border: none;
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  border-right: 1px solid var(--border-color);
   padding: 14px 24px;
   cursor: none;
   position: relative;
-  transition: color 0.25s ease, background 0.25s ease;
+  transition: var(--transition-theme);
 
-  // Active gold underline indicator
   &::after {
     content: '';
     position: absolute;
@@ -39,19 +42,19 @@
     left: 0;
     right: 0;
     height: 2px;
-    background: var(--gold);
+    background: var(--brand-gold);
     transform: scaleX(0);
     transition: transform 0.25s ease;
   }
 
   &:hover {
-    color: var(--white);
-    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-main);
+    background: rgba(139, 105, 20, 0.03);
   }
 
   &.active {
-    color: var(--gold);
-    background: rgba(201, 169, 110, 0.06);
+    color: var(--brand-gold);
+    background: rgba(139, 105, 20, 0.05);
 
     &::after { transform: scaleX(1); }
   }
@@ -59,7 +62,7 @@
   &:last-child { border-right: none; }
 }
 
-// ---- Fields Row --------------------------------------------
+// ── Fields Row ──────────────────────────────────────────────
 .fields-row {
   display: flex;
   align-items: stretch;
@@ -67,10 +70,10 @@
 
 .field-group {
   flex: 1;
-  padding: 18px 24px;
+  padding: 20px 24px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   min-width: 0;
 }
 
@@ -79,81 +82,87 @@
   font-size: 9px;
   letter-spacing: 2.5px;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--brand-gold);
   display: block;
   flex-shrink: 0;
+  transition: var(--transition-theme);
 }
 
 .field-input {
   font-family: var(--font-body);
   font-size: 15px;
   font-weight: 400;
-  color: var(--white);
+  color: var(--text-main);
   background: transparent;
   border: none;
   outline: none;
   width: 100%;
-  padding: 10px 0;
+  padding: 8px 0;
   cursor: none;
   appearance: none;
   -webkit-appearance: none;
+  transition: var(--transition-theme);
 
-  &::placeholder { color: var(--mist); opacity: 0.6; }
+  &::placeholder { color: var(--text-muted); opacity: 0.6; }
 
   option {
-    background: var(--obsidian-2);
-    color: var(--white);
+    background: var(--bg-surface);
+    color: var(--text-main);
   }
 }
 
 .field-divider {
   width: 1px;
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--border-color);
   flex-shrink: 0;
-  margin: 14px 0;
+  margin: 16px 0;
+  transition: var(--transition-theme);
 }
 
-// ---- Search Button -----------------------------------------
+// ── Search Button ───────────────────────────────────────────
 .btn-search {
   font-family: var(--font-body);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--obsidian);
-  background: var(--gold);
+  color: #FFFFFF;
+  background: var(--brand-gold);
   border: none;
-  padding: 0 36px;
+  padding: 0 40px;
   cursor: none;
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  gap: 12px;
   white-space: nowrap;
   flex-shrink: 0;
-  transition: background 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.3s ease;
 
   &:hover {
-    background: var(--gold-light);
-    box-shadow: 0 0 30px rgba(201, 169, 110, 0.3);
+    filter: brightness(1.1);
+    box-shadow: 0 0 30px rgba(139, 105, 20, 0.3);
   }
 
-  svg { flex-shrink: 0; }
+  svg { flex-shrink: 0; width: 16px; height: 16px; }
 }
 
-// ---- Secondary Row -----------------------------------------
+// ── Secondary Row ───────────────────────────────────────────
 .secondary-row {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 12px 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 14px 24px;
+  border-top: 1px solid var(--border-color);
+  transition: var(--transition-theme);
 }
 
 .secondary-text {
   font-family: var(--font-body);
   font-size: 12px;
-  color: var(--mist);
+  color: var(--text-muted);
   font-weight: 300;
+  transition: var(--transition-theme);
 }
 
 .btn-list-prop {
@@ -161,35 +170,24 @@
   font-size: 9px;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--brand-gold);
   background: transparent;
-  border: 1px solid rgba(201, 169, 110, 0.4);
-  padding: 7px 20px;
+  border: 1px solid var(--border-color);
+  padding: 8px 24px;
   cursor: none;
-  transition: background 0.25s ease, border-color 0.25s ease;
+  transition: var(--transition-theme);
 
   &:hover {
-    background: rgba(201, 169, 110, 0.08);
-    border-color: var(--gold);
+    background: rgba(139, 105, 20, 0.05);
+    border-color: var(--brand-gold);
   }
 }
 
-// ---- Responsive --------------------------------------------
+// ── Responsive ──────────────────────────────────────────────
 @media (max-width: 1024px) {
-  .fields-row {
-    flex-direction: column;
-  }
-
-  .field-divider {
-    width: calc(100% - 48px);
-    height: 1px;
-    margin: 0 24px;
-  }
-
-  .btn-search {
-    padding: 18px 24px;
-    justify-content: center;
-  }
-
+  .fields-row { flex-direction: column; }
+  .field-divider { width: calc(100% - 48px); height: 1px; margin: 0 24px; }
+  .btn-search { padding: 18px 24px; width: 100%; }
   .chips-row { flex-wrap: wrap; }
+  .chip { flex: 1; text-align: center; border-bottom: 1px solid var(--border-color); }
 }
