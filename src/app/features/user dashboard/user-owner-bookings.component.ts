@@ -127,13 +127,13 @@ import { Router } from '@angular/router';
           <!-- Actions (only for pending bookings) -->
           <div class="booking-actions" *ngIf="booking.status === 'pending'">
             <button class="btn-approve"
-              [disabled]="processingId === booking._id"
+              [disabled]="loadingMap[booking._id]"
               (click)="approve(booking._id)">
-              <span *ngIf="processingId === booking._id" class="spinner-xs"></span>
+              <span *ngIf="loadingMap[booking._id]" class="spinner-xs"></span>
               ✓ Approve
             </button>
             <button class="btn-reject"
-              [disabled]="processingId === booking._id"
+              [disabled]="loadingMap[booking._id]"
               (click)="openRejectDialog(booking)">
               ✕ Decline
             </button>
@@ -143,6 +143,7 @@ import { Router } from '@angular/router';
           <div class="booking-approved-notice" *ngIf="booking.status === 'approved' && booking.paymentStatus === 'not_initiated'">
             <span class="notice-icon">⏳</span>
             Approved — awaiting client payment
+            <button class="btn-ghost btn-sm" style="margin-left:auto" (click)="openCancelDialog(booking)">Cancel Booking</button>
           </div>
 
           <!-- Paid -->
@@ -177,9 +178,30 @@ import { Router } from '@angular/router';
         </textarea>
         <div class="dialog-actions">
           <button class="btn-ghost" (click)="closeRejectDialog()">Cancel</button>
-          <button class="btn-danger" (click)="confirmReject()" [disabled]="isRejecting">
+          <button class="btn-danger" (click)="confirmReject()" [disabled]="isRejecting || !rejectReason.trim()">
             <span *ngIf="isRejecting" class="spinner-xs"></span>
             Confirm Decline
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cancel Dialog -->
+    <div class="dialog-overlay" *ngIf="cancelDialogBooking" (click)="closeCancelDialog()">
+      <div class="dialog-box" (click)="$event.stopPropagation()">
+        <h3>Cancel Booking</h3>
+        <p>Are you sure you want to cancel this approved booking? Please provide a reason.</p>
+        <textarea
+          class="reject-reason-input"
+          placeholder="Reason for cancellation..."
+          [(ngModel)]="cancelReason"
+          rows="3">
+        </textarea>
+        <div class="dialog-actions">
+          <button class="btn-ghost" (click)="closeCancelDialog()">Close</button>
+          <button class="btn-danger" (click)="confirmCancel()" [disabled]="isCancelling || !cancelReason.trim()">
+            <span *ngIf="isCancelling" class="spinner-xs"></span>
+            Confirm Cancel
           </button>
         </div>
       </div>
@@ -497,9 +519,10 @@ export class UserOwnerBookingsComponent implements OnInit {
   bookings: any[] = [];
   isLoading = true;
   errorMsg  = '';
-  processingId = '';
+  loadingMap: Record<string, boolean> = {};
   currentPage  = 1;
   totalPages   = 1;
+
 
   // Filters
   activeFilter = 'all';
@@ -515,6 +538,11 @@ export class UserOwnerBookingsComponent implements OnInit {
   rejectDialogBooking: any = null;
   rejectReason = '';
   isRejecting  = false;
+
+  // Cancel dialog
+  cancelDialogBooking: any = null;
+  cancelReason = '';
+  isCancelling = false;
 
   get filteredBookings(): any[] {
     if (this.activeFilter === 'all') return this.bookings;
@@ -556,16 +584,18 @@ export class UserOwnerBookingsComponent implements OnInit {
   }
 
   approve(bookingId: string): void {
-    this.processingId = bookingId;
+    if (this.loadingMap[bookingId]) return;
+    this.loadingMap[bookingId] = true;
     this.svc.approveBooking(bookingId).subscribe({
       next: () => {
         this.notif.show('✅ Booking approved successfully!', 'success');
-        this.loadBookings();
-        this.processingId = '';
+        // Instant sync
+        this.bookings = this.bookings.map(b => b._id === bookingId ? { ...b, status: 'approved' } : b);
+        this.loadingMap[bookingId] = false;
       },
       error: (err: any) => {
         this.notif.show(err?.error?.message || 'Failed to approve booking.', 'error');
-        this.processingId = '';
+        this.loadingMap[bookingId] = false;
       }
     });
   }
@@ -582,17 +612,48 @@ export class UserOwnerBookingsComponent implements OnInit {
 
   confirmReject(): void {
     if (!this.rejectDialogBooking) return;
+    const id = this.rejectDialogBooking._id;
     this.isRejecting = true;
-    this.svc.rejectBooking(this.rejectDialogBooking._id, this.rejectReason).subscribe({
+    this.svc.rejectBooking(id, this.rejectReason).subscribe({
       next: () => {
         this.notif.show('❌ Booking request declined.', 'info');
+        // Instant sync
+        this.bookings = this.bookings.map(b => b._id === id ? { ...b, status: 'rejected' } : b);
         this.closeRejectDialog();
-        this.loadBookings();
         this.isRejecting = false;
       },
       error: (err: any) => {
         this.notif.show(err?.error?.message || 'Failed to decline booking.', 'error');
         this.isRejecting = false;
+      }
+    });
+  }
+
+  openCancelDialog(booking: any): void {
+    this.cancelDialogBooking = booking;
+    this.cancelReason = '';
+  }
+
+  closeCancelDialog(): void {
+    this.cancelDialogBooking = null;
+    this.cancelReason = '';
+  }
+
+  confirmCancel(): void {
+    if (!this.cancelDialogBooking) return;
+    const id = this.cancelDialogBooking._id;
+    this.isCancelling = true;
+
+    this.svc.cancelBooking(id, this.cancelReason).subscribe({
+      next: () => {
+        this.notif.show('Booking cancelled successfully.', 'success');
+        this.bookings = this.bookings.map(b => b._id === id ? { ...b, status: 'cancelled' } : b);
+        this.closeCancelDialog();
+        this.isCancelling = false;
+      },
+      error: (err: any) => {
+        this.notif.show(err?.error?.message || 'Failed to cancel booking.', 'error');
+        this.isCancelling = false;
       }
     });
   }

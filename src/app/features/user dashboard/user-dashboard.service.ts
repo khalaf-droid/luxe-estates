@@ -281,17 +281,41 @@ export class UserDashboardService {
   }
 
   // ── Viewing Requests ──────────────────────────────────────────────────────
+  // Backend response shape: { status, results, data: { requests: [...] } }
   getMyViewingRequests(): Observable<any[]> {
-    return this.http.get<ApiResponse<any>>(`${this.base}/viewing-requests/my`).pipe(
-      map((res) => res.data?.viewingRequests ?? res.data ?? []),
+    return this.http.get<any>(`${this.base}/viewing-requests/my`).pipe(
+      map((res) => res.data?.requests ?? res.data ?? []),
       catchError(this.handleError('Failed to load viewing requests'))
     );
   }
 
   getOwnerViewingRequests(): Observable<any[]> {
-    return this.http.get<ApiResponse<any>>(`${this.base}/viewing-requests/owner`).pipe(
-      map((res) => res.data?.viewingRequests ?? res.data ?? []),
+    return this.http.get<any>(`${this.base}/viewing-requests/owner`).pipe(
+      map((res) => res.data?.requests ?? res.data ?? []),
       catchError(this.handleError('Failed to load owner viewing requests'))
+    );
+  }
+
+  // PATCH /viewing-requests/:id/status  { status: 'approved' | 'rejected' }
+  approveViewingRequest(id: string): Observable<any> {
+    return this.http.patch<any>(`${this.base}/viewing-requests/${id}/status`, { status: 'approved' }).pipe(
+      map((res) => res.data),
+      catchError(this.handleError('Failed to approve viewing request'))
+    );
+  }
+
+  rejectViewingRequest(id: string): Observable<any> {
+    return this.http.patch<any>(`${this.base}/viewing-requests/${id}/status`, { status: 'rejected' }).pipe(
+      map((res) => res.data),
+      catchError(this.handleError('Failed to reject viewing request'))
+    );
+  }
+
+  // PATCH /viewing-requests/:id/cancel
+  cancelViewingRequest(id: string): Observable<any> {
+    return this.http.patch<any>(`${this.base}/viewing-requests/${id}/cancel`, {}).pipe(
+      map((res) => res.data),
+      catchError(this.handleError('Failed to cancel viewing request'))
     );
   }
 

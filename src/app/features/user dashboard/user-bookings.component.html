@@ -90,15 +90,40 @@
                 <button
                   class="action-btn danger"
                   *ngIf="canCancel(b)"
-                  [disabled]="activeId === b._id"
-                  (click)="cancel(b)">
-                  {{ activeId === b._id ? '...' : 'Cancel' }}
+                  [disabled]="loadingMap[b._id]"
+                  (click)="openCancelDialog(b)">
+                  <span *ngIf="loadingMap[b._id]" class="spinner-xs"></span>
+                  {{ loadingMap[b._id] ? '...' : 'Cancel' }}
                 </button>
+                <span class="muted-text small-text" *ngIf="b.status === 'approved' && b.paymentStatus === 'paid'">
+                  To cancel, <a routerLink="/support">contact support</a>
+                </span>
               </div>
             </td>
           </tr>
         </tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- Cancel Dialog -->
+  <div class="dialog-overlay" *ngIf="cancelDialogBooking" (click)="closeCancelDialog()">
+    <div class="dialog-box" (click)="$event.stopPropagation()">
+      <h3>Cancel Booking</h3>
+      <p>Are you sure you want to cancel this booking? Please provide a reason.</p>
+      <textarea
+        class="reject-reason-input"
+        placeholder="Reason for cancellation..."
+        [(ngModel)]="cancelReason"
+        rows="3">
+      </textarea>
+      <div class="dialog-actions">
+        <button class="btn-ghost" (click)="closeCancelDialog()">Close</button>
+        <button class="btn-danger" (click)="confirmCancel()" [disabled]="isCancelling || !cancelReason.trim()">
+          <span *ngIf="isCancelling" class="spinner-xs"></span>
+          Confirm Cancel
+        </button>
+      </div>
     </div>
   </div>
 </div>

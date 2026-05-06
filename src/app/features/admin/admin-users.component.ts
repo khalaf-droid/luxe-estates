@@ -234,6 +234,33 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
       }
     });
   }
+  
+  onHardCancel(user: AdminUser, data: { reason: string; archiveListings: boolean }): void {
+    if (!user.activeSubscription) return;
+    
+    this.activeUserId = user._id;
+    
+    this.adminService.hardCancelSubscription(user.activeSubscription, {
+      reason: data.reason,
+      forceDeactivateListings: data.archiveListings
+    }).subscribe({
+      next: (res) => {
+        user.subscriptionStatus = 'none';
+        user.activeSubscription = null;
+        
+        let msg = `Subscription for ${user.name} has been revoked.`;
+        if (res.listingsArchived > 0) {
+          msg += ` ${res.listingsArchived} listings were archived.`;
+        }
+        
+        this.notificationService.show(msg, 'success');
+        this.activeUserId = null;
+      },
+      error: () => {
+        this.activeUserId = null;
+      }
+    });
+  }
 
   private refresh(): void {
     const p = this.pageSubject.getValue();
