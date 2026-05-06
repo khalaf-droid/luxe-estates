@@ -164,9 +164,14 @@ export class UserDashboardService {
 
   // ── Upload property (owner/agent) ──────────────────────────────────────────
   createProperty(payload: FormData): Observable<any> {
-    return this.http.post<ApiResponse<any>>(`${this.base}/properties`, payload).pipe(
+    const key = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2) + Date.now().toString(36);
+    return this.http.post<ApiResponse<any>>(`${this.base}/properties`, payload, {
+      headers: { 'Idempotency-Key': key }
+    }).pipe(
       map((res) => res.data),
-      catchError(this.handleError('Failed to create property'))
+      // Do NOT use handleError here — the component shows the specific backend error message.
+      // handleError would fire a generic toast AND the component would fire a specific one (double toast).
+      catchError((err) => throwError(() => err))
     );
   }
 
