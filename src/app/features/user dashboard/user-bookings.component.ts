@@ -1,6 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { Router } from '@angular/router';
 import { UserDashboardService } from './user-dashboard.service';
 
 @Component({
@@ -15,6 +16,7 @@ export class UserBookingsComponent implements OnInit, OnDestroy {
   activeId: string | null = null;
   filter = 'all';
   private destroy$ = new Subject<void>();
+  private router = inject(Router);
 
   constructor(private userService: UserDashboardService) {}
 
@@ -55,6 +57,12 @@ export class UserBookingsComponent implements OnInit, OnDestroy {
   }
 
   canCancel(b: any): boolean {
-    return b.status !== 'cancelled' && b.status !== 'rejected';
+    return b.status !== 'cancelled' && b.status !== 'rejected' && b.status !== 'completed' && b.paymentStatus !== 'paid';
+  }
+
+  goToCheckout(booking: any): void {
+    if (booking && booking._id) {
+      this.router.navigate(['/checkout', booking._id]);
+    }
   }
 }

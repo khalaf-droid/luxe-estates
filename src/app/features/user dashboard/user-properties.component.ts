@@ -1,7 +1,8 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { Router } from '@angular/router';
 import { UserDashboardService, OwnerAgentDashboard } from './user-dashboard.service';
 import { NotificationService } from '../../shared/services/notification.service';
 
@@ -26,9 +27,11 @@ export class UserPropertiesComponent implements OnInit, OnDestroy {
   plans: any[] = [];
   activeSub: any = null;
   isSubscribed = false;
+  isPaymentPending = false;
   isAtLimit = false;
 
   private destroy$ = new Subject<void>();
+  private router = inject(Router);
 
   constructor(
     private userService: UserDashboardService,
@@ -53,13 +56,15 @@ export class UserPropertiesComponent implements OnInit, OnDestroy {
         if (dash && 'subscription' in dash) {
           const ownerDash = dash as OwnerAgentDashboard;
           this.activeSub = ownerDash.subscription;
-          this.isSubscribed = !!this.activeSub;
+          this.isSubscribed = !!this.activeSub && this.activeSub.status === 'active' && this.activeSub.paymentVerified;
+          this.isPaymentPending = !!this.activeSub && !this.activeSub.paymentVerified;
           this.isAtLimit = this.activeSub && 
                           this.activeSub.listingsLimit !== -1 && 
                           this.activeSub.listingsUsed >= this.activeSub.listingsLimit;
           
           console.log('✅ Subscription context loaded:', {
             isSubscribed: this.isSubscribed,
+            isPaymentPending: this.isPaymentPending,
             plan: this.activeSub?.plan
           });
         }
@@ -98,19 +103,13 @@ export class UserPropertiesComponent implements OnInit, OnDestroy {
   }
 
   onSubscribe(planId: string): void {
-    this.userService.subscribe(planId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => {
-          this.notif.show('Subscription activated successfully!', 'success');
-          // Refresh everything
-          this.userService.getMe().subscribe();
-        },
-        error: (err) => {
-          const msg = err?.error?.message || 'Failed to activate subscription.';
-          this.notif.show(msg, 'error');
-        }
-      });
+    this.router.navigate(['/subscribe'], { queryParams: { plan: planId } });
+  }
+
+  resumePayment(): void {
+    if (this.activeSub?.plan) {
+      this.router.navigate(['/subscribe'], { queryParams: { plan: this.activeSub.plan } });
+    }
   }
 
   // ── Multi-image selection ──
@@ -217,9 +216,6 @@ export class UserPropertiesComponent implements OnInit, OnDestroy {
   }
 
   getApproval(p: any): string {
-    if (p.approvalStatus) return p.approvalStatus;
-    if (p.isApproved === true) return 'approved';
-    if (p.isApproved === false) return 'rejected';
-    return 'pending';
+    return p.approvalStatus || 'pending';
   }
 }

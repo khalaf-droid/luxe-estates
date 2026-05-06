@@ -20,7 +20,7 @@
   </div>
 
   <!-- ── Subscription Guard: Plan Selector ────────────────────── -->
-  <div class="panel-card" *ngIf="!isSubscribed && !isLoading">
+  <div class="panel-card" *ngIf="!isSubscribed && !isPaymentPending && !isLoading">
     <div style="text-align: center; margin-bottom: 2rem;">
       <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Choose Your Listing Plan</h2>
       <p class="text-muted">You need an active subscription to start listing properties on LUXE.</p>
@@ -42,6 +42,18 @@
         <button class="action-btn primary" (click)="onSubscribe(plan.id)">Subscribe Now</button>
       </div>
     </div>
+  </div>
+
+  <!-- ── Payment Pending Warning ────────────────────────────────── -->
+  <div class="panel-card" *ngIf="isPaymentPending && !isLoading" style="text-align: center; padding: 4rem 2rem;">
+    <div style="font-size: 4rem; margin-bottom: 1rem;">💳</div>
+    <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Payment Pending</h2>
+    <p class="text-muted" style="margin-bottom: 2rem; max-width: 400px; margin-left: auto; margin-right: auto;">
+      You have initiated a subscription to the <strong>{{ activeSub?.plan | titlecase }}</strong> plan, but we haven't received your payment confirmation yet.
+    </p>
+    <button class="action-btn success" (click)="resumePayment()" style="font-size: 1rem; padding: 0.8rem 2rem;">
+      Resume Payment Checkout
+    </button>
   </div>
 
   <!-- ── Limit Reached Warning ────────────────────────────────── -->
