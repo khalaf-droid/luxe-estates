@@ -1,6 +1,7 @@
-import { Component, HostListener, inject } from '@angular/core';
-import { Router } from '@angular/router'; 
+import { Component, HostListener } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
+import { ThemeService } from '../services/theme.service';
 
 @Component({
   selector: 'app-nav',
@@ -11,8 +12,16 @@ export class NavComponent {
   isScrolled = false;
   showDropdown = false; // إسلام: حالة القائمة المنسدلة
 
+  get theme$() {
+    return this.themeService.theme$;
+  }
+
   // إسلام: حقن الخدمات باستخدام constructor
-  constructor(public auth: AuthService, private router: Router) {}
+  constructor(
+    public auth: AuthService,
+    private router: Router,
+    private themeService: ThemeService
+  ) {}
 
   @HostListener('window:scroll', [])
   onWindowScroll(): void {
@@ -61,5 +70,9 @@ export class NavComponent {
 
   closeMobileMenu(): void {
     this.isMobileMenuOpen = false;
+  }
+
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
   }
 }

@@ -1,26 +1,74 @@
 <nav class="nav" [class.scrolled]="isScrolled">
   <div class="nav-inner">
 
-    <!-- Logo -->
-    <a class="nav-logo" routerLink="/">
-      LUXE<span class="dot">·</span>ESTATES
+    <!-- ══════════════════════════════════════════════════
+         LOGO — Upgraded Luxury Design
+         LUXE (Serif, Cormorant) + Gold Diamond Mark + ESTATES (thin sans)
+         ══════════════════════════════════════════════════ -->
+    <a class="nav-logo" routerLink="/" id="nav-logo" data-cursor-hover>
+      <!-- Minimal architectural diamond mark -->
+      <svg class="logo-icon" viewBox="0 0 20 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M10 1 L19 7 L19 17 L10 23 L1 17 L1 7 Z" stroke="currentColor" stroke-width="0.8" fill="none" opacity="0.6"/>
+        <path d="M10 5 L15.5 8.5 L15.5 15.5 L10 19 L4.5 15.5 L4.5 8.5 Z" stroke="currentColor" stroke-width="0.5" fill="none" opacity="0.4"/>
+        <circle cx="10" cy="12" r="1.2" fill="currentColor" opacity="0.9"/>
+      </svg>
+      <span class="logo-mark">LUXE</span>
+      <span class="logo-dot" aria-hidden="true">·</span>
+      <span class="logo-word">ESTATES</span>
     </a>
 
-    <!-- Desktop Links -->
-    <ul class="nav-links">
-      <li><a routerLink="/properties" routerLinkActive="active">Properties</a></li>
-      <li><a routerLink="/auctions"   routerLinkActive="active">Auctions</a></li>
-      <li><a routerLink="/" fragment="explore">Explore</a></li>
-      <li><a routerLink="/agents"     routerLinkActive="active">Agents</a></li>
+    <!-- ══════════════════════════════════════════════════
+         DESKTOP NAV LINKS
+         ══════════════════════════════════════════════════ -->
+    <ul class="nav-links" role="list">
+      <li><a routerLink="/properties" routerLinkActive="active" id="nav-link-properties">Properties</a></li>
+      <li><a routerLink="/auctions"   routerLinkActive="active" id="nav-link-auctions">Auctions</a></li>
+      <li><a routerLink="/" fragment="explore"                  id="nav-link-explore">Explore</a></li>
+      <li><a routerLink="/agents"     routerLinkActive="active" id="nav-link-agents">Agents</a></li>
     </ul>
 
-    <!-- Desktop Actions -->
+    <!-- ══════════════════════════════════════════════════
+         DESKTOP ACTIONS
+         Order: Theme Toggle | Sign In | Profile | CTA Button
+         ══════════════════════════════════════════════════ -->
     <div class="nav-actions">
+
+      <!-- Theme Toggle — leftmost of action group -->
+      <button
+        id="btn-theme-toggle"
+        type="button"
+        class="btn-theme-toggle"
+        (click)="toggleTheme()"
+        [attr.aria-label]="(theme$ | async) === 'light' ? 'Switch to dark mode' : 'Switch to light mode'"
+        [attr.title]="(theme$ | async) === 'light' ? 'Switch to dark mode' : 'Switch to light mode'"
+        data-cursor-hover>
+        <span class="theme-icon" aria-hidden="true">
+          <svg *ngIf="(theme$ | async) === 'dark'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+          <svg *ngIf="(theme$ | async) === 'light'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16">
+            <circle cx="12" cy="12" r="5"/>
+            <line x1="12" y1="1" x2="12" y2="3"/>
+            <line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/>
+            <line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+        </span>
+      </button>
+
+      <!-- Guest: Sign In button -->
+      <ng-template #guestTemplate>
+        <button id="btn-sign-in" class="btn-signin" (click)="openLogin()" data-cursor-hover>Sign In</button>
+      </ng-template>
 
       <!-- Logged-in: user profile + dropdown -->
       <ng-container *ngIf="auth.currentUser$ | async as user; else guestTemplate">
         <div class="user-profile-wrapper">
-          <div class="user-info" (click)="toggleDropdown()">
+          <div class="user-info" (click)="toggleDropdown()" data-cursor-hover>
             <ng-container *ngIf="user.photo; else textAvatar">
               <img [src]="user.photo" alt="Avatar" class="user-avatar user-avatar-img">
             </ng-container>
@@ -28,39 +76,32 @@
               <div class="user-avatar">{{ user.name[0] | uppercase }}</div>
             </ng-template>
             <span class="user-name">{{ user.name }}</span>
-            <span class="chevron" [class.open]="showDropdown">▾</span>
+            <span class="chevron" [class.open]="showDropdown" aria-hidden="true">▾</span>
           </div>
 
-          <div class="user-dropdown" *ngIf="showDropdown">
-            <!-- Profile: Visible to everyone -->
-            <a class="dropdown-item" routerLink="/account"  (click)="showDropdown = false">My Account</a>
-            
-            <!-- User Dashboard: Visible to non-admins only -->
-            <a class="dropdown-item" *ngIf="user.role !== 'admin'" routerLink="/dashboard/overview" (click)="showDropdown = false">My Dashboard</a>
-            
-            <!-- Admin Dashboard: Visible to admins only -->
-            <a class="dropdown-item" *ngIf="user.role === 'admin'" routerLink="/admin" (click)="showDropdown = false">Admin Control Panel</a>
-            
-            <div class="dropdown-divider"></div>
-            <button class="dropdown-item logout-btn" (click)="onLogout()">Sign Out</button>
+          <div class="user-dropdown" *ngIf="showDropdown" role="menu">
+            <a class="dropdown-item" routerLink="/account" (click)="showDropdown = false" role="menuitem">My Account</a>
+            <a class="dropdown-item" *ngIf="user.role !== 'admin'" routerLink="/dashboard/overview" (click)="showDropdown = false" role="menuitem">My Dashboard</a>
+            <a class="dropdown-item" *ngIf="user.role === 'admin'" routerLink="/admin" (click)="showDropdown = false" role="menuitem">Admin Control Panel</a>
+            <div class="dropdown-divider" role="separator"></div>
+            <button class="dropdown-item logout-btn" (click)="onLogout()" role="menuitem">Sign Out</button>
           </div>
         </div>
       </ng-container>
 
-      <!-- Guest: sign in button -->
-      <ng-template #guestTemplate>
-        <button class="btn-signin" (click)="openLogin()">Sign In</button>
-      </ng-template>
+      <!-- List Property CTA — always visible on desktop -->
+      <button id="btn-list-property" class="btn-list" (click)="onListPropertyClick()" data-cursor-hover>
+        List Property
+      </button>
 
-      <!-- List Property — always visible on desktop -->
-      <button class="btn-list" (click)="onListPropertyClick()">List Property</button>
-
-      <!-- Hamburger — visible on mobile only (CSS handles display) -->
+      <!-- Hamburger — mobile only (CSS handles display) -->
       <button
+        id="btn-hamburger"
         class="hamburger"
         [class.open]="isMobileMenuOpen"
         (click)="toggleMobileMenu()"
-        aria-label="Toggle navigation">
+        aria-label="Toggle navigation menu"
+        [attr.aria-expanded]="isMobileMenuOpen">
         <span class="bar"></span>
         <span class="bar"></span>
         <span class="bar"></span>
@@ -69,9 +110,11 @@
     </div>
   </div>
 
-  <!-- Mobile Menu Overlay -->
-  <div class="mobile-menu" [class.open]="isMobileMenuOpen">
-    <ul class="mobile-nav-links">
+  <!-- ══════════════════════════════════════════════════
+       MOBILE MENU OVERLAY
+       ══════════════════════════════════════════════════ -->
+  <div class="mobile-menu" [class.open]="isMobileMenuOpen" role="dialog" aria-label="Navigation menu">
+    <ul class="mobile-nav-links" role="list">
       <li><a routerLink="/properties" routerLinkActive="active" (click)="closeMobileMenu()">Properties</a></li>
       <li><a routerLink="/auctions"   routerLinkActive="active" (click)="closeMobileMenu()">Auctions</a></li>
       <li><a routerLink="/" fragment="explore"                  (click)="closeMobileMenu()">Explore</a></li>
@@ -79,6 +122,15 @@
     </ul>
 
     <div class="mobile-nav-actions">
+      <!-- Mobile theme toggle -->
+      <button
+        type="button"
+        class="btn-theme-toggle btn-theme-toggle--mobile"
+        (click)="toggleTheme()"
+        [attr.aria-label]="(theme$ | async) === 'light' ? 'Switch to dark mode' : 'Switch to light mode'">
+        {{ (theme$ | async) === 'light' ? '☀ Light Mode' : '🌙 Dark Mode' }}
+      </button>
+
       <!-- Logged-in on mobile -->
       <ng-container *ngIf="auth.currentUser$ | async as user">
         <button class="btn-signin" (click)="onLogout(); closeMobileMenu()">

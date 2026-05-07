@@ -39,12 +39,14 @@ function fadeInUp(triggerName: string, delayMs: number) {
   templateUrl: './hero.component.html',
   styleUrls: ['./hero.component.scss'],
   animations: [
-    fadeInUp('eyebrow',   200),
-    fadeInUp('headline1', 400),
-    fadeInUp('headline2', 600),
-    fadeInUp('subText',   800),
-    fadeInUp('buttons',  1000),
-    fadeInUp('stats',    1200),
+    fadeInUp('eyebrow',    200),
+    fadeInUp('headline1',  400),
+    fadeInUp('headline2',  600),
+    fadeInUp('subText',    800),
+    fadeInUp('buttons',   1000),
+    fadeInUp('stats',     1200),
+    // Hero image panel: slightly longer delay for staggered entrance feel
+    fadeInUp('heroImage',  500),
   ],
 })
 export class HeroComponent implements OnInit, OnDestroy, AfterViewInit {
@@ -97,15 +99,28 @@ export class HeroComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onExplore(payload: SearchPayload): void {
-    // Remove empty/null values
     const queryParams: any = {};
     Object.entries(payload).forEach(([key, value]) => {
       if (value !== '' && value !== null && value !== undefined) {
         queryParams[key] = value;
       }
     });
-
     this.router.navigate(['/properties'], { queryParams });
+  }
+
+  scrollToProperties(): void {
+    const el = document.getElementById('properties');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      this.router.navigate(['/properties']);
+    }
+  }
+
+  /** Graceful fallback if the Unsplash image fails to load */
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none'; // CSS fallback gradient shows through
   }
 
   private startCounters(): void {
@@ -138,14 +153,5 @@ export class HeroComponent implements OnInit, OnDestroy, AfterViewInit {
         current = Math.min(current + increment, to);
         setter(current);
       });
-  }
-
-  scrollToProperties(): void {
-    const el = document.getElementById('properties');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      this.router.navigate(['/properties']);
-    }
   }
 }

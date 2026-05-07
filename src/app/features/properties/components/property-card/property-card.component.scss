@@ -16,10 +16,9 @@
   position: relative;
   overflow: hidden;
   aspect-ratio: 3 / 4;
-  background: var(--obsidian-3);
-  // cursor: none — handled globally by styles.scss
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-soft);
 
-  // ── First card — spans 2 columns at 16:9 (Template line 425–428) ─────────
   &--first {
     grid-column: span 2;
     aspect-ratio: 16 / 9;
@@ -34,23 +33,22 @@
   height: 100%;
   object-fit: cover;
   transition: transform 0.8s var(--transition), filter 0.8s var(--transition);
-  filter: brightness(0.7);        // template line 433
+  filter: brightness(0.75);
 
   .property-card:hover & {
-    transform: scale(1.08);       // template line 436
-    filter: brightness(0.5);     // template line 437
+    transform: scale(1.08);
+    filter: brightness(0.65);
   }
 }
 
-// Placeholder — shown when image is missing or errored
 .property-img-placeholder {
   width: 100%;
   height: 100%;
-  background: var(--obsidian-3);
+  background: var(--bg-elevated);
   transition: filter 0.8s var(--transition);
 
   .property-card:hover & {
-    filter: brightness(0.7);
+    filter: brightness(0.85);
   }
 }
 
@@ -62,8 +60,8 @@
   inset: 0;
   background: linear-gradient(
     to top,
-    rgba(10, 10, 15, 0.95) 0%,
-    rgba(10, 10, 15, 0.3) 50%,
+    var(--overlay-color) 0%,
+    rgba(var(--text-main-rgb), 0.12) 45%,
     transparent 100%
   );
   display: flex;
@@ -80,15 +78,14 @@
   top: 24px;
   inset-inline-start: 24px;      // RTL-safe — template uses left: 24px
   padding: 6px 16px;
-  background: var(--gold);       // default = for-sale (gold)
-  color: var(--obsidian);
+  background: var(--brand-gold);
+  color: var(--bg-base);
   font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 2px;
   text-transform: uppercase;
   font-weight: 700;
 
-  // For Rent variant — Template line 456
   &.rent {
     background: var(--sapphire);
     color: var(--white);
@@ -104,26 +101,24 @@
   inset-inline-end: 24px;
   width: 40px;
   height: 40px;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--surface-glass);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--border-color);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  // cursor: none — handled globally by styles.scss
-  transition: background 0.3s var(--transition), border-color 0.3s var(--transition), color 0.3s;
+  transition: background 0.3s var(--transition), border-color 0.3s var(--transition), color 0.3s var(--transition);
   font-size: 16px;
-  color: var(--white);
+  color: var(--text-main);
 
-  // Hover state — Template line 470
   &:hover {
-    background: rgba(201, 169, 110, 0.3);
-    border-color: var(--gold);
+    background: var(--brand-gold-soft);
+    border-color: var(--brand-gold);
+    color: var(--bg-base);
   }
 
-  // Active / favorited state — ♥ red
   &--active {
     color: var(--crimson);
     border-color: var(--crimson);
@@ -138,7 +133,7 @@
   font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 2px;
-  color: var(--gold);
+  color: var(--brand-gold);
   text-transform: uppercase;
   margin-bottom: 8px;
 }
@@ -150,7 +145,7 @@
   font-family: var(--font-display);
   font-size: clamp(20px, 2.5vw, 32px);
   font-weight: 400;
-  color: var(--white);
+  color: var(--text-main);
   line-height: 1.2;
   margin-bottom: 16px;
 }
@@ -162,7 +157,7 @@
   font-family: var(--font-display);
   font-size: clamp(22px, 2.5vw, 36px);
   font-weight: 600;
-  color: var(--gold);
+  color: var(--brand-gold);
   margin-bottom: 16px;
 }
 
@@ -173,13 +168,13 @@
   display: flex;
   gap: 20px;
   padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(var(--text-main-rgb), 0.08);
 }
 
 .property-feature {
   font-family: var(--font-mono);
   font-size: 10px;
-  color: var(--mist);
+  color: var(--text-muted);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -205,41 +200,35 @@
 
 .property-action-btn {
   padding: 12px 24px;
-  background: var(--gold);
-  color: var(--obsidian);
+  background: var(--brand-gold);
+  color: var(--bg-base);
   font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 2px;
   text-transform: uppercase;
   font-weight: 700;
   border: none;
-  // cursor: none — handled globally by styles.scss
-  transition: transform 0.3s var(--transition-bounce);
+  transition: transform 0.3s var(--transition-bounce), background 0.3s var(--transition), color 0.3s var(--transition);
 
   &:hover {
     transform: scale(1.05);
   }
 
-  // Outline variant — Template line 527–531
   &--outline {
     background: transparent;
-    color: var(--white);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
   }
 }
 
-// Feature icon text labels — replaces emojis
 .feature-icon {
   font-family: var(--font-mono);
   font-size: 8px;
-  color: var(--gold);
+  color: var(--brand-gold);
   letter-spacing: 1px;
   text-transform: uppercase;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// RESPONSIVE — Template lines 1337–1338, 1355–1356
-// ─────────────────────────────────────────────────────────────────────────────
 @media (max-width: 1024px) {
   .property-card--first {
     grid-column: span 2;

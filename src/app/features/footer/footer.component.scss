@@ -14,9 +14,9 @@
 // Reference: background var(--obsidian), padding 80px 60px 40px,
 //            border-top 1px solid rgba(gold, 0.1)
 .site-footer {
-  background: var(--obsidian);
+  background: var(--bg-base);             // SEMANTIC — obsidian in dark, pearl in light
   padding: 80px 60px 40px;
-  border-top: 1px solid rgba(201, 169, 110, 0.1); // gold 10% — matches reference
+  border-top: 1px solid var(--border-color); // SEMANTIC gold-tinted border
 
   @media (max-width: $bp-desktop) {
     padding: 60px 30px 30px;
@@ -153,7 +153,7 @@
 // Reference: .footer-bottom (lines 981–991)
 .footer-bottom {
   padding-top: 40px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05); // very subtle — reference line 983
+  border-top: 1px solid var(--border-color); // SEMANTIC
   display: flex;
   justify-content: space-between;
   align-items: center;

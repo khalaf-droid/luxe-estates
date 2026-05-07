@@ -1,6 +1,7 @@
 @import 'styles/variables';
 @import 'styles/animations';
 
+// ── Reset ────────────────────────────────────────────────────
 * {
   box-sizing: border-box;
   margin: 0;
@@ -9,34 +10,80 @@
 
 html {
   scroll-behavior: smooth;
+  color-scheme: dark light;
 }
 
+// ── Base Body ────────────────────────────────────────────────
 body {
   font-family: var(--font-body);
-  background: var(--obsidian);
-  color: var(--white);
-  cursor: none; /* Custom cursor */
+  background: var(--bg-base);
+  color: var(--text-main);
+  cursor: none;
   overflow-x: hidden;
   line-height: 1.7;
+  // Targeted transition — NO global * rule
+  background-color: var(--bg-base);
+  transition:
+    background-color 0.3s var(--transition),
+    color 0.3s var(--transition);
 
   @media (hover: none) {
     cursor: auto;
   }
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 4px;
+// ── Noise Texture Overlay ────────────────────────────────────
+// opacity is driven by --noise-opacity:
+//   dark mode → 0.018 | light mode → 0.025
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: var(--z-noise);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: var(--noise-opacity);
 }
-::-webkit-scrollbar-track {
-  background: var(--obsidian);
+
+// ── Targeted Theme Transitions ───────────────────────────────
+// Only specific interactive elements get transitions — no * rule.
+// Covers: background-color, color, border-color, box-shadow
+button,
+input,
+select,
+textarea,
+.nav,
+.nav-logo,
+.nav-links a,
+.btn-theme-toggle,
+.btn-signin,
+.btn-list,
+.btn-primary,
+.btn-secondary,
+.property-card,
+.property-favorite,
+.property-action-btn,
+.search-card,
+.chip,
+.field-input,
+.user-dropdown,
+.dropdown-item {
+  transition:
+    background-color 0.25s var(--transition),
+    color 0.25s var(--transition),
+    border-color 0.25s var(--transition),
+    box-shadow 0.25s var(--transition);
 }
+
+// ── Custom Scrollbar ─────────────────────────────────────────
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
 ::-webkit-scrollbar-thumb {
-  background: var(--gold-dark);
+  background: var(--brand-gold-dark);
   border-radius: 2px;
 }
 
-/* Force cursor: none on interactive elements (desktop only) */
+// ── Cursor: none on interactive elements (desktop only) ──────
 @media (hover: hover) {
   a,
   button,
@@ -48,10 +95,11 @@ body {
   }
 }
 
-/* Typography base */
+// ── Typography Base ──────────────────────────────────────────
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
   line-height: 1.1;
+  color: var(--text-main);
 }
 
 a {
@@ -64,9 +112,42 @@ img {
   display: block;
 }
 
-/* Utility classes */
-.text-gold { color: var(--gold); }
-.text-mist { color: var(--mist); }
-.text-white { color: var(--white); }
-.font-mono { font-family: var(--font-mono); }
+// ── Hero BG — Light Mode Override ───────────────────────────
+// In dark mode, hero-bg uses dark gradient (defined in component).
+// In light mode, we flip it to a warm marble/pearl tone.
+[data-theme='light'] {
+  .hero-bg {
+    background: linear-gradient(
+      135deg,
+      var(--hero-gradient-start)  0%,
+      var(--hero-gradient-mid)   40%,
+      var(--hero-gradient-end)  100%
+    ) !important;
+  }
+
+  // Ensure hero stat numbers are readable on light bg
+  .stat-number,
+  .hero-stat-number {
+    color: var(--text-main);
+  }
+
+  // Ensure property overlay gradient adapts to text readability
+  .property-overlay {
+    background: linear-gradient(
+      to top,
+      rgba(var(--text-main-rgb), 0.92) 0%,
+      rgba(var(--text-main-rgb), 0.25) 50%,
+      transparent 100%
+    );
+  }
+}
+
+// ── Utility Classes ──────────────────────────────────────────
+.text-gold    { color: var(--brand-gold); }
+.text-muted   { color: var(--text-muted); }
+.text-main    { color: var(--text-main); }
+// Legacy aliases
+.text-mist    { color: var(--text-muted); }
+.text-white   { color: var(--text-main); }
+.font-mono    { font-family: var(--font-mono); }
 .font-display { font-family: var(--font-display); }

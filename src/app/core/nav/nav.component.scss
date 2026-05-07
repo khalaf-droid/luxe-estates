@@ -1,22 +1,37 @@
+// ============================================================
+// LUXE ESTATES — Navbar Component
+// Fully semantic — NO hardcoded hex colors
+// All colors via var(--token) only
+// ============================================================
+
 :host {
   display: block;
 }
 
+// ── Nav Shell ────────────────────────────────────────────────
 .nav {
   position: fixed;
   top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  padding: 20px 40px;
-  transition: all 0.4s ease;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
+  z-index: var(--z-nav);
+  padding: 18px var(--space-2xl);
+  // Only transition layout-safe properties
+  transition:
+    background-color 0.35s var(--transition),
+    border-color 0.35s var(--transition),
+    padding 0.35s var(--transition),
+    box-shadow 0.35s var(--transition);
+  border-bottom: 1px solid transparent;
 
   &.scrolled {
-    background: rgba(10, 10, 15, 0.85);
+    background-color: var(--surface-glass);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(201, 169, 110, 0.2);
-    padding: 14px 40px;
+    border-bottom-color: var(--border-color);
+    padding-top: 12px;
+    padding-bottom: 12px;
+    box-shadow: var(--shadow-pop);
   }
 }
 
@@ -24,33 +39,76 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 1400px;
-  margin: 0 auto;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  gap: var(--space-xl);
 }
 
+// ── Logo ─────────────────────────────────────────────────────
+// Upgraded: SVG icon + LUXE (Cormorant serif) + · + ESTATES (thin DM Sans)
 .nav-logo {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: 3px;
-  color: var(--white);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   text-decoration: none;
-  text-transform: uppercase;
-
-  .dot { color: var(--gold); }
+  flex-shrink: 0;
+  transition:
+    color 0.3s var(--transition),
+    opacity 0.3s var(--transition);
 
   &:hover {
-    color: var(--gold);
-    transition: color 0.3s ease;
+    opacity: 0.85;
+    .logo-mark { color: var(--brand-gold); }
+    .logo-icon  { color: var(--brand-gold); opacity: 1; }
   }
 }
 
+.logo-icon {
+  color: var(--brand-gold);
+  opacity: 0.7;
+  width: 18px;
+  height: 22px;
+  flex-shrink: 0;
+  transition: color 0.3s var(--transition), opacity 0.3s var(--transition);
+}
+
+.logo-mark {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  color: var(--text-main);
+  line-height: 1;
+  transition: color 0.3s var(--transition);
+}
+
+.logo-dot {
+  color: var(--brand-gold);
+  font-size: 22px;
+  line-height: 1;
+  opacity: 0.8;
+}
+
+.logo-word {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  line-height: 1;
+  transition: color 0.3s var(--transition);
+}
+
+// ── Desktop Nav Links ────────────────────────────────────────
 .nav-links {
   display: flex;
   gap: 36px;
   list-style: none;
   margin: 0;
   padding: 0;
+  flex: 1;
+  justify-content: center;
 
   a {
     font-family: var(--font-body);
@@ -58,37 +116,103 @@
     font-weight: 500;
     letter-spacing: 2px;
     text-transform: uppercase;
-    color: var(--mist);
+    color: var(--text-muted);
     text-decoration: none;
     position: relative;
-    transition: color 0.3s ease;
+    transition:
+      color 0.3s var(--transition);
 
+    // Underline scaleX reveal from left (RTL-safe via inset-inline-start)
     &::after {
       content: '';
       position: absolute;
+      inset-inline-start: 0;
       bottom: -4px;
-      left: 0;
-      width: 0;
+      width: 100%;
       height: 1px;
-      background: var(--gold);
-      transition: width 0.3s ease;
+      background: var(--brand-gold);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s var(--transition);
     }
 
     &:hover,
     &.active {
-      color: var(--white);
-      &::after { width: 100%; }
+      color: var(--text-main);
+
+      &::after { transform: scaleX(1); }
     }
   }
 }
 
+// ── Nav Actions Group ────────────────────────────────────────
+// Order: Theme Toggle | Sign In | Profile | CTA Button
 .nav-actions {
   display: flex;
-  gap: 15px;
+  gap: 12px;
   align-items: center;
+  flex-shrink: 0;
 }
 
-// ── User Profile & Dropdown (إسلام) ──────────────────────────────────────────
+// ── Theme Toggle Button ──────────────────────────────────────
+.btn-theme-toggle {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  // Transition only safe CSS properties
+  transition:
+    transform 0.4s var(--transition),
+    background-color 0.3s var(--transition),
+    border-color 0.3s var(--transition),
+    color 0.3s var(--transition);
+
+  .theme-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  svg {
+    display: block;
+    stroke: currentColor;
+  }
+
+  &:hover {
+    transform: rotate(20deg) scale(1.1);
+    border-color: var(--brand-gold);
+    color: var(--brand-gold);
+    background-color: var(--brand-gold-soft);
+  }
+}
+
+// Mobile theme toggle variant — text label instead of icon
+.btn-theme-toggle--mobile {
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 14px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-muted);
+
+  &:hover {
+    transform: none;
+    color: var(--brand-gold);
+    border-color: var(--brand-gold);
+  }
+}
+
+// ── User Profile & Dropdown ──────────────────────────────────
 .user-profile-wrapper {
   position: relative;
 }
@@ -96,15 +220,22 @@
 .user-info {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   cursor: pointer;
-  padding: 5px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  transition: background-color 0.2s var(--transition);
+
+  &:hover {
+    background-color: var(--brand-gold-soft);
+    .user-name { color: var(--brand-gold); }
+  }
 
   .user-avatar {
-    width: 30px;
-    height: 30px;
-    background: var(--gold);
-    color: var(--obsidian);
+    width: 32px;
+    height: 32px;
+    background: var(--brand-gold);
+    color: var(--bg-base);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -112,14 +243,16 @@
     font-weight: 700;
     font-size: 12px;
     font-family: var(--font-body);
+    flex-shrink: 0;
   }
 
   .user-avatar-img {
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     object-fit: cover;
-    border: 1px solid var(--gold);
+    border: 1.5px solid var(--brand-gold);
+    flex-shrink: 0;
   }
 
   .user-name {
@@ -127,116 +260,135 @@
     font-size: 11px;
     letter-spacing: 1px;
     text-transform: uppercase;
-    color: var(--white);
-    transition: color 0.3s;
+    color: var(--text-main);
+    transition: color 0.3s var(--transition);
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .chevron {
-    color: var(--gold);
-    font-size: 12px;
-    transition: transform 0.3s;
+    color: var(--brand-gold);
+    font-size: 11px;
+    transition: transform 0.3s var(--transition);
+    flex-shrink: 0;
+
     &.open { transform: rotate(180deg); }
   }
-
-  &:hover .user-name { color: var(--gold); }
 }
 
 .user-dropdown {
   position: absolute;
-  top: calc(100% + 15px);
-  right: 0;
-  background: var(--obsidian-2);
-  border: 1px solid rgba(201, 169, 110, 0.2);
-  min-width: 190px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-  animation: fadeInDropdown 0.3s ease;
+  top: calc(100% + 12px);
+  inset-inline-end: 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  min-width: 200px;
+  box-shadow: var(--shadow-pop);
+  animation: fadeInDropdown 0.25s var(--transition);
+  z-index: 10;
 
   .dropdown-item {
     display: block;
     width: 100%;
     padding: 14px 20px;
-    color: rgba(250, 250, 248, 0.7);
+    color: var(--text-muted);
     font-family: var(--font-body);
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 1px;
-    text-align: left;
+    text-align: start;        // RTL-safe
     background: transparent;
     border: none;
     cursor: pointer;
     text-decoration: none;
-    transition: all 0.2s;
+    transition:
+      background-color 0.2s var(--transition),
+      color 0.2s var(--transition);
 
     &:hover {
-      background: rgba(201, 169, 110, 0.08);
-      color: var(--gold);
+      background-color: var(--brand-gold-soft);
+      color: var(--brand-gold);
     }
   }
 
   .dropdown-divider {
     height: 1px;
-    background: rgba(201, 169, 110, 0.1);
+    background: var(--border-color);
     margin: 4px 0;
   }
 
   .logout-btn {
     color: var(--crimson);
+
     &:hover {
-      background: var(--crimson);
-      color: var(--white);
+      background-color: var(--crimson);
+      color: var(--bg-surface);
     }
   }
 }
 
 @keyframes fadeInDropdown {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-// ── Buttons ───────────────────────────────────────────────────────────────────
+// ── Buttons ───────────────────────────────────────────────────
 .btn-signin {
-  font-family: var(--font-body);
-  font-size: 11px;
-  font-weight: 500;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: rgba(250, 250, 248, 0.7);
+  color: var(--text-main);          // Adapts: white (dark) / near-black (light)
   background: transparent;
-  border: 1px solid rgba(250, 250, 248, 0.2);
-  padding: 9px 22px;
+  border: 1px solid var(--border-color);
+  padding: 10px 22px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  white-space: nowrap;
+  transition:
+    color 0.3s var(--transition),
+    border-color 0.3s var(--transition),
+    background-color 0.3s var(--transition);
 
   &:hover {
-    color: var(--white);
-    border-color: rgba(250, 250, 248, 0.5);
+    color: var(--brand-gold);
+    border-color: var(--brand-gold);
+    background-color: var(--brand-gold-soft);
   }
 }
 
 .btn-list {
-  font-family: var(--font-body);
-  font-size: 11px;
-  font-weight: 500;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--obsidian);
-  background: var(--gold);
-  border: 1px solid var(--gold);
-  padding: 9px 22px;
+  color: var(--bg-base);            // Deep dark on gold — always readable
+  background: var(--brand-gold);
+  border: 1px solid var(--brand-gold);
+  padding: 10px 22px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  white-space: nowrap;
+  transition:
+    background-color 0.3s var(--transition),
+    border-color 0.3s var(--transition),
+    color 0.3s var(--transition),
+    box-shadow 0.3s var(--transition);
 
   &:hover {
-    background: var(--gold-light);
-    border-color: var(--gold-light);
+    background-color: var(--brand-gold-light);
+    border-color: var(--brand-gold-light);
+    box-shadow: var(--shadow-gold);
   }
 }
 
-// ── Hamburger (hidden on desktop) ─────────────────────────────────────────────
+// ── Hamburger (hidden on desktop) ────────────────────────────
 .hamburger {
   display: none;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -244,40 +396,46 @@
   z-index: 1001;
 
   .bar {
-    width: 24px;
-    height: 2px;
-    background: var(--white);
-    transition: all 0.3s ease;
+    width: 22px;
+    height: 1.5px;
+    background: var(--text-main);
+    transition:
+      transform 0.3s var(--transition),
+      opacity 0.3s var(--transition),
+      background-color 0.3s var(--transition);
     transform-origin: left center;
   }
 
   &.open {
-    .bar:nth-child(1) { transform: rotate(45deg); }
-    .bar:nth-child(2) { opacity: 0; }
-    .bar:nth-child(3) { transform: rotate(-45deg); }
+    .bar:nth-child(1) { transform: rotate(45deg) translateY(-0.5px); }
+    .bar:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .bar:nth-child(3) { transform: rotate(-45deg) translateY(0.5px); }
   }
 }
 
-// ── Mobile Menu Overlay ───────────────────────────────────────────────────────
+// ── Mobile Menu Overlay ───────────────────────────────────────
 .mobile-menu {
   position: fixed;
   top: 0;
-  left: 0;
+  inset-inline-start: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(10, 10, 15, 0.95);
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
+  background: var(--surface-glass);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border-inline-end: none;
   z-index: 999;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 60px;
+  gap: 50px;
   opacity: 0;
-  transform: translateY(-10px);
+  transform: translateY(-12px);
   pointer-events: none;
-  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
   &.open {
     opacity: 1;
@@ -292,49 +450,59 @@
     text-align: center;
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    gap: 28px;
 
     a {
-      font-family: var(--font-body);
-      font-size: 18px;
-      font-weight: 500;
-      letter-spacing: 4px;
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 300;
+      letter-spacing: 3px;
       text-transform: uppercase;
-      color: var(--mist);
+      color: var(--text-muted);     // Semantic — adapts to theme
       text-decoration: none;
-      transition: color 0.3s ease;
+      transition: color 0.3s var(--transition);
 
       &:hover,
-      &.active { color: var(--gold); }
+      &.active {
+        color: var(--brand-gold);
+      }
     }
   }
 
   .mobile-nav-actions {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
     width: 100%;
     max-width: 280px;
 
     .btn-signin,
-    .btn-list {
+    .btn-list,
+    .btn-theme-toggle--mobile {
       width: 100%;
       text-align: center;
       padding: 14px;
-      font-size: 13px;
+      font-size: 11px;
     }
   }
 }
 
-// ── Responsive ────────────────────────────────────────────────────────────────
+// ── Responsive ────────────────────────────────────────────────
 @media (max-width: 1024px) {
   .nav {
     padding: 16px 20px;
+
     &.scrolled { padding: 12px 20px; }
   }
 
   .nav-links,
-  .btn-list { display: none; }
+  .btn-list {
+    display: none;
+  }
 
   .hamburger { display: flex; }
+}
+
+@media (max-width: 480px) {
+  .btn-signin { display: none; } // Only hamburger on very small screens
 }

@@ -1,65 +1,79 @@
 // ============================================================
 // LUXE ESTATES — Search Bar Component
-// Matches reference design search bar
+// FULLY SEMANTIC — zero hardcoded hex colors
+// All colors reference var(--token) from _variables.scss
 // ============================================================
 
+// ── Card Shell ───────────────────────────────────────────────
 .search-card {
-  background: rgba(17, 17, 24, 0.94);
-  border: 1px solid rgba(201, 169, 110, 0.2);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: var(--surface-glass);       // SEMANTIC — adapts dark/light
+  border: 1px solid var(--border-color);  // SEMANTIC
+  box-shadow: var(--shadow-soft);         // SEMANTIC
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   overflow: hidden;
+  border-radius: 28px;
+  transition:
+    background-color 0.3s var(--transition),
+    border-color 0.3s var(--transition),
+    box-shadow 0.3s var(--transition);
 }
 
-// ---- Filter Chips Row --------------------------------------
+// ── Filter Chips Row ─────────────────────────────────────────
 .chips-row {
   display: flex;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--border-color);  // SEMANTIC
+  background: rgba(var(--bg-surface-rgb), 0.06);
 }
 
 .chip {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 10px;
+  font-weight: 600;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--mist);
+  color: var(--text-muted);     // SEMANTIC — mist in dark / dark muted in light
   background: transparent;
   border: none;
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
-  padding: 14px 24px;
-  cursor: none;
+  border-inline-end: 1px solid var(--border-color);  // RTL-safe
+  padding: 16px 28px;
+  cursor: pointer;
   position: relative;
-  transition: color 0.25s ease, background 0.25s ease;
+  transition:
+    color 0.3s var(--transition),
+    background-color 0.3s var(--transition);
 
-  // Active gold underline indicator
+  // Gold underline indicator
   &::after {
     content: '';
     position: absolute;
     bottom: 0;
-    left: 0;
-    right: 0;
+    inset-inline-start: 20px;
+    inset-inline-end: 20px;
     height: 2px;
-    background: var(--gold);
+    background: var(--brand-gold);  // SEMANTIC
     transform: scaleX(0);
-    transition: transform 0.25s ease;
+    transition: transform 0.25s var(--transition);
+    transform-origin: left;
   }
 
   &:hover {
-    color: var(--white);
-    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-main);                             // SEMANTIC
+    background-color: rgba(var(--bg-surface-rgb), 0.10);
   }
 
   &.active {
-    color: var(--gold);
-    background: rgba(201, 169, 110, 0.06);
+    color: var(--text-main);                             // SEMANTIC
+    background-color: rgba(var(--bg-surface-rgb), 0.10);
 
+    // Gold underline visible + subtle glow in dark mode
     &::after { transform: scaleX(1); }
   }
 
-  &:last-child { border-right: none; }
+  &:last-child { border-inline-end: none; }
 }
 
-// ---- Fields Row --------------------------------------------
+// ── Fields Row ───────────────────────────────────────────────
 .fields-row {
   display: flex;
   align-items: stretch;
@@ -67,114 +81,149 @@
 
 .field-group {
   flex: 1;
-  padding: 18px 24px;
+  padding: 20px 24px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   min-width: 0;
 }
 
+// Field label — always gold, mono, uppercase
 .field-label {
   font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 2.5px;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--brand-gold);  // SEMANTIC — deeper gold in light mode
   display: block;
   flex-shrink: 0;
 }
 
+// Input / Select — shared styles
 .field-input {
   font-family: var(--font-body);
   font-size: 15px;
   font-weight: 400;
-  color: var(--white);
-  background: transparent;
-  border: none;
+  color: var(--text-main);    // SEMANTIC — white in dark / near-black in light
+  background: var(--bg-input); // SEMANTIC — dedicated input token
+  border: 1px solid var(--border-color); // SEMANTIC
+  border-radius: 12px;
   outline: none;
   width: 100%;
-  padding: 10px 0;
-  cursor: none;
+  padding: 12px 16px;
+  cursor: text;
   appearance: none;
   -webkit-appearance: none;
+  transition:
+    border-color 0.3s var(--transition),
+    background-color 0.3s var(--transition),
+    color 0.3s var(--transition);
 
-  &::placeholder { color: var(--mist); opacity: 0.6; }
+  &::placeholder {
+    color: var(--placeholder-color);  // SEMANTIC token: dark=#B5B5B5 | light=#4A4A4A
+    opacity: 1;
+  }
+
+  &:focus {
+    border-color: var(--brand-gold);
+    background: var(--bg-elevated);  // Slightly lighter on focus
+  }
 
   option {
-    background: var(--obsidian-2);
-    color: var(--white);
+    background: var(--bg-elevated);  // SEMANTIC
+    color: var(--text-main);         // SEMANTIC
   }
 }
 
+// Vertical divider between field groups
 .field-divider {
   width: 1px;
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--border-color);  // SEMANTIC
   flex-shrink: 0;
-  margin: 14px 0;
+  margin: 18px 0;
 }
 
-// ---- Search Button -----------------------------------------
+// ── Search Button ─────────────────────────────────────────────
+// font-mono REQUIRED — coding-rules §3.2: never use font-family on a button
+// without var(--font-mono)
 .btn-search {
-  font-family: var(--font-body);
+  font-family: var(--font-mono);   // ✅ Rule §3.2 compliant
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--obsidian);
-  background: var(--gold);
+  color: var(--bg-base);            // Deep on gold — readable in both themes
+  background: var(--brand-gold);
   border: none;
-  padding: 0 36px;
-  cursor: none;
-  display: flex;
+  padding: 18px 32px;
+  cursor: pointer;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   white-space: nowrap;
   flex-shrink: 0;
-  transition: background 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 14px;
+  align-self: center;
+  margin: 12px 20px 12px 8px;
+  transition:
+    background-color 0.3s var(--transition),
+    box-shadow 0.3s var(--transition),
+    transform 0.3s var(--transition-bounce);
 
   &:hover {
-    background: var(--gold-light);
-    box-shadow: 0 0 30px rgba(201, 169, 110, 0.3);
+    background-color: var(--brand-gold-light);
+    box-shadow: var(--shadow-gold);
+    transform: translateY(-1px);
   }
 
-  svg { flex-shrink: 0; }
+  svg {
+    flex-shrink: 0;
+    stroke: currentColor;
+  }
 }
 
-// ---- Secondary Row -----------------------------------------
+// ── Secondary Row ─────────────────────────────────────────────
 .secondary-row {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 16px;
-  padding: 12px 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 16px 24px;
+  border-top: 1px solid var(--border-color);  // SEMANTIC
 }
 
 .secondary-text {
   font-family: var(--font-body);
   font-size: 12px;
-  color: var(--mist);
-  font-weight: 300;
+  color: var(--text-muted);  // SEMANTIC
+  font-weight: 400;
 }
 
 .btn-list-prop {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--brand-gold);          // SEMANTIC
   background: transparent;
-  border: 1px solid rgba(201, 169, 110, 0.4);
-  padding: 7px 20px;
-  cursor: none;
-  transition: background 0.25s ease, border-color 0.25s ease;
+  border: 1px solid var(--border-color);  // SEMANTIC
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 10px;
+  transition:
+    background-color 0.3s var(--transition),
+    border-color 0.3s var(--transition),
+    color 0.3s var(--transition);
 
   &:hover {
-    background: rgba(201, 169, 110, 0.08);
-    border-color: var(--gold);
+    background-color: var(--brand-gold-soft);
+    border-color: var(--brand-gold);
+    color: var(--bg-base);           // Deep dark text on gold — always readable
   }
 }
 
-// ---- Responsive --------------------------------------------
+// ── Responsive ────────────────────────────────────────────────
 @media (max-width: 1024px) {
   .fields-row {
     flex-direction: column;
@@ -187,9 +236,18 @@
   }
 
   .btn-search {
+    width: calc(100% - 48px);
+    margin-inline: 24px;
+    margin-block: 16px;
     padding: 18px 24px;
     justify-content: center;
   }
 
-  .chips-row { flex-wrap: wrap; }
+  .chips-row {
+    flex-wrap: wrap;
+  }
+
+  .chip {
+    border-bottom: 1px solid var(--border-color);
+  }
 }

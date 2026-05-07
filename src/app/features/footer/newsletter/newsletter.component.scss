@@ -1,95 +1,154 @@
 // ============================================================
-// LUXE ESTATES — Newsletter Component Styles
-// Reference: Template/index.html .newsletter-section (lines 896–936)
-// Rule §5.1: @use 'variables' as * (path relative from nested component)
-// Rule §3.5: Style A inputs — underline only, no full border
+// LUXE ESTATES — Newsletter / Market Intelligence Component
+// Premium SaaS-grade financial dashboard aesthetic
+// FULLY SEMANTIC — zero hardcoded hex colors
+// Both themes: dark obsidian / luxury marble pearl
 // ============================================================
 @use 'variables' as *;
 
-// ── Section wrapper ───────────────────────────────────────────
-// Reference: .newsletter-section (lines 897–905)
-// background: var(--obsidian-3), padding 80px 60px,
-// grid 1fr 1fr gap 80px, border-top gold 0.1
-.newsletter-section {
-  background: var(--obsidian-3);
-  padding: 80px 60px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;   // reference: 1fr 1fr
-  gap: 80px;                         // reference: gap 80px
-  align-items: center;
-  border-top: 1px solid rgba(201, 169, 110, 0.1); // gold 10%
+:host { display: block; }
 
-  // ≤1024px: stack to single column (reference line 1346)
+// ── Section wrapper ───────────────────────────────────────────
+// Two-column grid: Left = editorial content | Right = form
+.newsletter-section {
+  background: var(--bg-elevated);           // SEMANTIC — adapts to theme
+  padding: 100px 60px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+  border-top: 1px solid var(--border-color);  // SEMANTIC gold-tinted
+  border-bottom: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+  transition: background-color 0.3s var(--transition);
+
+  // Subtle background orb — purely decorative
+  &::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    inset-inline-end: -100px;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--hero-orb-gold) 0%, transparent 70%);
+    filter: blur(60px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
   @media (max-width: $bp-desktop) {
     grid-template-columns: 1fr;
-    gap: 40px;
-    padding: 60px 30px;
+    gap: 48px;
+    padding: 72px 30px;
   }
 
   @media (max-width: $bp-tablet) {
-    padding: 48px 20px;
-    gap: 32px;
+    padding: 56px 20px;
+    gap: 36px;
   }
 }
 
-// ── Left column: content ──────────────────────────────────────
+// ── Left column: Editorial Content ───────────────────────────
+.newsletter-content {
+  position: relative;
+  z-index: 1;
+}
 
-// Eyebrow: font-mono, 10px, letter-spacing 4px, gold, uppercase
-// §3.1 — matches global .section-eyebrow pattern
+// Eyebrow: mono, gold, uppercase with left rule
 .newsletter-eyebrow {
-  font-family: var(--font-mono);      // ✅ §3.2 — mono for eyebrows/labels
+  font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 4px;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--brand-gold);
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 
-  // Gold rule before the eyebrow text (§3.1 ::before pattern)
   &::before {
     content: '';
     width: 30px;
     height: 1px;
-    background: var(--gold);
+    background: var(--brand-gold);
     flex-shrink: 0;
   }
 }
 
-// Title: font-display, clamp → 48px target, weight 300
-// Reference: .section-title pattern
+// Section title: display serif, weight 300, italic gold em
 .newsletter-title {
   font-family: var(--font-display);
-  font-size: clamp(28px, 3vw, 48px);  // reference: clamp(28px,3vw,48px)
+  font-size: clamp(32px, 3.5vw, 56px);
   font-weight: 300;
-  line-height: 1.05;
+  line-height: 1.0;
   letter-spacing: -1px;
-  color: var(--white);
-  margin-bottom: 20px;
+  color: var(--text-main);    // SEMANTIC — adapts to both themes
+  margin-bottom: 24px;
 
-  // em inside title → italic + gold (§1.2 signature style)
   em {
     font-style: italic;
-    color: var(--gold);
+    color: var(--brand-gold); // SEMANTIC — adapts gold depth
   }
 }
 
-// Description: font-body, 15px, mist
+// Description paragraph — premium body copy
 .newsletter-desc {
   font-family: var(--font-body);
   font-size: 15px;
-  color: var(--mist);
-  line-height: 1.7;
-  max-width: 440px;
+  color: var(--text-muted);   // SEMANTIC
+  line-height: 1.8;
+  max-width: 400px;
+  margin-bottom: 32px;
 }
 
-// ── Right column: form wrapper ────────────────────────────────
+// Market data teaser chips — decorative insight row
+.newsletter-data-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
 
+.data-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 20px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface);
+  transition:
+    border-color 0.25s var(--transition),
+    background-color 0.3s var(--transition);
+
+  &:hover {
+    border-color: var(--brand-gold);
+  }
+
+  .chip-value {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--brand-gold);
+    line-height: 1;
+  }
+
+  .chip-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+}
+
+// ── Right column: Form area ───────────────────────────────────
 .newsletter-form-wrap {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 20px;
+  position: relative;
+  z-index: 1;
 }
 
 .newsletter-form {
@@ -98,107 +157,97 @@
   gap: 0;
 }
 
-// Input + button row — gold border wrapping both
-// Reference: .newsletter-form (lines 906–909)
+// Input + button container — premium glassmorphism card
 .newsletter-input-row {
   display: flex;
   gap: 0;
-  border: 1px solid rgba(201, 169, 110, 0.2); // gold 20% wrapper
-  transition: border-color 0.3s var(--transition);
+  border: 1px solid var(--border-color);
+  background: var(--bg-input);             // SEMANTIC input bg
+  transition:
+    border-color 0.3s var(--transition),
+    background-color 0.3s var(--transition);
 
-  // Error state — red border
   &.has-error {
-    border-color: rgba(192, 57, 43, 0.5); // crimson 50%
+    border-color: var(--crimson);
+  }
+
+  // Focus-within: upgrade the container border to gold
+  &:focus-within {
+    border-color: var(--brand-gold);
+    background: var(--bg-elevated);
   }
 }
 
-// ── Email input — Style A (underline only — §3.5) ─────────────
-// Reference: .newsletter-input (lines 910–920)
-// CRITICAL: Style A = NO full border. Only bottom border internally.
-// The outer .newsletter-input-row provides the visual container border.
+// Email input — Style A: no individual border, container provides it
 .newsletter-input {
   flex: 1;
   background: transparent;
-  border: none;                        // ✅ §3.5 Style A — no side/top/bottom borders here
-  color: var(--white);
+  border: none;
+  color: var(--text-main);                  // SEMANTIC — adapts to theme
   font-family: var(--font-body);
-  font-size: 15px;
-  padding: 16px 24px;                  // reference: 16px 24px
+  font-size: 14px;
+  padding: 18px 24px;
   outline: none;
-  min-width: 0;                        // flex shrink fix
+  min-width: 0;
 
   &::placeholder {
-    color: var(--mist);               // ✅ var(--mist)
-  }
-
-  // Focus state: The parent wrapper handles visual focus ring via the input-row
-  &:focus {
-    outline: none;
+    color: var(--placeholder-color);        // SEMANTIC — dark=#B5B5B5 | light=#4A4A4A
+    opacity: 1;
   }
 }
 
-// Focus-within: when the input is focused, upgrade the container border to gold
-.newsletter-input-row:focus-within {
-  border-color: var(--gold);           // §3.5: focus → border-color var(--gold)
-}
-
-// ── Submit button ─────────────────────────────────────────────
-// Reference: .newsletter-btn (lines 922–936)
-// font-mono REQUIRED — §3.2: never use font-family on a button
-// without var(--font-mono)
+// Submit button — gold fill, font-mono (§3.2)
 .newsletter-btn {
-  padding: 16px 32px;
-  background: var(--gold);
-  color: var(--obsidian);
+  padding: 18px 32px;
+  background: var(--brand-gold);
+  color: var(--bg-base);                    // Deep dark on gold
   border: none;
-  font-family: var(--font-mono);      // ✅ §3.2
+  font-family: var(--font-mono);            // ✅ §3.2
   font-size: 10px;
   letter-spacing: 2px;
   text-transform: uppercase;
   font-weight: 700;
   white-space: nowrap;
-  cursor: none;
-  transition: opacity 0.3s var(--transition), transform 0.3s var(--transition-bounce);
+  cursor: pointer;
   flex-shrink: 0;
+  transition:
+    background-color 0.3s var(--transition),
+    transform 0.3s var(--transition-bounce);
 
   &:hover:not(:disabled) {
-    opacity: 0.85;
+    background-color: var(--brand-gold-light);
     transform: translateY(-1px);
   }
 
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+    transform: none;
   }
 }
 
-// ── Inline error message ──────────────────────────────────────
-// Task spec: font-mono, 10px, color var(--crimson)
-// Only shown when touched + invalid — via *ngIf in template
+// Inline validation error
 .newsletter-error {
-  font-family: var(--font-mono);      // ✅ §3.2 — mono for all labels/messages
+  font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 1px;
-  color: var(--crimson);              // ✅ var(--crimson)
+  color: var(--crimson);
   margin-top: 8px;
   display: flex;
   align-items: center;
   gap: 6px;
 
-  // Bullet indicator before the error text
   &::before {
     content: '✕';
     font-size: 8px;
   }
 }
 
-// ── Tagline below form ────────────────────────────────────────
-// Reference: "Join 18,000+ subscribers. Unsubscribe anytime." (line 1755)
-// Task spec: font-mono, 10px, color var(--mist)
+// Social proof tagline below form
 .newsletter-tagline {
-  font-family: var(--font-mono);      // ✅ §3.2 — mono for labels
+  font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 1px;
-  color: var(--mist);
-  margin-top: 4px;
+  color: var(--text-muted);
+  opacity: 0.7;
 }
