@@ -222,7 +222,9 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
       user.permissions = user.permissions.filter(p => p !== permission);
     }
     
-    this.adminService.updateUserPermissions(user._id, user.permissions).subscribe({
+    const permissionsToSend = Array.isArray(user.permissions) ? user.permissions : [];
+    
+    this.adminService.updateUserPermissions(user._id, permissionsToSend).subscribe({
       next: () => {
         this.notificationService.show('Permissions updated successfully', 'success');
       },

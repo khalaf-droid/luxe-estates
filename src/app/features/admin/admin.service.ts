@@ -36,7 +36,7 @@ export interface AdminUser {
   isBanned: boolean;
   isVerified: boolean;
   kycStatus: 'not_submitted' | 'pending' | 'approved' | 'rejected';
-  permissions: string[];
+  permissions?: string[];
   createdAt: string;
   photo: string | null;
   activeSubscription?: string | null;

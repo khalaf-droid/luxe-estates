@@ -3,6 +3,35 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
+interface CheckoutResponse {
+  status: string;
+  data: {
+    paymentId: string;
+    url: string;
+    amount: number;
+    platformFee: number;
+    currency: string;
+    expiresAt: string;
+    existing?: boolean;
+  };
+}
+
+interface PaymentStatusResponse {
+  status: string;
+  data: {
+    paymentId: string;
+    status: string;
+    totalAmount: number;
+    netAmount: number;
+    platformFee: number;
+    paymentMethod: string;
+    transactionId: string;
+    expiresAt: string;
+    verifiedAt: string;
+    createdAt: string;
+  };
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -11,15 +40,22 @@ export class PaymentService {
 
   constructor(private http: HttpClient) {}
 
-  checkout(bookingId: string, provider: 'paymob' | 'paypal' = 'paymob'): Observable<{ status: string; data: { checkoutUrl: string } }> {
-    return this.http.post<{ status: string; data: { checkoutUrl: string } }>(`${this.apiUrl}/checkout`, {
+  /**
+   * Create a checkout session.
+   * @param bookingId The booking ID
+   * @param provider The payment provider ('stripe' or 'paymob')
+   */
+  checkout(bookingId: string, provider: 'stripe' | 'paymob' = 'stripe'): Observable<CheckoutResponse> {
+    return this.http.post<CheckoutResponse>(`${this.apiUrl}/checkout`, {
       bookingId,
       provider
     });
   }
 
-  // Not strictly needed if frontend logic is dumb, but good to have
-  getPaymentStatus(paymentId: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${paymentId}`);
+  /**
+   * Get payment status (for polling on success page)
+   */
+  getPaymentStatus(paymentId: string): Observable<PaymentStatusResponse> {
+    return this.http.get<PaymentStatusResponse>(`${this.apiUrl}/${paymentId}`);
   }
 }
